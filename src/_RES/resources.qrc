@@ -1,0 +1,55 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>arrow_down.png</file>
+        <file>arrow_left.png</file>
+        <file>arrow_right.png</file>
+        <file>arrow_up.png</file>
+        <file>dick.png</file>
+        <file>cracked_stone.jpg</file>
+        <file>cracked_stone_inv.jpg</file>
+        <file>icon_pause.png</file>
+        <file>icon_play.png</file>
+        <file>icon_stop.png</file>
+    </qresource>
+    <qresource prefix="/styles">
+        <file>dark_style.css</file>
+    </qresource>
+    <qresource prefix="/keys">
+        <file>0_key.png</file>
+        <file>1_key.png</file>
+        <file>2_key.png</file>
+        <file>3_key.png</file>
+        <file>4_key.png</file>
+        <file>5_key.png</file>
+        <file>6_key.png</file>
+        <file>7_key.png</file>
+        <file>8_key.png</file>
+        <file>9_key.png</file>
+        <file>A_key.png</file>
+        <file>B_key.png</file>
+        <file>C_key.png</file>
+        <file>D_key.png</file>
+        <file>E_key.png</file>
+        <file>F_key.png</file>
+        <file>G_key.png</file>
+        <file>H_key.png</file>
+        <file>I_key.png</file>
+        <file>J_key.png</file>
+        <file>K_key.png</file>
+        <file>L_key.png</file>
+        <file>M_key.png</file>
+        <file>N_key.png</file>
+        <file>O_key.png</file>
+        <file>P_key.png</file>
+        <file>Q_key.png</file>
+        <file>R_key.png</file>
+        <file>S_key.png</file>
+        <file>T_key.png</file>
+        <file>U_key.png</file>
+        <file>V_key.png</file>
+        <file>W_key.png</file>
+        <file>X_key.png</file>
+        <file>Y_key.png</file>
+        <file>Z_key.png</file>
+    </qresource>
+</RCC>

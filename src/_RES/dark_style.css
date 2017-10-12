@@ -1,0 +1,179 @@
+QMainWindow {
+   background-color: #373738;
+}
+
+QStatusBar {
+    background-color: #373738;
+}
+
+QDialog {
+   background-color: #373738;
+   color: white;
+}
+
+QWidget:disabled {
+    color: rgba(255, 255, 255, 100);
+}
+
+QWidget#PlaylistSettingsWidget {
+    background-color: #373738;
+    color: white;
+}
+
+QWidget#WebHost {
+    background-color: #373738;
+    color: white;
+}
+
+QPushButton {
+    background-color: #545556;
+    color: white;
+}
+
+QPushButton:hover {
+    background-color: rgba(50, 152, 253, 80);
+    color: white;
+}
+
+QMenuBar {
+   background-color: #545556;
+}
+
+QMenuBar::item {
+   background: transparent;
+   color: white;
+}
+
+QMenuBar::item:selected {
+   background: rgba(50, 152, 253, 80);
+}
+
+QGroupBox {
+   border: 1px solid gray;
+   background-color: #373738;
+   color: white;
+   margin-top: 10px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+}
+
+QCheckBox {
+    border: none;
+    color: white;
+}
+
+QRadioButton {
+    border: none;
+    color: white;
+}
+
+QLabel {
+    color: white;
+}
+
+QLabel:disabled {
+    color: rgba(255, 255, 255, 100);
+}
+
+QTreeView {
+   background-color: #545556;
+   color: white;
+   margin-bottom: 5px;
+}
+
+QTreeView::item {
+   margin: 3px;
+}
+
+QHeaderView::section {
+   background-color: #373738;
+   color: white;
+   border: none;
+   padding: 5px;
+}
+
+QListView {
+   background-color: #545556;
+   color: white;
+   margin-top: 5px;
+}
+
+QListView::item {
+   margin: 3px;
+}
+
+QGraphicsView {
+   background-color: #545556;
+}
+
+QGraphicsView:focus {
+   background-color: #545556;
+   border: 3px solid rgba(50, 152, 253, 80);
+}
+
+QSplitter::handle {
+   height: 5px;
+   background-color: #373738;
+}
+
+QScrollBar::vertical {
+   border-left: 1px solid #373738;
+   background: #545556;
+   width: 20px;
+   margin: 0 0 0 0;
+}
+
+QScrollBar::handle:vertical {
+   background: #373738;
+   border-left: 4px solid #545556;
+   border-right: 3px solid #545556;
+   min-height: 10px;
+}
+
+QScrollBar::horizontal {
+   border-top: 1px solid #373738;
+   background: #545556;
+   height: 20px;
+   margin: 0 0 0 0;
+}
+
+QScrollBar::handle:horizontal {
+   background: #373738;
+   border-top: 4px solid #545556;
+   border-bottom: 3px solid #545556;
+   min-width: 10px;
+}
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal, QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+   background: none;
+   border: none;
+   color: none;
+}
+
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal, QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+   background: none;
+   border: none;
+   color: none;
+}
+
+QMenu {
+    background-color: #545556;
+    color: white;
+}
+
+QMenu::item:selected {
+    background: rgba(50, 152, 253, 80);
+}
+
+QSlider::groove:disabled {
+    color: rgba(0, 0, 0, 0);
+
+}
+
+QSlider::handle:disabled {
+    background: rgba(0, 0, 0, 0);
+
+}
