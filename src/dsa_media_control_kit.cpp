@@ -26,6 +26,7 @@ DsaMediaControlKit::DsaMediaControlKit(QWidget *parent)
     , left_box_(0)
     , right_box_(0)
     , web_host_(0)
+    , image_list_(0)
     , db_handler_(0)
 {
     initDB();
@@ -191,6 +192,10 @@ void DsaMediaControlKit::initWidgets()
     center_h_splitter_->setStretchFactor(0, 0);
     center_h_splitter_->setStretchFactor(1, 10);
 
+    image_list_ = new Image::FileTable;
+    image_list_->setWindowFlags(Qt::Window);
+    image_list_->hide();
+
     connect(sound_file_importer_, SIGNAL(folderImported(QList<Resources::SoundFile> const&)),
             db_handler_, SLOT(insertSoundFilesAndCategories(QList<Resources::SoundFile> const&)));
     connect(sound_file_importer_, SIGNAL(folderImported()),
@@ -246,6 +251,9 @@ void DsaMediaControlKit::initActions()
     actions_["Run Web Host..."] = new QAction(tr("Run Web Host..."), this);
     actions_["Run Web Host..."]->setToolTip(tr("Opens a local web application to control current project."));
 
+    actions_["Run Image Viewer..."] = new QAction(tr("Run Image Viewer..."), this);
+    actions_["Run Image Viewer..."]->setToolTip(tr("Opens an image browser with capabilities to show browsed images."));
+
     connect(actions_["Import Resource Folder..."] , SIGNAL(triggered(bool)),
             sound_file_importer_, SLOT(startBrowseFolder(bool)));
     connect(actions_["Delete Database Contents..."], SIGNAL(triggered()),
@@ -256,6 +264,8 @@ void DsaMediaControlKit::initActions()
             this, SLOT(onOpenProject()));
     connect(actions_["Run Web Host..."], SIGNAL(triggered()),
             this, SLOT(onStartWebServer()));
+    connect(actions_["Run Image Viewer..."], SIGNAL(triggered()),
+            image_list_, SLOT(show()));
 }
 
 void DsaMediaControlKit::initMenu()
@@ -271,6 +281,7 @@ void DsaMediaControlKit::initMenu()
     file_menu->addAction(actions_["Delete Database Contents..."]);
     QMenu* tool_menu = main_menu_->addMenu(tr("Tools"));
     tool_menu->addAction(actions_["Run Web Host..."]);
+    tool_menu->addAction(actions_["Run Image Viewer..."]);
 
     main_menu_->addMenu(file_menu);
     main_menu_->addMenu(tool_menu);

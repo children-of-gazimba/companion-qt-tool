@@ -20,6 +20,16 @@ QWidget#PlaylistSettingsWidget {
     color: white;
 }
 
+QWidget#ImageFileTable {
+    background-color: #373738;
+    color: white;
+}
+
+QWidget#ImageView {
+    background-color: #373738;
+    color: white;
+}
+
 QWidget#WebHost {
     background-color: #373738;
     color: white;
