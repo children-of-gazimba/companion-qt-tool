@@ -63,6 +63,7 @@ void FileTable::onImageSelected(int row)
     image_view_->clear();
     image_view_->setItem(new QGraphicsPixmapItem(QPixmap(path)));
     image_view_->show();
+    image_view_->activateWindow();
 }
 
 void FileTable::initWidgets()

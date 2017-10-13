@@ -262,7 +262,7 @@ void SettingsWidget::initLayout()
     layout->addWidget(bottom_box);
     setLayout(layout);
 
-    setFixedHeight(300);
+    setFixedHeight(400);
     setFixedWidth(600);
 }
 
