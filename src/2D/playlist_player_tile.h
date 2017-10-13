@@ -27,6 +27,7 @@ public:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
     virtual void receiveExternalData(const QMimeData* data);
+    virtual void receiveWheelEvent(QWheelEvent *event);
 
     bool addMedia(const DB::SoundFileRecord& r);
     bool addMedia(int record_id);
@@ -49,6 +50,7 @@ public:
      * @brief see BC
      */
     QString const getClassName() const;
+
 public slots:
     virtual void setMedia(const QMediaContent& c);
     virtual void play();
@@ -62,6 +64,9 @@ public slots:
 
     /* adjust playing icon when the player stops playing*/
     void changedCustomPlayerActivation(bool state);
+
+signals:
+    void wheelChangedVolume(int val);
 
 protected slots:
     /** slot to open configuration */

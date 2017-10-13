@@ -84,6 +84,8 @@ private:
     */
     void resizeEvent(QResizeEvent* e);
 
+    void wheelEvent(QWheelEvent *event);
+
 signals:
     void dropAccepted();
 

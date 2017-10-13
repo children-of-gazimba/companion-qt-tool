@@ -140,6 +140,8 @@ public:
     */
     virtual void receiveExternalData(const QMimeData* data);
 
+    virtual void receiveWheelEvent(QWheelEvent *event);
+
     /**
      * Returns a QJsonObject holding all information about the tile
     */

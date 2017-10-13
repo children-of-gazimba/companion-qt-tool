@@ -93,6 +93,32 @@ void PlaylistPlayerTile::receiveExternalData(const QMimeData *data)
     }
 }
 
+
+void PlaylistPlayerTile::receiveWheelEvent(QWheelEvent *event)
+{
+    Playlist::MediaPlaylist* pl = player_->getCustomPlaylist();
+    Playlist::Settings* settings = pl->getSettings();
+
+    int volume = settings->volume;
+    if (event->delta() < 0) {
+        volume -= 3;
+        if (volume < 0) {
+            volume = 0;
+        }
+    }
+    else if(event->delta() >= 0) {
+        volume += 3;
+        if (volume > 100){
+            volume = 100;
+        }
+    }
+
+    settings->volume = volume;
+    if (pl->setSettings(settings)) {
+        emit wheelChangedVolume(volume);
+    }
+}
+
 bool PlaylistPlayerTile::addMedia(int record_id)
 {
     if(model_ == 0)
@@ -308,6 +334,9 @@ void PlaylistPlayerTile::onConfigurePlaylist()
 
     connect(playlist_settings_widget_, SIGNAL(volumeSettingsChanged(int)),
             player_, SLOT(mediaVolumeChanged(int)) );
+
+    connect(this, SIGNAL(wheelChangedVolume(int)),
+            player_, SLOT(mediaVolumeChanged(int)));
 }
 
 void PlaylistPlayerTile::onContents()

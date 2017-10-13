@@ -160,6 +160,9 @@ void Tile::receiveExternalData(const QMimeData *data)
     qDebug() << "Tile " << name_ <<" : Received Data "<< data->text();
 }
 
+void Tile::receiveWheelEvent(QWheelEvent*)
+{}
+
 const QJsonObject Tile::toJsonObject() const
 {
     QJsonObject obj;

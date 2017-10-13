@@ -13,6 +13,7 @@ View::View(QWidget *parent)
 {
     initWidgets();
     initLayout();
+    setStyleSheet("background-color: #373738; color: white;");
 }
 
 void View::setItem(QGraphicsItem* item)
