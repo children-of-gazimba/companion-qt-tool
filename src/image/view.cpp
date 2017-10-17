@@ -58,6 +58,7 @@ void View::initLayout()
 {
     QVBoxLayout* layout = new QVBoxLayout;
     layout->addWidget(view_);
+    layout->setMargin(0);
     setLayout(layout);
 }
 

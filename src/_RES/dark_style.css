@@ -161,7 +161,6 @@ QTableCornerButton::section {
 QTableView {
    background-color: #545556;
    color: white;
-   margin-top: 5px;
 }
 
 QTableView::item {

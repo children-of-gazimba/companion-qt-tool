@@ -42,7 +42,9 @@ void FileTable::onOpen()
         QString path = info.absoluteFilePath();
         QString name = info.fileName();
         model_->setData(model_->index(i,0), QVariant(name));
+        model_->setData(model_->index(i,0), QVariant("<html><div><img src=\""+path+"\" style=\"width:100%;\" height=\"200\" /></div></html>"), Qt::ToolTipRole);
         model_->setData(model_->index(i,1), QVariant(path));
+        model_->setData(model_->index(i,1), QVariant("<html><div><img src=\""+path+"\" style=\"width:100%;\" height=\"200\" /></div></html>"), Qt::ToolTipRole);
         ++i;
     }
     file_view_->resizeColumnsToContents();
@@ -68,7 +70,7 @@ void FileTable::onImageSelected(int row)
 
 void FileTable::initWidgets()
 {
-    model_ = new QStandardItemModel(0, 2);
+    model_ = new QStandardItemModel(0, 2, this);
     model_->setHeaderData(0, Qt::Horizontal, QVariant("Name"));
     model_->setHeaderData(1, Qt::Horizontal, QVariant("Path"));
 
@@ -76,6 +78,9 @@ void FileTable::initWidgets()
     file_view_->setModel(model_);
     file_view_->setEditTriggers(QAbstractItemView::NoEditTriggers);
     file_view_->setSelectionBehavior(QAbstractItemView::SelectRows);
+    file_view_->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    file_view_->verticalHeader()->hide();
+
     connect(file_view_, SIGNAL(clicked(const QModelIndex&)),
             this, SLOT(onImageSelected(const QModelIndex&)));
     connect(file_view_->verticalHeader(), SIGNAL(sectionClicked(int)),
