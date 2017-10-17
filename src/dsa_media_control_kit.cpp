@@ -27,6 +27,7 @@ DsaMediaControlKit::DsaMediaControlKit(QWidget *parent)
     , right_box_(0)
     , web_host_(0)
     , image_list_(0)
+    , left_tabwidget_(0)
     , db_handler_(0)
 {
     initDB();
@@ -192,9 +193,10 @@ void DsaMediaControlKit::initWidgets()
     center_h_splitter_->setStretchFactor(0, 0);
     center_h_splitter_->setStretchFactor(1, 10);
 
-    image_list_ = new Image::FileTable;
-    image_list_->setWindowFlags(Qt::Window);
-    image_list_->hide();
+    image_list_ = new Image::FileTable(this);
+    left_tabwidget_ = new QTabWidget(this);
+    left_tabwidget_->addTab(left_v_splitter_, tr("Sounds"));
+    left_tabwidget_->addTab(image_list_, tr("Images"));
 
     connect(sound_file_importer_, SIGNAL(folderImported(QList<Resources::SoundFile> const&)),
             db_handler_, SLOT(insertSoundFilesAndCategories(QList<Resources::SoundFile> const&)));
@@ -218,7 +220,7 @@ void DsaMediaControlKit::initLayout()
 
     // left layout
     QVBoxLayout* l_layout = new QVBoxLayout;
-    l_layout->addWidget(left_v_splitter_);
+    l_layout->addWidget(left_tabwidget_);
     left_box_->setLayout(l_layout);
 
     // right layout

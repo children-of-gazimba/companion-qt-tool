@@ -76,6 +76,7 @@ private:
     QGroupBox* right_box_;
     Web::Host* web_host_;
     Image::FileTable* image_list_;
+    QTabWidget* left_tabwidget_;
 
     // DB handler
     DB::Handler* db_handler_;
