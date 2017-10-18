@@ -15,22 +15,17 @@ QWidget:disabled {
     color: rgba(255, 255, 255, 100);
 }
 
-QWidget#PlaylistSettingsWidget {
+Playlist--SettingsWidget {
     background-color: #373738;
     color: white;
 }
 
-QWidget#ImageFileTable {
+Image--View {
     background-color: #373738;
     color: white;
 }
 
-QWidget#ImageView {
-    background-color: #373738;
-    color: white;
-}
-
-QWidget#WebHost {
+Web--Host {
     background-color: #373738;
     color: white;
 }
@@ -140,7 +135,7 @@ QTableView > QHeaderView::section {
    padding: 5px;
 }
 
-QListView {
+SoundFile--ListView {
    background-color: #545556;
    color: white;
    margin-top: 5px;
@@ -148,6 +143,19 @@ QListView {
 
 QListView::item {
    margin: 3px;
+}
+
+Image--ListBrowser > QListView {
+    background-color: #545556;
+    color: white;
+    margin: 0px;
+}
+
+Image--ListBrowser > QLineEdit {
+    background-color: #545556;
+    color: white;
+    selection-background-color: rgba(50, 152, 253, 80);
+    border: 1px solid gray;
 }
 
 QHeaderView {

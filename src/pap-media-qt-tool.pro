@@ -62,8 +62,9 @@ SOURCES += main.cpp \
     web/app/chat_message_model.cpp \
     web/app/image_loader.cpp \
     web/controllers/image_controller.cpp \
-    image/file_table.cpp \
-    image/view.cpp
+    image/view.cpp \
+    image/list_browser.cpp \
+    image/full_browser.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -111,8 +112,9 @@ HEADERS  += main_window.h \
     web/app/chat_message.h \
     web/app/image_loader.h \
     web/controllers/image_controller.h \
-    image/file_table.h \
-    image/view.h
+    image/view.h \
+    image/list_browser.h \
+    image/full_browser.h
 
 RESOURCES += \
     _RES/resources.qrc

@@ -1,23 +1,26 @@
-#ifndef IMAGE_FILE_LIST_H
-#define IMAGE_FILE_LIST_H
-
-#include <QWidget>
-#include <QPushButton>
-#include <QTableView>
-#include <QStandardItemModel>
-#include <QGraphicsView>
+#ifndef IMAGE_LIST_BROWSER_H
+#define IMAGE_LIST_BROWSER_H
 
 #include "view.h"
 
+#include <QLineEdit>
+#include <QListView>
+#include <QPushButton>
+#include <QStandardItemModel>
+#include <QWidget>
+
 namespace Image {
 
-class FileTable : public QWidget
+class ListBrowser : public QWidget
 {
     Q_OBJECT
 public:
-    explicit FileTable(QWidget *parent = 0);
+    explicit ListBrowser(QWidget *parent = 0);
+
+    void openDirectory(const QString&);
 
 signals:
+    void newDirectory(const QString&);
 
 public slots:
 
@@ -36,11 +39,12 @@ private:
     void initLayout();
 
     QStandardItemModel* model_;
-    QTableView* file_view_;
+    QListView* file_view_;
     View* image_view_;
     QPushButton* open_button_;
+    QLineEdit* line_edit_;
 };
 
 } // namespace Image
 
-#endif // IMAGE_FILE_LIST_H
+#endif // IMAGE_LIST_BROWSER_H

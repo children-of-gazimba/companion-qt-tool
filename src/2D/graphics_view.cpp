@@ -332,7 +332,7 @@ void GraphicsView::keyReleaseEvent(QKeyEvent *event)
         QObject* o = dynamic_cast<QObject*>(it);
         if(o) {
             Tile* t = qobject_cast<Tile*>(o);
-            if(t->hasActivateKey() && t->getActivateKey() == event->key())
+            if(t->hasActivateKey() && t->getActivateKey() == QChar(event->key()))
                 t->onActivate();
         }
     }
