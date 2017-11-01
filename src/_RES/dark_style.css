@@ -145,13 +145,13 @@ QListView::item {
    margin: 3px;
 }
 
-Image--ListBrowser > QListView {
+Image--List > QListView {
     background-color: #545556;
     color: white;
     margin: 0px;
 }
 
-Image--ListBrowser > QLineEdit {
+Image--List > QLineEdit {
     background-color: #545556;
     color: white;
     selection-background-color: rgba(50, 152, 253, 80);

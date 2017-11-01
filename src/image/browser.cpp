@@ -1,4 +1,4 @@
-#include "full_browser.h"
+#include "browser.h"
 
 #include <QDebug>
 #include <QVBoxLayout>
@@ -13,7 +13,7 @@
 
 namespace Image {
 
-FullBrowser::FullBrowser(QWidget *parent)
+Browser::Browser(QWidget *parent)
     : QWidget(parent)
     , recent_directories_(0)
     , list_view_(0)
@@ -23,7 +23,7 @@ FullBrowser::FullBrowser(QWidget *parent)
     initLayout();
 }
 
-void FullBrowser::onNewDirectory(const QString & name)
+void Browser::onNewDirectory(const QString & name)
 {
     QStandardItemModel* m = (QStandardItemModel*) recent_directories_->model();
     for(int i = 0; i < m->rowCount(); ++i) {
@@ -34,7 +34,7 @@ void FullBrowser::onNewDirectory(const QString & name)
     m->appendRow(new QStandardItem(name));
 }
 
-void FullBrowser::onRecentDirClicked(const QModelIndex& idx)
+void Browser::onRecentDirClicked(const QModelIndex& idx)
 {
     if(!idx.isValid() || idx.row() < 0)
         return;
@@ -43,7 +43,7 @@ void FullBrowser::onRecentDirClicked(const QModelIndex& idx)
     list_view_->openDirectory(dir);
 }
 
-void FullBrowser::initWidgets()
+void Browser::initWidgets()
 {
     v_splitter_ = new QSplitter(Qt::Vertical, this);
 
@@ -55,7 +55,7 @@ void FullBrowser::initWidgets()
     connect(recent_directories_, SIGNAL(clicked(const QModelIndex&)),
             this, SLOT(onRecentDirClicked(const QModelIndex&)));
 
-    list_view_ = new ListBrowser(v_splitter_);
+    list_view_ = new List(v_splitter_);
     list_view_->layout()->setMargin(0);
 
     connect(list_view_, SIGNAL(newDirectory(const QString&)),
@@ -67,7 +67,7 @@ void FullBrowser::initWidgets()
     v_splitter_->setStretchFactor(1, 8);
 }
 
-void FullBrowser::initLayout()
+void Browser::initLayout()
 {
     QVBoxLayout* layout = new QVBoxLayout;
 

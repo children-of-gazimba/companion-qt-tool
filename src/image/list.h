@@ -1,5 +1,5 @@
-#ifndef IMAGE_LIST_BROWSER_H
-#define IMAGE_LIST_BROWSER_H
+#ifndef IMAGE_LIST_H
+#define IMAGE_LIST_H
 
 #include "view.h"
 
@@ -11,11 +11,11 @@
 
 namespace Image {
 
-class ListBrowser : public QWidget
+class List : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ListBrowser(QWidget *parent = 0);
+    explicit List(QWidget *parent = 0);
 
     void openDirectory(const QString&);
 
@@ -47,4 +47,4 @@ private:
 
 } // namespace Image
 
-#endif // IMAGE_LIST_BROWSER_H
+#endif // IMAGE_LIST_H

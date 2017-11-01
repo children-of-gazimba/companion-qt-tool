@@ -1,20 +1,20 @@
-#ifndef IMAGE_FULL_BROWSER_H
-#define IMAGE_FULL_BROWSER_H
+#ifndef IMAGE_BROWSER_H
+#define IMAGE_BROWSER_H
 
 #include <QWidget>
 #include <QTreeView>
 #include <QSplitter>
 
-#include "list_browser.h"
+#include "list.h"
 #include "view.h"
 
 namespace Image {
 
-class FullBrowser : public QWidget
+class Browser : public QWidget
 {
     Q_OBJECT
 public:
-    explicit FullBrowser(QWidget *parent = 0);
+    explicit Browser(QWidget *parent = 0);
 
 signals:
 
@@ -29,10 +29,10 @@ private:
     void initLayout();
 
     QTreeView* recent_directories_;
-    ListBrowser* list_view_;
+    List* list_view_;
     QSplitter* v_splitter_;
 };
 
 } // namespace Image
 
-#endif // IMAGE_FULL_BROWSER_H
+#endif // IMAGE_BROWSER_H

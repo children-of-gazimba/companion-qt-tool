@@ -63,8 +63,8 @@ SOURCES += main.cpp \
     web/app/image_loader.cpp \
     web/controllers/image_controller.cpp \
     image/view.cpp \
-    image/list_browser.cpp \
-    image/full_browser.cpp
+    image/browser.cpp \
+    image/list.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -113,8 +113,8 @@ HEADERS  += main_window.h \
     web/app/image_loader.h \
     web/controllers/image_controller.h \
     image/view.h \
-    image/list_browser.h \
-    image/full_browser.h
+    image/browser.h \
+    image/list.h
 
 RESOURCES += \
     _RES/resources.qrc

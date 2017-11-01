@@ -194,7 +194,7 @@ void DsaMediaControlKit::initWidgets()
     left_v_splitter_->setStretchFactor(0, 2);
     left_v_splitter_->setStretchFactor(1, 8);
 
-    image_browser_ = new Image::FullBrowser(left_tabwidget_);
+    image_browser_ = new Image::Browser(left_tabwidget_);
     image_browser_->layout()->setMargin(0);
 
     left_tabwidget_->addTab(left_v_splitter_, tr("Sounds"));

@@ -1,4 +1,4 @@
-#include "list_browser.h"
+#include "list.h"
 
 #include <QDebug>
 #include <QVBoxLayout>
@@ -13,7 +13,7 @@
 
 namespace Image {
 
-ListBrowser::ListBrowser(QWidget *parent)
+List::List(QWidget *parent)
     : QWidget(parent)
     , model_(0)
     , file_view_(0)
@@ -25,7 +25,7 @@ ListBrowser::ListBrowser(QWidget *parent)
     initLayout();
 }
 
-void ListBrowser::openDirectory(const QString& dir_name)
+void List::openDirectory(const QString& dir_name)
 {
     QDir dir(dir_name);
     QStringList filters;
@@ -45,7 +45,7 @@ void ListBrowser::openDirectory(const QString& dir_name)
     line_edit_->setText(dir_name);
 }
 
-void ListBrowser::onOpen()
+void List::onOpen()
 {
     QString dir_name = QFileDialog::getExistingDirectory(this, tr("Open Directory"));
     if(dir_name.size() == 0) {
@@ -56,14 +56,14 @@ void ListBrowser::onOpen()
     emit newDirectory(dir_name);
 }
 
-void ListBrowser::onImageSelected(const QModelIndex &idx)
+void List::onImageSelected(const QModelIndex &idx)
 {
     if(!idx.isValid())
         return;
     onImageSelected(idx.row());
 }
 
-void ListBrowser::onImageSelected(int row)
+void List::onImageSelected(int row)
 {
     if(row < 0 || row >= model_->rowCount())
         return;
@@ -74,7 +74,7 @@ void ListBrowser::onImageSelected(int row)
     image_view_->activateWindow();
 }
 
-void ListBrowser::initWidgets()
+void List::initWidgets()
 {
     model_ = new QStandardItemModel(0, 1, this);
     model_->setHeaderData(0, Qt::Horizontal, QVariant("Name"));
@@ -99,7 +99,7 @@ void ListBrowser::initWidgets()
     line_edit_->setReadOnly(true);
 }
 
-void ListBrowser::initLayout()
+void List::initLayout()
 {
     QVBoxLayout* layout = new QVBoxLayout;
 

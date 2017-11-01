@@ -23,7 +23,7 @@
 #include "category/tree_view.h"
 #include "2D/graphics_view.h"
 #include "web/host.h"
-#include "image/full_browser.h"
+#include "image/browser.h"
 
 class DsaMediaControlKit : public QWidget
 {
@@ -75,7 +75,7 @@ private:
     QGroupBox* left_box_;
     QGroupBox* right_box_;
     Web::Host* web_host_;
-    Image::FullBrowser* image_browser_;
+    Image::Browser* image_browser_;
     QTabWidget* left_tabwidget_;
 
     // DB handler
