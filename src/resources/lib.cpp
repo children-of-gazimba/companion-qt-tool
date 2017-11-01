@@ -327,10 +327,11 @@ QPixmap *Lib::getKeyPixmap(const QChar &k)
 */
 //QString Lib::DATABASE_PATH = "../../pap-media-shared-files/dsa_media_control_kit.db";
 QString Lib::DATABASE_PATH = "../../../../pap-media-shared-files/dsa_media_control_kit.db";
+QString Lib::DEFAULT_PROJECT_PATH = "../../pap-media-shared-files";
+
 /*
 * ICONS
 */
-
 QString Lib::IMG_SOUND_FILE_DRAG_PATH = ":/images/dick.png";
 QString Lib::IMG_PLAY_PATH = ":/images/icon_play.png";
 QString Lib::IMG_PAUSE_PATH = ":/images/icon_pause.png";

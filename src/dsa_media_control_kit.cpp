@@ -14,6 +14,7 @@
 
 DsaMediaControlKit::DsaMediaControlKit(QWidget *parent)
     : QWidget(parent)
+    , project_name_("")
     , progress_bar_(0)
     , actions_()
     , main_menu_(0)
@@ -91,18 +92,29 @@ void DsaMediaControlKit::onSaveProjectAs()
 {
     QString file_name = QFileDialog::getSaveFileName(
         this, tr("Save Project"),
-        "",
+        Resources::Lib::DEFAULT_PROJECT_PATH,
         tr("JSON (*.json)")
     );
 
     if(file_name.size() > 0) {
+        setProjectPath(file_name);
+        onSaveProject();
+    }
+}
+
+void DsaMediaControlKit::onSaveProject()
+{
+    if(project_name_.size() > 0) {
         QJsonDocument doc;
 
         doc.setObject(preset_view_->toJsonObject());
 
-        QFile json_file(file_name);
+        QFile json_file(project_name_);
         json_file.open(QFile::WriteOnly);
         json_file.write(doc.toJson());
+    }
+    else {
+        onSaveProjectAs();
     }
 }
 
@@ -110,7 +122,7 @@ void DsaMediaControlKit::onOpenProject()
 {
     QString file_name = QFileDialog::getOpenFileName(
         this, tr("Open Project"),
-        "",
+        Resources::Lib::DEFAULT_PROJECT_PATH,
         tr("JSON (*.json)")
     );
 
@@ -142,6 +154,8 @@ void DsaMediaControlKit::onOpenProject()
             if(b.exec() == QMessageBox::Yes)
                 onOpenProject();
         }
+
+        setProjectPath(file_name);
     }
 }
 
@@ -151,6 +165,19 @@ void DsaMediaControlKit::onStartWebServer()
         web_host_ = new Web::Host;
     web_host_->setPresetView(preset_view_);
     web_host_->show();
+}
+
+void DsaMediaControlKit::setProjectPath(const QString &path)
+{
+    if (path.size() == 0) {
+        project_name_ = "";
+        actions_["Save Project"]->setText("Save Project");
+    }
+    else {
+        project_name_ = path;
+        QString file_name = path.split("/").back();
+        actions_["Save Project"]->setText("Save Project '"+file_name.split(".").front()+"'");
+    }
 }
 
 void DsaMediaControlKit::initWidgets()
@@ -247,7 +274,11 @@ void DsaMediaControlKit::initActions()
 
     actions_["Save Project As..."] = new QAction(tr("Save Project As..."), this);
     actions_["Save Project As..."]->setToolTip(tr("Saves the current work state to a file."));
-    actions_["Save Project As..."]->setShortcut(QKeySequence(tr("Ctrl+S")));
+    actions_["Save Project As..."]->setShortcut(QKeySequence(tr("Ctrl+Shift+S")));
+
+    actions_["Save Project"] = new QAction(tr("Save Project"), this);
+    actions_["Save Project"]->setToolTip(tr("Saves the current work state to a file."));
+    actions_["Save Project"]->setShortcut(QKeySequence(tr("Ctrl+S")));
 
     actions_["Open Project..."] = new QAction(tr("Open Project..."), this);
     actions_["Open Project..."]->setToolTip(tr("Opens a previously saved state from a file."));
@@ -262,6 +293,8 @@ void DsaMediaControlKit::initActions()
             this, SLOT(onDeleteDatabase()));
     connect(actions_["Save Project As..."], SIGNAL(triggered()),
             this, SLOT(onSaveProjectAs()));
+    connect(actions_["Save Project"], SIGNAL(triggered()),
+            this, SLOT(onSaveProject()));
     connect(actions_["Open Project..."], SIGNAL(triggered()),
             this, SLOT(onOpenProject()));
     connect(actions_["Run Web Host..."], SIGNAL(triggered()),
@@ -273,6 +306,7 @@ void DsaMediaControlKit::initMenu()
     main_menu_ = new QMenu(tr("DsaMediaControlKit"));
 
     QMenu* file_menu = main_menu_->addMenu(tr("File"));
+    file_menu->addAction(actions_["Save Project"]);
     file_menu->addAction(actions_["Save Project As..."]);
     file_menu->addAction(actions_["Open Project..."]);
     file_menu->addSeparator();

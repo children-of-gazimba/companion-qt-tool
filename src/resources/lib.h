@@ -18,9 +18,10 @@ struct Lib
     static QPixmap* getKeyPixmap(const QChar& k);
 
     /*
-    * database path
+    * general paths
     */
     static QString DATABASE_PATH;
+    static QString DEFAULT_PROJECT_PATH;
 
     /*
     * ICONS

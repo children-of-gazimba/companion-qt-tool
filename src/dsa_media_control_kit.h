@@ -46,15 +46,21 @@ private slots:
     void onSelectedCategoryChanged(DB::CategoryRecord* rec);
     void onDeleteDatabase();
     void onSaveProjectAs();
+    void onSaveProject();
     void onOpenProject();
     void onStartWebServer();
 
 private:
+    void setProjectPath(QString const& path);
+
     void initWidgets();
     void initLayout();
     void initActions();
     void initMenu();
     void initDB();
+
+    // PROJECT
+    QString project_name_;
 
     // STATUS
     QString status_message_;
