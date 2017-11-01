@@ -64,7 +64,8 @@ SOURCES += main.cpp \
     web/controllers/image_controller.cpp \
     image/view.cpp \
     image/browser.cpp \
-    image/list.cpp
+    image/list.cpp \
+    db/model/image_dir_table_model.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -114,7 +115,8 @@ HEADERS  += main_window.h \
     web/controllers/image_controller.h \
     image/view.h \
     image/browser.h \
-    image/list.h
+    image/list.h \
+    db/model/image_dir_table_model.h
 
 RESOURCES += \
     _RES/resources.qrc

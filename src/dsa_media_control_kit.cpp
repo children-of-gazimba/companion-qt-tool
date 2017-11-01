@@ -196,6 +196,7 @@ void DsaMediaControlKit::initWidgets()
 
     image_browser_ = new Image::Browser(left_tabwidget_);
     image_browser_->layout()->setMargin(0);
+    image_browser_->setImageDirTableModel(db_handler_->getImageDirTableModel());
 
     left_tabwidget_->addTab(left_v_splitter_, tr("Sounds"));
     left_tabwidget_->addTab(image_browser_, tr("Images"));

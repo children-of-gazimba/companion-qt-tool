@@ -15,7 +15,8 @@ enum TableIndex {
     SOUND_FILE_CATEGORY,
     RESOURCE_DIRECTORY,
     TAG,
-    IMAGE_FILE_TAG
+    IMAGE_FILE_TAG,
+    IMAGE_DIRECTORY
 };
 
 /* data transfer object encapsulating one row in a db table **/
@@ -190,6 +191,38 @@ struct ResourceDirRecord : TableRecord {
             return false;
 
         ResourceDirRecord* rd_rec = (ResourceDirRecord*) rec;
+        path = rd_rec->path;
+
+        return true;
+    }
+};
+
+/* Row in ImageDirectory table */
+struct ImageDirRecord : TableRecord {
+    QString path;
+
+    ImageDirRecord(int i, QString const& n, QString const& p)
+        : TableRecord(RESOURCE_DIRECTORY, i, n)
+        , path(p)
+    {}
+
+    ImageDirRecord()
+        : TableRecord(RESOURCE_DIRECTORY, -1, "")
+        , path("")
+    {}
+
+    ImageDirRecord(const ImageDirRecord& rec)
+        : TableRecord(RESOURCE_DIRECTORY, rec.id, rec.name)
+        , path(rec.path)
+    {}
+
+    virtual ~ImageDirRecord() {}
+
+    virtual bool copyFrom(TableRecord* rec) {
+        if(!TableRecord::copyFrom(rec))
+            return false;
+
+        ImageDirRecord* rd_rec = (ImageDirRecord*) rec;
         path = rd_rec->path;
 
         return true;

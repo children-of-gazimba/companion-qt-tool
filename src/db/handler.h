@@ -10,6 +10,7 @@
 #include "model/category_tree_model.h"
 #include "model/sound_file_table_model.h"
 #include "model/resource_dir_table_model.h"
+#include "model/image_dir_table_model.h"
 
 namespace DB {
 
@@ -28,6 +29,7 @@ public:
     Model::CategoryTreeModel* getCategoryTreeModel();
     Model::SoundFileTableModel* getSoundFileTableModel();
     Model::ResourceDirTableModel* getResourceDirTableModel();
+    Model::ImageDirTableModel* getImageDirTableModel();
 
     /*
      * Gets a list of SoundFileRecords,
@@ -74,6 +76,7 @@ private:
     Model::CategoryTreeModel* category_tree_model_;
     Model::SoundFileTableModel* sound_file_table_model_;
     Model::ResourceDirTableModel* resource_dir_table_model_;
+    Model::ImageDirTableModel* image_dir_table_model_;
 };
 
 } // namespace DB

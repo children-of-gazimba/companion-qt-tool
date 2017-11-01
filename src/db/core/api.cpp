@@ -30,6 +30,11 @@ QSqlRelationalTableModel *Api::getResourceDirTable()
     return db_wrapper_->getTable(RESOURCE_DIRECTORY);
 }
 
+QSqlRelationalTableModel *Api::getImageDirTable()
+{
+    return db_wrapper_->getTable(IMAGE_DIRECTORY);
+}
+
 void Api::insertSoundFile(const QFileInfo &info, ResourceDirRecord const& resource_dir)
 {
     QString rel_path = info.filePath();
@@ -77,6 +82,15 @@ void Api::insertResourceDir(const QFileInfo &info)
     db_wrapper_->insertQuery(RESOURCE_DIRECTORY, value_block);
 }
 
+void Api::insertImageDir(const QFileInfo &info)
+{
+    QString value_block  = "";
+    value_block = "(path) VALUES ";
+    value_block += "('" + SqliteWrapper::escape(info.filePath()) + "')";
+
+    db_wrapper_->insertQuery(IMAGE_DIRECTORY, value_block);
+}
+
 int Api::getSoundFileId(const QString &path)
 {
     QString SELECT = "id";
@@ -92,6 +106,16 @@ int Api::getResourceDirId(const QString &path)
     QString SELECT = "id";
     QString WHERE = "path = '" + SqliteWrapper::escape(path) + "'";
     QList<QSqlRecord> res = db_wrapper_->selectQuery(SELECT, RESOURCE_DIRECTORY, WHERE);
+    if(res.size() > 0)
+        return res[0].value(0).toInt();
+    return -1;
+}
+
+int Api::getImageDirId(const QString &path)
+{
+    QString SELECT = "id";
+    QString WHERE = "path = '" + SqliteWrapper::escape(path) + "'";
+    QList<QSqlRecord> res = db_wrapper_->selectQuery(SELECT, IMAGE_DIRECTORY, WHERE);
     if(res.size() > 0)
         return res[0].value(0).toInt();
     return -1;

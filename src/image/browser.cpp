@@ -2,14 +2,9 @@
 
 #include <QDebug>
 #include <QVBoxLayout>
-#include <QFileDialog>
-#include <QFileInfoList>
-#include <QDir>
 #include <QString>
 #include <QHeaderView>
-#include <QGraphicsScene>
-#include <QGraphicsView>
-#include <QGraphicsPixmapItem>
+#include <QFileInfo>
 
 namespace Image {
 
@@ -18,20 +13,46 @@ Browser::Browser(QWidget *parent)
     , recent_directories_(0)
     , list_view_(0)
     , v_splitter_(0)
+    , model_(0)
 {
     initWidgets();
     initLayout();
 }
 
+void Browser::setImageDirTableModel(DB::Model::ImageDirTableModel* model)
+{
+    model_ = model;
+    recent_directories_->setModel(model);
+}
+
+DB::Model::ImageDirTableModel *Browser::getImageDirTableModel()
+{
+    return model_;
+}
+
 void Browser::onNewDirectory(const QString & name)
 {
-    QStandardItemModel* m = (QStandardItemModel*) recent_directories_->model();
-    for(int i = 0; i < m->rowCount(); ++i) {
-        QString dir_name = m->data(m->index(i, 0)).toString();
-        if(name.compare(dir_name) == 0)
-            return;
+    if(model_ != 0) {
+        model_->addImageDirRecord(QFileInfo(name));
+        /*
+        QStandardItemModel* m = (QStandardItemModel*) recent_directories_->model();
+        for(int i = 0; i < m->rowCount(); ++i) {
+            QString dir_name = m->data(m->index(i, 0)).toString();
+            if(name.compare(dir_name) == 0)
+                return;
+        }
+        m->appendRow(new QStandardItem(name));
+        */
     }
-    m->appendRow(new QStandardItem(name));
+    else {
+        QStandardItemModel* m = (QStandardItemModel*) recent_directories_->model();
+        for(int i = 0; i < m->rowCount(); ++i) {
+            QString dir_name = m->data(m->index(i, 0)).toString();
+            if(name.compare(dir_name) == 0)
+                return;
+        }
+        m->appendRow(new QStandardItem(name));
+    }
 }
 
 void Browser::onRecentDirClicked(const QModelIndex& idx)

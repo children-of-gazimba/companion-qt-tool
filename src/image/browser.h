@@ -7,6 +7,7 @@
 
 #include "list.h"
 #include "view.h"
+#include "db/model/image_dir_table_model.h"
 
 namespace Image {
 
@@ -15,6 +16,9 @@ class Browser : public QWidget
     Q_OBJECT
 public:
     explicit Browser(QWidget *parent = 0);
+
+    void setImageDirTableModel(DB::Model::ImageDirTableModel*);
+    DB::Model::ImageDirTableModel* getImageDirTableModel();
 
 signals:
 
@@ -31,6 +35,7 @@ private:
     QTreeView* recent_directories_;
     List* list_view_;
     QSplitter* v_splitter_;
+    DB::Model::ImageDirTableModel* model_;
 };
 
 } // namespace Image
