@@ -24,6 +24,7 @@
 #include "2D/graphics_view.h"
 #include "web/host.h"
 #include "image/browser.h"
+#include "preset/preset_view.h"
 
 class DsaMediaControlKit : public QWidget
 {
@@ -73,8 +74,9 @@ private:
     // WIDGETS
     SoundFile::MasterView* sound_file_view_;
     Category::TreeView* category_view_;
+    Preset::PresetView* preset_view_;
 
-    TwoD::GraphicsView* preset_view_;
+    TwoD::GraphicsView* graphics_view_;
     Resources::Importer* sound_file_importer_;
     QSplitter* center_h_splitter_;
     QSplitter* left_v_splitter_;

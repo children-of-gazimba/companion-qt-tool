@@ -6,6 +6,7 @@
 
 #include "player_tile.h"
 #include "playlist_player_tile.h"
+#include "nested_tile.h"
 #include "misc/json_mime_data_parser.h"
 
 namespace TwoD {
@@ -97,6 +98,22 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
         // create tile, if type is TwoD::PlaylistPlayerTile
         if(t_obj["type"].toString().compare("TwoD::PlaylistPlayerTile") == 0) {
             PlaylistPlayerTile* tile = new PlaylistPlayerTile;
+            tile->setSoundFileModel(model_);
+            tile->setFlag(QGraphicsItem::ItemIsMovable, true);
+            tile->init();
+            if(tile->setFromJsonObject(t_obj["data"].toObject())) {
+               scene()->addItem(tile);
+            }
+            else {
+                qDebug() << "FAILURE: Could not set Tile data from JSON.";
+                qDebug() << " > data:" << t_obj["data"];
+                qDebug() << " > Aborting.";
+                delete tile;
+                return false;
+            }
+        }
+        else if(t_obj["type"].toString().compare("TwoD::NestedTile") == 0) {
+            NestedTile* tile = new NestedTile;
             tile->setSoundFileModel(model_);
             tile->setFlag(QGraphicsItem::ItemIsMovable, true);
             tile->init();
@@ -287,8 +304,31 @@ void GraphicsView::dropEvent(QDropEvent *event)
 
     // validate parsing
     if(records.size() == 0 || records[0]->index != DB::SOUND_FILE) {
-        event->ignore();
-        return;
+        // TODO make pretty
+        QJsonDocument doc = QJsonDocument::fromJson(event->mimeData()->text().toUtf8());
+        if(doc.object().contains("contents")) {
+            NestedTile* tile = new NestedTile;
+            tile->setSoundFileModel(model_);
+            tile->setFlag(QGraphicsItem::ItemIsMovable, true);
+            tile->setFromJsonObject(doc.object());
+            tile->init();
+            tile->setPos(p);
+            tile->setSize(0);
+
+            // add to scene
+            scene()->addItem(tile);
+            tile->setSmallSize();
+
+            // except event
+            event->setDropAction(Qt::CopyAction);
+            event->accept();
+            emit dropAccepted();
+            return;
+        }
+        else {
+            event->ignore();
+            return;
+        }
     }
 
     // create graphics item

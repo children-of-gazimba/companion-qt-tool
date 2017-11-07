@@ -26,7 +26,7 @@ class GraphicsView : public QGraphicsView
 
 public:
     GraphicsView(QGraphicsScene *scene, QWidget *parent);
-    GraphicsView(QWidget *parent);
+    GraphicsView(QWidget *parent = 0);
 
     /**
      * Parses all tiles in scene to JSON object.

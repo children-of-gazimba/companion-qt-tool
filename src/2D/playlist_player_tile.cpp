@@ -318,6 +318,7 @@ void PlaylistPlayerTile::changedCustomPlayerActivation(bool state)
 
 void PlaylistPlayerTile::onConfigurePlaylist()
 {
+    // TODO: life cycle management
     playlist_settings_widget_ = new Playlist::SettingsWidget(playlist_);
     playlist_settings_widget_->setObjectName("PlaylistSettingsWidget");
     //QPoint widget_size = QPoint(playlist_settings_widget_->geometry().size().width()/2,
