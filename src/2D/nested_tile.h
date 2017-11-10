@@ -14,7 +14,7 @@ class NestedTile : public Tile
     Q_OBJECT
 
 public:
-    NestedTile(QGraphicsItem* parent = 0);
+    NestedTile(GraphicsView* master_view, QGraphicsItem *parent=0);
     virtual ~NestedTile();
 
     /**
@@ -27,17 +27,19 @@ public:
     */
     bool setFromJsonObject(const QJsonObject& obj);
 
-    void setSoundFileModel(DB::Model::SoundFileTableModel* m);
-    DB::Model::SoundFileTableModel* getSoundFileModel();
-
     /**
      * @brief see BC
      */
     QString const getClassName() const;
 
+    void clearTiles();
+
 public slots:
     /* See BC */
     virtual void onActivate();
+
+    /** See BC */
+    virtual void onDelete();
 
 protected slots:
     /** slot to open contents view */
@@ -54,7 +56,8 @@ protected:
     */
     virtual void createContextMenu();
 
-    GraphicsView* view_;
+    GraphicsView* master_view_;
+    QGraphicsScene* scene_;
 };
 
 } // namespace TwoD

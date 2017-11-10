@@ -114,6 +114,7 @@ private:
     void clearTiles();
 
     DB::Model::SoundFileTableModel* model_;
+    QGraphicsScene* main_scene_;
 };
 
 }

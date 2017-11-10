@@ -14,8 +14,9 @@ namespace TwoD {
 GraphicsView::GraphicsView(QGraphicsScene *scene, QWidget *parent)
     : QGraphicsView(scene, parent)
     , model_(0)
+    , main_scene_(scene)
 {
-    setScene(scene);
+    setScene(main_scene_);
     setAcceptDrops(true);
     setFocusPolicy(Qt::ClickFocus);
 }
@@ -23,10 +24,12 @@ GraphicsView::GraphicsView(QGraphicsScene *scene, QWidget *parent)
 GraphicsView::GraphicsView(QWidget *parent)
     : QGraphicsView(parent)
     , model_(0)
+    , main_scene_(0)
 {
-    setScene(new QGraphicsScene(QRectF(0,0,100,100),this));
-    scene()->setSceneRect(0,0, 100, 100);
+    main_scene_ = new QGraphicsScene(QRectF(0,0,100,100),this);
+    setScene(main_scene_);
     setAcceptDrops(true);
+    setFocusPolicy(Qt::ClickFocus);
 }
 
 const QJsonObject GraphicsView::toJsonObject() const
@@ -76,12 +79,16 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
 
     // scene rect
     QJsonObject rc_obj = sc_obj["scene_rect"].toObject();
+    qDebug() << rc_obj;
     if(rc_obj.contains("x") && rc_obj.contains("y") && rc_obj.contains("width") && rc_obj.contains("height")) {
         QRectF scene_rect = sceneRect();
         scene_rect.setX((qreal) rc_obj["x"].toDouble());
         scene_rect.setY((qreal) rc_obj["y"].toDouble());
         scene_rect.setWidth((qreal) rc_obj["width"].toDouble());
         scene_rect.setHeight((qreal) rc_obj["height"].toDouble());
+        //setSceneRect(scene_rect);
+        scene()->setSceneRect(scene_rect);
+        //qDebug() << scene()->sceneRect();
     }
 
     clearTiles();
@@ -102,7 +109,7 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
             tile->setFlag(QGraphicsItem::ItemIsMovable, true);
             tile->init();
             if(tile->setFromJsonObject(t_obj["data"].toObject())) {
-               scene()->addItem(tile);
+                scene()->addItem(tile);
             }
             else {
                 qDebug() << "FAILURE: Could not set Tile data from JSON.";
@@ -113,12 +120,11 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
             }
         }
         else if(t_obj["type"].toString().compare("TwoD::NestedTile") == 0) {
-            NestedTile* tile = new NestedTile;
-            tile->setSoundFileModel(model_);
+            NestedTile* tile = new NestedTile(this);
             tile->setFlag(QGraphicsItem::ItemIsMovable, true);
             tile->init();
             if(tile->setFromJsonObject(t_obj["data"].toObject())) {
-               scene()->addItem(tile);
+                scene()->addItem(tile);
             }
             else {
                 qDebug() << "FAILURE: Could not set Tile data from JSON.";
@@ -226,12 +232,25 @@ void GraphicsView::resizeEvent(QResizeEvent *e)
 {
     QGraphicsView::resizeEvent(e);
     if(e->isAccepted()) {
+        qDebug() << "1";
         QRectF r = scene()->sceneRect();
-        if(e->size().width() > r.width())
+        qDebug() << "rect" << r;
+        qDebug() << "size" << e->size();
+        qDebug() << "scene" << scene();
+        qDebug() << "2";
+        if(e->size().width() > r.width()) {
+            qDebug() << "3";
             r.setWidth(e->size().width());
-        if(e->size().height() > r.height())
+        }
+        if(e->size().height() > r.height()) {
+            qDebug() << "4";
             r.setHeight(e->size().height());
+        }
+        qDebug() << "5";
         scene()->setSceneRect(r);
+        //setSceneRect(r);
+        qDebug() << "rect changed" << scene()->sceneRect();
+        qDebug() << "6\n====================";
     }
 }
 
@@ -307,8 +326,7 @@ void GraphicsView::dropEvent(QDropEvent *event)
         // TODO make pretty
         QJsonDocument doc = QJsonDocument::fromJson(event->mimeData()->text().toUtf8());
         if(doc.object().contains("contents")) {
-            NestedTile* tile = new NestedTile;
-            tile->setSoundFileModel(model_);
+            NestedTile* tile = new NestedTile(this);
             tile->setFlag(QGraphicsItem::ItemIsMovable, true);
             tile->setFromJsonObject(doc.object());
             tile->init();
@@ -368,6 +386,11 @@ void GraphicsView::keyPressEvent(QKeyEvent*)
 
 void GraphicsView::keyReleaseEvent(QKeyEvent *event)
 {
+    if(event->key() == Qt::Key_Backspace) {
+        setScene(main_scene_);
+        return;
+    }
+
     foreach(QGraphicsItem* it, scene()->items()) {
         QObject* o = dynamic_cast<QObject*>(it);
         if(o) {
