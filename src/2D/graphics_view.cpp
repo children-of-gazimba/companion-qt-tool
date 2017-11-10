@@ -15,8 +15,9 @@ GraphicsView::GraphicsView(QGraphicsScene *scene, QWidget *parent)
     : QGraphicsView(scene, parent)
     , model_(0)
     , main_scene_(scene)
+    , scene_stack_()
 {
-    setScene(main_scene_);
+    pushScene(main_scene_);
     setAcceptDrops(true);
     setFocusPolicy(Qt::ClickFocus);
 }
@@ -27,7 +28,7 @@ GraphicsView::GraphicsView(QWidget *parent)
     , main_scene_(0)
 {
     main_scene_ = new QGraphicsScene(QRectF(0,0,100,100),this);
-    setScene(main_scene_);
+    pushScene(main_scene_);
     setAcceptDrops(true);
     setFocusPolicy(Qt::ClickFocus);
 }
@@ -228,6 +229,20 @@ bool GraphicsView::setVolume(const QUuid &tile_id, int volume)
     return false;
 }
 
+void GraphicsView::pushScene(QGraphicsScene* scene)
+{
+    scene_stack_.push(scene);
+    setScene(scene);
+}
+
+void GraphicsView::popScene()
+{
+    if(scene_stack_.size() > 1) {
+        scene_stack_.pop();
+        setScene(scene_stack_.top());
+    }
+}
+
 void GraphicsView::resizeEvent(QResizeEvent *e)
 {
     QGraphicsView::resizeEvent(e);
@@ -387,7 +402,7 @@ void GraphicsView::keyPressEvent(QKeyEvent*)
 void GraphicsView::keyReleaseEvent(QKeyEvent *event)
 {
     if(event->key() == Qt::Key_Backspace) {
-        setScene(main_scene_);
+        popScene();
         return;
     }
 

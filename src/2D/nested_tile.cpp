@@ -174,7 +174,7 @@ void NestedTile::onDelete()
 
 void NestedTile::onContents()
 {
-    master_view_->setScene(scene_);
+    master_view_->pushScene(scene_);
 }
 
 void NestedTile::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)

@@ -5,6 +5,7 @@
 #include <QMouseEvent>
 #include <QJsonObject>
 #include <QUuid>
+#include <QStack>
 
 #include "db/model/sound_file_table_model.h"
 
@@ -75,6 +76,18 @@ public:
      */
     bool setVolume(const QUuid& tile_id, int volume);
 
+    /**
+     * pushes a scene onto the scene stack and shows it.
+    */
+    void pushScene(QGraphicsScene*);
+
+    /*
+     * pops a scene from the scene stack and shows the next.
+     * will not pop if there is only one scene left.
+     * last scene on stakc is always main scene.
+    */
+    void popScene();
+
 private:
     /**
      * Handle scene size when widget resizes.
@@ -115,6 +128,7 @@ private:
 
     DB::Model::SoundFileTableModel* model_;
     QGraphicsScene* main_scene_;
+    QStack<QGraphicsScene*> scene_stack_;
 };
 
 }
