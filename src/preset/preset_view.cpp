@@ -22,8 +22,8 @@ PresetView::PresetView(QWidget *parent)
     model_->setHorizontalHeaderItem(0, new QStandardItem("Name"));
     model_->setHorizontalHeaderItem(1, new QStandardItem("Path"));
     model_->setRowCount(1);
-    model_->setData(model_->index(0,0), QVariant("test2"));
-    model_->setData(model_->index(0,1), QVariant("C:\\Users\\Basti\\Documents\\Code\\pap-media\\pap-media-shared-files\\test2.json"));
+    model_->setData(model_->index(0,0), QVariant("New Preset"));
+    model_->setData(model_->index(0,1), QVariant("C:\\Users\\Basti\\Documents\\Code\\pap-media\\pap-media-shared-files\\empty_preset.json"));
     setModel(model_);
     //setAcceptDrops(false);
     setEditable(false);

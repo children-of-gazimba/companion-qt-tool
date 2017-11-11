@@ -247,25 +247,15 @@ void GraphicsView::resizeEvent(QResizeEvent *e)
 {
     QGraphicsView::resizeEvent(e);
     if(e->isAccepted()) {
-        qDebug() << "1";
         QRectF r = scene()->sceneRect();
-        qDebug() << "rect" << r;
-        qDebug() << "size" << e->size();
-        qDebug() << "scene" << scene();
-        qDebug() << "2";
         if(e->size().width() > r.width()) {
-            qDebug() << "3";
             r.setWidth(e->size().width());
         }
         if(e->size().height() > r.height()) {
-            qDebug() << "4";
             r.setHeight(e->size().height());
         }
-        qDebug() << "5";
         scene()->setSceneRect(r);
         //setSceneRect(r);
-        qDebug() << "rect changed" << scene()->sceneRect();
-        qDebug() << "6\n====================";
     }
 }
 

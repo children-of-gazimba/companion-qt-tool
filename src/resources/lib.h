@@ -35,6 +35,7 @@ struct Lib
     // overlay
     static QString IMG_CRACKED_STONE_PATH;
     static QString IMG_CRACKED_STONE_INV_PATH;
+    static QString IMG_FOLDER_PATH;
     // keys
     static QString IMG_KEY_0_PATH;
     static QString IMG_KEY_1_PATH;

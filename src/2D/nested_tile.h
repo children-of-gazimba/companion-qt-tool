@@ -17,6 +17,8 @@ public:
     NestedTile(GraphicsView* master_view, QGraphicsItem *parent=0);
     virtual ~NestedTile();
 
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+
     /**
      * Parses all tiles in scene to JSON object.
     */
@@ -45,6 +47,9 @@ protected slots:
     /** slot to open contents view */
     virtual void onContents();
 
+    /** slot to open configuration */
+    virtual void onConfigure();
+
 protected:
     /*
      * BC overrides
@@ -55,6 +60,11 @@ protected:
      * creates context menu
     */
     virtual void createContextMenu();
+
+    /**
+     * Returns the image based on the playback state
+    */
+    virtual const QPixmap getPlayStatePixmap() const;
 
     GraphicsView* master_view_;
     QGraphicsScene* scene_;

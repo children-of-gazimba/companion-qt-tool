@@ -5,6 +5,9 @@
 #include <QMenu>
 #include <QLayout>
 #include <QJsonArray>
+#include <QInputDialog>
+
+#include "resources/lib.h"
 
 namespace TwoD {
 
@@ -14,11 +17,32 @@ NestedTile::NestedTile(GraphicsView* master_view, QGraphicsItem *parent)
     , scene_(0)
 {
     scene_ = new QGraphicsScene(QRectF(0,0,100,100),this);
+    loadOverlayPixmap(Resources::Lib::IMG_FOLDER_PATH);
 }
 
 NestedTile::~NestedTile()
 {
     clearTiles();
+}
+
+void NestedTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    Tile::paint(painter, option, widget);
+
+    QRectF p_rect(getPaintRect());
+    if(p_rect.width() > 0 && p_rect.height() > 0) {
+        painter->drawPixmap(
+            (int) p_rect.x(),
+            (int)p_rect.y(),
+            (int)p_rect.width(),
+            (int)p_rect.height(),
+            getPlayStatePixmap()
+        );
+    }
+
+    QPen p(QColor(Qt::white));
+    painter->setPen(p);
+    painter->drawText(QPointF(p_rect.x(), p_rect.y() - 3), name_);
 }
 
 const QJsonObject NestedTile::toJsonObject() const
@@ -177,6 +201,18 @@ void NestedTile::onContents()
     master_view_->pushScene(scene_);
 }
 
+void NestedTile::onConfigure()
+{
+    bool ok;
+    QString text = QInputDialog::getText(
+        0, tr("Set Name"),
+        tr("Name:"), QLineEdit::Normal,
+        name_, &ok
+    );
+    if (ok && !text.isEmpty())
+        name_ = text;
+}
+
 void NestedTile::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
 {
     if(mode_ != MOVE && e->button() == Qt::LeftButton)
@@ -192,10 +228,24 @@ void NestedTile::createContextMenu()
     connect(contents_action, SIGNAL(triggered()),
             this, SLOT(onContents()));
 
+    QAction* configure_action = new QAction(tr("Configure..."),this);
+
+    connect(configure_action, SIGNAL(triggered()),
+            this, SLOT(onConfigure()));
+
     context_menu_->addAction(contents_action);
+    context_menu_->addAction(configure_action);
     context_menu_->addSeparator();
 
     Tile::createContextMenu();
+}
+
+const QPixmap NestedTile::getPlayStatePixmap() const
+{
+    if(is_activated_)
+        return *Resources::Lib::PX_STOP;
+    else
+        return *Resources::Lib::PX_PLAY;
 }
 
 }

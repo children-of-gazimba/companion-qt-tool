@@ -338,6 +338,7 @@ QString Lib::IMG_PAUSE_PATH = ":/images/icon_pause.png";
 QString Lib::IMG_STOP_PATH = ":/images/icon_stop.png";
 QString Lib::IMG_CRACKED_STONE_PATH = ":/images/cracked_stone.jpg";
 QString Lib::IMG_CRACKED_STONE_INV_PATH = ":/images/cracked_stone_inv.jpg";
+QString Lib::IMG_FOLDER_PATH = ":/images/folder.png";
 
 // keys
 QString Lib::IMG_KEY_0_PATH = ":/keys/0_key.png";
