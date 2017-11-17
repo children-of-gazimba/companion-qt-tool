@@ -8,6 +8,7 @@
 #include <QStack>
 
 #include "db/model/sound_file_table_model.h"
+#include "db/model/preset_table_model.h"
 
 // TODO: rename namespace to Tile
 namespace TwoD {
@@ -43,6 +44,9 @@ public:
 
     void setSoundFileModel(DB::Model::SoundFileTableModel* m);
     DB::Model::SoundFileTableModel* getSoundFileModel();
+
+    void setPresetModel(DB::Model::PresetTableModel* m);
+    DB::Model::PresetTableModel* getPresetModel();
 
     /**
      * Activates tile with given ID.
@@ -126,7 +130,8 @@ private:
      */
     void clearTiles();
 
-    DB::Model::SoundFileTableModel* model_;
+    DB::Model::SoundFileTableModel* sound_model_;
+    DB::Model::PresetTableModel* preset_model_;
     QGraphicsScene* main_scene_;
     QStack<QGraphicsScene*> scene_stack_;
 };

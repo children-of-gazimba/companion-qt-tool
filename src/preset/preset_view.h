@@ -4,8 +4,10 @@
 #include <QListView>
 #include <QPoint>
 #include <QMouseEvent>
+#include <QMenu>
 
 #include "misc/standard_item_model.h"
+#include "db/model/preset_table_model.h"
 
 namespace Preset {
 
@@ -16,8 +18,8 @@ public:
     explicit PresetView(QWidget *parent = 0);
     ~PresetView();
 
-    void setEditable(bool);
-    bool getEditable();
+    void setPresetTableModel(DB::Model::PresetTableModel* model);
+    DB::Model::PresetTableModel* getPresetTableModel();
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -30,11 +32,17 @@ signals:
 
 public slots:
 
+protected slots:
+    void showCustomContextMenu(const QPoint&);
+    void onDeleteAction();
+
 protected:
     void performDrag();
+    void initContextMenu();
 
     QPoint start_pos_;
-    Misc::StandardItemModel* model_;
+    DB::Model::PresetTableModel* model_;
+    QMenu* context_menu_;
 };
 
 } // namespace Preset

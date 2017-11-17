@@ -16,7 +16,8 @@ enum TableIndex {
     RESOURCE_DIRECTORY,
     TAG,
     IMAGE_FILE_TAG,
-    IMAGE_DIRECTORY
+    IMAGE_DIRECTORY,
+    PRESET
 };
 
 /* data transfer object encapsulating one row in a db table **/
@@ -244,6 +245,38 @@ struct TagRecord : TableRecord {
     {}
 
     virtual ~TagRecord() {}
+};
+
+/* Row in ResourceDirectory table */
+struct PresetRecord : TableRecord {
+    QString json;
+
+    PresetRecord(int i, QString const& n, QString const& j)
+        : TableRecord(PRESET, i, n)
+        , json(j)
+    {}
+
+    PresetRecord()
+        : TableRecord(PRESET, -1, "")
+        , json("")
+    {}
+
+    PresetRecord(const PresetRecord& rec)
+        : TableRecord(PRESET, rec.id, rec.name)
+        , json(rec.json)
+    {}
+
+    virtual ~PresetRecord() {}
+
+    virtual bool copyFrom(TableRecord* rec) {
+        if(!TableRecord::copyFrom(rec))
+            return false;
+
+        PresetRecord* rd_rec = (PresetRecord*) rec;
+        json = rd_rec->json;
+
+        return true;
+    }
 };
 
 /*

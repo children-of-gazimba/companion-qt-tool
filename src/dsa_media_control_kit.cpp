@@ -196,6 +196,7 @@ void DsaMediaControlKit::initWidgets()
 
     graphics_view_ = new TwoD::GraphicsView(this);
     graphics_view_->setSoundFileModel(db_handler_->getSoundFileTableModel());
+    graphics_view_->setPresetModel(db_handler_->getPresetTableModel());
 
     sound_file_importer_ = new Resources::Importer(
         db_handler_->getResourceDirTableModel(),
@@ -206,6 +207,7 @@ void DsaMediaControlKit::initWidgets()
     category_view_->setCategoryTreeModel(db_handler_->getCategoryTreeModel());
 
     preset_view_ = new Preset::PresetView(this);
+    preset_view_->setPresetTableModel(db_handler_->getPresetTableModel());
 
     left_box_ = new QGroupBox(this);
     right_box_ = new QGroupBox(this);

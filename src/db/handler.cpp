@@ -14,6 +14,7 @@ Handler::Handler(DB::Core::Api* api, QObject *parent)
     , sound_file_table_model_(0)
     , resource_dir_table_model_(0)
     , image_dir_table_model_(0)
+    , preset_table_model_(0)
 {
     if(api_ != 0) {
         getCategoryTreeModel();
@@ -64,6 +65,16 @@ Model::ImageDirTableModel *Handler::getImageDirTableModel()
     }
 
     return image_dir_table_model_;
+}
+
+Model::PresetTableModel *Handler::getPresetTableModel()
+{
+    if(preset_table_model_ == 0) {
+        preset_table_model_ = new Model::PresetTableModel(api_, this);
+        preset_table_model_->select();
+    }
+
+    return preset_table_model_;
 }
 
 const QList<SoundFileRecord *> Handler::getSoundFileRecordsByCategoryId(int category_id)

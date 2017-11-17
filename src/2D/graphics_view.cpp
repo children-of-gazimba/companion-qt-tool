@@ -13,7 +13,7 @@ namespace TwoD {
 
 GraphicsView::GraphicsView(QGraphicsScene *scene, QWidget *parent)
     : QGraphicsView(scene, parent)
-    , model_(0)
+    , sound_model_(0)
     , main_scene_(scene)
     , scene_stack_()
 {
@@ -24,7 +24,7 @@ GraphicsView::GraphicsView(QGraphicsScene *scene, QWidget *parent)
 
 GraphicsView::GraphicsView(QWidget *parent)
     : QGraphicsView(parent)
-    , model_(0)
+    , sound_model_(0)
     , main_scene_(0)
 {
     main_scene_ = new QGraphicsScene(QRectF(0,0,100,100),this);
@@ -80,7 +80,6 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
 
     // scene rect
     QJsonObject rc_obj = sc_obj["scene_rect"].toObject();
-    qDebug() << rc_obj;
     if(rc_obj.contains("x") && rc_obj.contains("y") && rc_obj.contains("width") && rc_obj.contains("height")) {
         QRectF scene_rect = sceneRect();
         scene_rect.setX((qreal) rc_obj["x"].toDouble());
@@ -106,7 +105,8 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
         // create tile, if type is TwoD::PlaylistPlayerTile
         if(t_obj["type"].toString().compare("TwoD::PlaylistPlayerTile") == 0) {
             PlaylistPlayerTile* tile = new PlaylistPlayerTile;
-            tile->setSoundFileModel(model_);
+            tile->setSoundFileModel(sound_model_);
+            tile->setPresetModel(preset_model_);
             tile->setFlag(QGraphicsItem::ItemIsMovable, true);
             tile->init();
             if(tile->setFromJsonObject(t_obj["data"].toObject())) {
@@ -122,6 +122,7 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
         }
         else if(t_obj["type"].toString().compare("TwoD::NestedTile") == 0) {
             NestedTile* tile = new NestedTile(this);
+            tile->setPresetModel(preset_model_);
             tile->setFlag(QGraphicsItem::ItemIsMovable, true);
             tile->init();
             if(tile->setFromJsonObject(t_obj["data"].toObject())) {
@@ -142,12 +143,22 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
 
 void GraphicsView::setSoundFileModel(DB::Model::SoundFileTableModel *m)
 {
-    model_ = m;
+    sound_model_ = m;
 }
 
 DB::Model::SoundFileTableModel *GraphicsView::getSoundFileModel()
 {
-    return model_;
+    return sound_model_;
+}
+
+void GraphicsView::setPresetModel(DB::Model::PresetTableModel *m)
+{
+    preset_model_ = m;
+}
+
+DB::Model::PresetTableModel *GraphicsView::getPresetModel()
+{
+    return preset_model_;
 }
 
 bool GraphicsView::activate(const QUuid &tile_id)
@@ -330,10 +341,32 @@ void GraphicsView::dropEvent(QDropEvent *event)
     if(records.size() == 0 || records[0]->index != DB::SOUND_FILE) {
         // TODO make pretty
         QJsonDocument doc = QJsonDocument::fromJson(event->mimeData()->text().toUtf8());
-        if(doc.object().contains("contents")) {
+        if(doc.object().contains("type") && doc.object()["type"].toString().compare("TwoD::NestedTile") == 0) {
             NestedTile* tile = new NestedTile(this);
+            tile->setPresetModel(preset_model_);
             tile->setFlag(QGraphicsItem::ItemIsMovable, true);
-            tile->setFromJsonObject(doc.object());
+            tile->setFromJsonObject(doc.object()["data"].toObject());
+            tile->init();
+            tile->setPos(p);
+            tile->setSize(0);
+
+            // add to scene
+            scene()->addItem(tile);
+            tile->setSmallSize();
+
+            // except event
+            event->setDropAction(Qt::CopyAction);
+            event->accept();
+            emit dropAccepted();
+            return;
+        }
+        else if(doc.object().contains("type") && doc.object()["type"].toString().compare("TwoD::PlaylistPlayerTile") == 0) {
+            qDebug() << "received";
+            PlaylistPlayerTile* tile = new PlaylistPlayerTile;
+            tile->setPresetModel(preset_model_);
+            tile->setSoundFileModel(sound_model_);
+            tile->setFlag(QGraphicsItem::ItemIsMovable, true);
+            tile->setFromJsonObject(doc.object()["data"].toObject());
             tile->init();
             tile->setPos(p);
             tile->setSize(0);
@@ -356,7 +389,8 @@ void GraphicsView::dropEvent(QDropEvent *event)
 
     // create graphics item
     PlaylistPlayerTile* tile = new PlaylistPlayerTile;
-    tile->setSoundFileModel(model_);
+    tile->setSoundFileModel(sound_model_);
+    tile->setPresetModel(preset_model_);
     tile->setFlag(QGraphicsItem::ItemIsMovable, true);
     tile->setName(records[0]->name);
     tile->init();

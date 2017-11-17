@@ -35,6 +35,11 @@ QSqlRelationalTableModel *Api::getImageDirTable()
     return db_wrapper_->getTable(IMAGE_DIRECTORY);
 }
 
+QSqlRelationalTableModel *Api::getPresetTable()
+{
+    return db_wrapper_->getTable(PRESET);
+}
+
 void Api::insertSoundFile(const QFileInfo &info, ResourceDirRecord const& resource_dir)
 {
     QString rel_path = info.filePath();
@@ -91,6 +96,16 @@ void Api::insertImageDir(const QFileInfo &info)
     db_wrapper_->insertQuery(IMAGE_DIRECTORY, value_block);
 }
 
+void Api::insertPreset(const QString &name, const QString &json)
+{
+    QString value_block  = "";
+    value_block = "(name, json) VALUES (";
+    value_block += "'" + SqliteWrapper::escape(name) + "','";
+    value_block += SqliteWrapper::escape(json) + "')";
+
+    db_wrapper_->insertQuery(PRESET, value_block);
+}
+
 int Api::getSoundFileId(const QString &path)
 {
     QString SELECT = "id";
@@ -116,6 +131,16 @@ int Api::getImageDirId(const QString &path)
     QString SELECT = "id";
     QString WHERE = "path = '" + SqliteWrapper::escape(path) + "'";
     QList<QSqlRecord> res = db_wrapper_->selectQuery(SELECT, IMAGE_DIRECTORY, WHERE);
+    if(res.size() > 0)
+        return res[0].value(0).toInt();
+    return -1;
+}
+
+int Api::getPresetId(const QString &name)
+{
+    QString SELECT = "id";
+    QString WHERE = "name = '" + SqliteWrapper::escape(name) + "'";
+    QList<QSqlRecord> res = db_wrapper_->selectQuery(SELECT, PRESET, WHERE);
     if(res.size() > 0)
         return res[0].value(0).toInt();
     return -1;

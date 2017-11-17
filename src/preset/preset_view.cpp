@@ -17,32 +17,25 @@ PresetView::PresetView(QWidget *parent)
     , start_pos_()
     , model_(0)
 {
-    model_ = new Misc::StandardItemModel(this);
-    model_->setColumnCount(1);
-    model_->setHorizontalHeaderItem(0, new QStandardItem("Name"));
-    model_->setHorizontalHeaderItem(1, new QStandardItem("Path"));
-    model_->setRowCount(1);
-    model_->setData(model_->index(0,0), QVariant("New Preset"));
-    model_->setData(model_->index(0,1), QVariant("C:\\Users\\Basti\\Documents\\Code\\pap-media\\pap-media-shared-files\\empty_preset.json"));
-    setModel(model_);
+    initContextMenu();
     //setAcceptDrops(false);
-    setEditable(false);
     setSelectionMode(QAbstractItemView::SingleSelection);
     setSelectionBehavior(QAbstractItemView::SelectRows);
+    setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 PresetView::~PresetView()
 {}
 
-void PresetView::setEditable(bool is_editable)
+void PresetView::setPresetTableModel(DB::Model::PresetTableModel *model)
 {
-    for(int i = 0; i < model_->columnCount(); ++i)
-        model_->setColumnEditable(i, is_editable);
+    model_ = model;
+    setModel(model_);
 }
 
-bool PresetView::getEditable()
+DB::Model::PresetTableModel *PresetView::getPresetTableModel()
 {
-    return model_->getColumnEditable(0);
+    return model_;
 }
 
 void PresetView::mousePressEvent(QMouseEvent *event)
@@ -79,32 +72,32 @@ void PresetView::dropEvent(QDropEvent *event)
     event->ignore();
 }
 
+void PresetView::showCustomContextMenu(const QPoint& p)
+{
+    context_menu_->exec(mapToGlobal(p));
+}
+
+void PresetView::onDeleteAction()
+{
+    QModelIndexList selection = this->selectionModel()->selectedIndexes();
+    if(selection.size() == 0)
+        return;
+
+    int row = selection.first().row();
+    model_->removeRow(row);
+}
+
 void PresetView::performDrag()
 {
     if(selectionModel()->selectedRows().size() == 1) {
+        if (model_ == 0)
+            return;
+
         QModelIndex idx = selectionModel()->selectedRows(1)[0];
 
-        QString f_name = model()->data(idx).toString();
-        QFile f(f_name);
-        if(!f.open(QFile::ReadOnly)) {
-            qDebug() << "could not open file";
-        }
-        QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
-        f.close();
-
-        QJsonObject obj;
-        obj["name"] =  f_name;
-        obj["size"] = 1;
-        obj["contents"] = doc.object();
-        QJsonArray pos_arr;
-        pos_arr.append(300);
-        pos_arr.append(150);
-        obj["position"] = pos_arr;
-
-        doc.setObject(obj);
-
+        DB::PresetRecord* rec = model_->getPresetByRow(idx.row());
         QMimeData* mime_data = new QMimeData;
-        mime_data->setText(QString(doc.toJson()));
+        mime_data->setText(rec->json);
 
         // create Drag
         QDrag *drag = new QDrag(this);
@@ -114,6 +107,21 @@ void PresetView::performDrag()
         // will block until drag done
         drag->exec(Qt::CopyAction);
     }
+}
+
+void PresetView::initContextMenu()
+{
+    context_menu_ = new QMenu(this);
+
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
+            this, SLOT(showCustomContextMenu(const QPoint&)));
+
+    QList<QAction*> actions;
+    actions.append(new QAction(tr("Delete"), context_menu_));
+    connect(actions.back(), SIGNAL(triggered()),
+            this, SLOT(onDeleteAction()));
+
+    context_menu_->addActions(actions);
 }
 
 } // namespace Preset
