@@ -17,7 +17,9 @@ NestedTile::NestedTile(GraphicsView* master_view, QGraphicsItem *parent)
     , scene_(0)
 {
     scene_ = new QGraphicsScene(QRectF(0,0,100,100),this);
-    loadOverlayPixmap(Resources::Lib::IMG_FOLDER_PATH);
+    clearOverlayPixmap();
+    overlay_pixmap_ = Resources::Lib::PX_FOLDER;
+    overlay_pixmap_path_ = Resources::Lib::IMG_FOLDER_PATH;
 }
 
 NestedTile::~NestedTile()

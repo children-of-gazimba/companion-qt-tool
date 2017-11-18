@@ -81,6 +81,7 @@ struct Lib
     static QPixmap* PX_PAUSE;
     static QPixmap* PX_STOP;
     static QPixmap* PX_SOUND_FILE_DRAG;
+    static QPixmap* PX_FOLDER;
     static QPixmap* PX_0_KEY;
     static QPixmap* PX_1_KEY;
     static QPixmap* PX_2_KEY;
