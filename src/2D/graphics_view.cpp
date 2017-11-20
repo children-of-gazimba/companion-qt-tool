@@ -16,21 +16,33 @@ GraphicsView::GraphicsView(QGraphicsScene *scene, QWidget *parent)
     , sound_model_(0)
     , main_scene_(scene)
     , scene_stack_()
+    , context_menu_(0)
+    , click_pos_()
 {
     pushScene(main_scene_);
     setAcceptDrops(true);
     setFocusPolicy(Qt::ClickFocus);
+    initContextMenu();
 }
 
 GraphicsView::GraphicsView(QWidget *parent)
     : QGraphicsView(parent)
     , sound_model_(0)
     , main_scene_(0)
+    , scene_stack_()
+    , context_menu_(0)
+    , click_pos_()
 {
     main_scene_ = new QGraphicsScene(QRectF(0,0,100,100),this);
     pushScene(main_scene_);
     setAcceptDrops(true);
     setFocusPolicy(Qt::ClickFocus);
+    initContextMenu();
+}
+
+GraphicsView::~GraphicsView()
+{
+    context_menu_->deleteLater();
 }
 
 const QJsonObject GraphicsView::toJsonObject() const
@@ -254,6 +266,42 @@ void GraphicsView::popScene()
     }
 }
 
+const QMenu *GraphicsView::getContextMenu() const
+{
+    return context_menu_;
+}
+
+void GraphicsView::createEmptyPlaylistPlayerTile(const QPoint &p)
+{
+    PlaylistPlayerTile* tile = new PlaylistPlayerTile;
+    tile->setPresetModel(preset_model_);
+    tile->setSoundFileModel(sound_model_);
+    tile->setFlag(QGraphicsItem::ItemIsMovable, true);
+    tile->init();
+    tile->setPos(p);
+    tile->setSize(0);
+    tile->setName("Empty Playlist");
+
+    // add to scene
+    scene()->addItem(tile);
+    tile->setSmallSize();
+}
+
+void GraphicsView::createEmptyNestedTile(const QPoint &p)
+{
+    NestedTile* tile = new NestedTile(this);
+    tile->setPresetModel(preset_model_);
+    tile->setFlag(QGraphicsItem::ItemIsMovable, true);
+    tile->init();
+    tile->setPos(p);
+    tile->setSize(0);
+    tile->setName("Empty Nested");
+
+    // add to scene
+    scene()->addItem(tile);
+    tile->setSmallSize();
+}
+
 void GraphicsView::resizeEvent(QResizeEvent *e)
 {
     QGraphicsView::resizeEvent(e);
@@ -291,6 +339,16 @@ void GraphicsView::wheelEvent(QWheelEvent *event)
         }
     }
     QGraphicsView::wheelEvent(event);
+}
+
+void GraphicsView::onEmptyPlaylistTile()
+{
+    createEmptyPlaylistPlayerTile(click_pos_);
+}
+
+void GraphicsView::onEmptyNestedTile()
+{
+    createEmptyNestedTile(click_pos_);
 }
 
 void GraphicsView::dragEnterEvent(QDragEnterEvent *event)
@@ -440,6 +498,18 @@ void GraphicsView::keyReleaseEvent(QKeyEvent *event)
     }
 }
 
+void GraphicsView::mousePressEvent(QMouseEvent *event)
+{
+    QGraphicsView::mousePressEvent(event);
+    if(!event->isAccepted()) {
+        if(event->button() == Qt::RightButton) {
+            context_menu_->popup(event->globalPos());
+            click_pos_ = event->pos();
+            event->accept();
+        }
+    }
+}
+
 void GraphicsView::clearTiles()
 {
     foreach(QGraphicsItem* it, scene()->items()) {
@@ -449,6 +519,26 @@ void GraphicsView::clearTiles()
             t->onDelete();
         }
     }
+}
+
+void GraphicsView::initContextMenu()
+{
+    context_menu_ = new QMenu;
+
+    QMenu* create_empty = new QMenu(tr("Create Empty"));
+
+    QAction* empty_playlist = new QAction(tr("Playlist Tile"));
+    connect(empty_playlist, SIGNAL(triggered()),
+            this, SLOT(onEmptyPlaylistTile()));
+
+    QAction* empty_nested = new QAction(tr("Nested Tile"));
+    connect(empty_nested, SIGNAL(triggered()),
+            this, SLOT(onEmptyNestedTile()));
+
+    create_empty->addAction(empty_playlist);
+    create_empty->addAction(empty_nested);
+
+    context_menu_->addMenu(create_empty);
 }
 
 } // namespace TwoD

@@ -6,6 +6,7 @@
 #include <QJsonObject>
 #include <QUuid>
 #include <QStack>
+#include <QMenu>
 
 #include "db/model/sound_file_table_model.h"
 #include "db/model/preset_table_model.h"
@@ -29,6 +30,7 @@ class GraphicsView : public QGraphicsView
 public:
     GraphicsView(QGraphicsScene *scene, QWidget *parent);
     GraphicsView(QWidget *parent = 0);
+    ~GraphicsView();
 
     /**
      * Parses all tiles in scene to JSON object.
@@ -92,6 +94,21 @@ public:
     */
     void popScene();
 
+    /**
+     * Get context menu of view.
+    */
+    const QMenu* getContextMenu() const;
+
+    /**
+     * Creates an empty PlaylistPlayerTile
+    */
+    void createEmptyPlaylistPlayerTile(QPoint const& p);
+
+    /**
+     * Creates an empty NestedTile
+    */
+    void createEmptyNestedTile(QPoint const& p);
+
 private:
     /**
      * Handle scene size when widget resizes.
@@ -105,6 +122,10 @@ private:
 
 signals:
     void dropAccepted();
+
+private slots:
+    void onEmptyPlaylistTile();
+    void onEmptyNestedTile();
 
 private:
     /**
@@ -125,15 +146,24 @@ private:
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
 
+    void mousePressEvent(QMouseEvent *event);
+
     /**
      * Remove all tiles from view.
      */
     void clearTiles();
 
+    /**
+     * @brief initializes the context menu of this view.
+     */
+    void initContextMenu();
+
     DB::Model::SoundFileTableModel* sound_model_;
     DB::Model::PresetTableModel* preset_model_;
     QGraphicsScene* main_scene_;
     QStack<QGraphicsScene*> scene_stack_;
+    QMenu* context_menu_;
+    QPoint click_pos_;
 };
 
 }
