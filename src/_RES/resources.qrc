@@ -10,6 +10,7 @@
         <file>icon_pause.png</file>
         <file>icon_play.png</file>
         <file>icon_stop.png</file>
+        <file>folder.png</file>
     </qresource>
     <qresource prefix="/styles">
         <file>dark_style.css</file>

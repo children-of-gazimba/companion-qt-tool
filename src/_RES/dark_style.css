@@ -75,7 +75,7 @@ QTabBar::tab {
     border-bottom: none;
     color: white;
     padding: 8px;
-    min-width: 100%;
+    min-width: 50%;
 }
 
 QTabBar::tab:hover {
@@ -138,7 +138,13 @@ QTableView > QHeaderView::section {
 SoundFile--ListView {
    background-color: #545556;
    color: white;
-   margin-top: 5px;
+   /*margin-top: 5px;*/
+}
+
+Preset--PresetView {
+   background-color: #545556;
+   color: white;
+   /*margin-top: 5px;*/
 }
 
 QListView::item {

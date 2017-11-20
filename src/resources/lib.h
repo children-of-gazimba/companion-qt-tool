@@ -35,6 +35,7 @@ struct Lib
     // overlay
     static QString IMG_CRACKED_STONE_PATH;
     static QString IMG_CRACKED_STONE_INV_PATH;
+    static QString IMG_FOLDER_PATH;
     // keys
     static QString IMG_KEY_0_PATH;
     static QString IMG_KEY_1_PATH;
@@ -80,6 +81,7 @@ struct Lib
     static QPixmap* PX_PAUSE;
     static QPixmap* PX_STOP;
     static QPixmap* PX_SOUND_FILE_DRAG;
+    static QPixmap* PX_FOLDER;
     static QPixmap* PX_0_KEY;
     static QPixmap* PX_1_KEY;
     static QPixmap* PX_2_KEY;

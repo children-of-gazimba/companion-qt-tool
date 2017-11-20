@@ -6,26 +6,31 @@
 
 #include "player_tile.h"
 #include "playlist_player_tile.h"
+#include "nested_tile.h"
 #include "misc/json_mime_data_parser.h"
 
 namespace TwoD {
 
 GraphicsView::GraphicsView(QGraphicsScene *scene, QWidget *parent)
     : QGraphicsView(scene, parent)
-    , model_(0)
+    , sound_model_(0)
+    , main_scene_(scene)
+    , scene_stack_()
 {
-    setScene(scene);
+    pushScene(main_scene_);
     setAcceptDrops(true);
     setFocusPolicy(Qt::ClickFocus);
 }
 
 GraphicsView::GraphicsView(QWidget *parent)
     : QGraphicsView(parent)
-    , model_(0)
+    , sound_model_(0)
+    , main_scene_(0)
 {
-    setScene(new QGraphicsScene(QRectF(0,0,100,100),this));
-    scene()->setSceneRect(0,0, 100, 100);
+    main_scene_ = new QGraphicsScene(QRectF(0,0,100,100),this);
+    pushScene(main_scene_);
     setAcceptDrops(true);
+    setFocusPolicy(Qt::ClickFocus);
 }
 
 const QJsonObject GraphicsView::toJsonObject() const
@@ -81,6 +86,9 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
         scene_rect.setY((qreal) rc_obj["y"].toDouble());
         scene_rect.setWidth((qreal) rc_obj["width"].toDouble());
         scene_rect.setHeight((qreal) rc_obj["height"].toDouble());
+        //setSceneRect(scene_rect);
+        scene()->setSceneRect(scene_rect);
+        //qDebug() << scene()->sceneRect();
     }
 
     clearTiles();
@@ -97,11 +105,28 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
         // create tile, if type is TwoD::PlaylistPlayerTile
         if(t_obj["type"].toString().compare("TwoD::PlaylistPlayerTile") == 0) {
             PlaylistPlayerTile* tile = new PlaylistPlayerTile;
-            tile->setSoundFileModel(model_);
+            tile->setSoundFileModel(sound_model_);
+            tile->setPresetModel(preset_model_);
             tile->setFlag(QGraphicsItem::ItemIsMovable, true);
             tile->init();
             if(tile->setFromJsonObject(t_obj["data"].toObject())) {
-               scene()->addItem(tile);
+                scene()->addItem(tile);
+            }
+            else {
+                qDebug() << "FAILURE: Could not set Tile data from JSON.";
+                qDebug() << " > data:" << t_obj["data"];
+                qDebug() << " > Aborting.";
+                delete tile;
+                return false;
+            }
+        }
+        else if(t_obj["type"].toString().compare("TwoD::NestedTile") == 0) {
+            NestedTile* tile = new NestedTile(this);
+            tile->setPresetModel(preset_model_);
+            tile->setFlag(QGraphicsItem::ItemIsMovable, true);
+            tile->init();
+            if(tile->setFromJsonObject(t_obj["data"].toObject())) {
+                scene()->addItem(tile);
             }
             else {
                 qDebug() << "FAILURE: Could not set Tile data from JSON.";
@@ -118,12 +143,22 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
 
 void GraphicsView::setSoundFileModel(DB::Model::SoundFileTableModel *m)
 {
-    model_ = m;
+    sound_model_ = m;
 }
 
 DB::Model::SoundFileTableModel *GraphicsView::getSoundFileModel()
 {
-    return model_;
+    return sound_model_;
+}
+
+void GraphicsView::setPresetModel(DB::Model::PresetTableModel *m)
+{
+    preset_model_ = m;
+}
+
+DB::Model::PresetTableModel *GraphicsView::getPresetModel()
+{
+    return preset_model_;
 }
 
 bool GraphicsView::activate(const QUuid &tile_id)
@@ -205,16 +240,33 @@ bool GraphicsView::setVolume(const QUuid &tile_id, int volume)
     return false;
 }
 
+void GraphicsView::pushScene(QGraphicsScene* scene)
+{
+    scene_stack_.push(scene);
+    setScene(scene);
+}
+
+void GraphicsView::popScene()
+{
+    if(scene_stack_.size() > 1) {
+        scene_stack_.pop();
+        setScene(scene_stack_.top());
+    }
+}
+
 void GraphicsView::resizeEvent(QResizeEvent *e)
 {
     QGraphicsView::resizeEvent(e);
     if(e->isAccepted()) {
         QRectF r = scene()->sceneRect();
-        if(e->size().width() > r.width())
+        if(e->size().width() > r.width()) {
             r.setWidth(e->size().width());
-        if(e->size().height() > r.height())
+        }
+        if(e->size().height() > r.height()) {
             r.setHeight(e->size().height());
+        }
         scene()->setSceneRect(r);
+        //setSceneRect(r);
     }
 }
 
@@ -287,13 +339,58 @@ void GraphicsView::dropEvent(QDropEvent *event)
 
     // validate parsing
     if(records.size() == 0 || records[0]->index != DB::SOUND_FILE) {
-        event->ignore();
-        return;
+        // TODO make pretty
+        QJsonDocument doc = QJsonDocument::fromJson(event->mimeData()->text().toUtf8());
+        if(doc.object().contains("type") && doc.object()["type"].toString().compare("TwoD::NestedTile") == 0) {
+            NestedTile* tile = new NestedTile(this);
+            tile->setPresetModel(preset_model_);
+            tile->setFlag(QGraphicsItem::ItemIsMovable, true);
+            tile->setFromJsonObject(doc.object()["data"].toObject());
+            tile->init();
+            tile->setPos(p);
+            tile->setSize(0);
+
+            // add to scene
+            scene()->addItem(tile);
+            tile->setSmallSize();
+
+            // except event
+            event->setDropAction(Qt::CopyAction);
+            event->accept();
+            emit dropAccepted();
+            return;
+        }
+        else if(doc.object().contains("type") && doc.object()["type"].toString().compare("TwoD::PlaylistPlayerTile") == 0) {
+            qDebug() << "received";
+            PlaylistPlayerTile* tile = new PlaylistPlayerTile;
+            tile->setPresetModel(preset_model_);
+            tile->setSoundFileModel(sound_model_);
+            tile->setFlag(QGraphicsItem::ItemIsMovable, true);
+            tile->setFromJsonObject(doc.object()["data"].toObject());
+            tile->init();
+            tile->setPos(p);
+            tile->setSize(0);
+
+            // add to scene
+            scene()->addItem(tile);
+            tile->setSmallSize();
+
+            // except event
+            event->setDropAction(Qt::CopyAction);
+            event->accept();
+            emit dropAccepted();
+            return;
+        }
+        else {
+            event->ignore();
+            return;
+        }
     }
 
     // create graphics item
     PlaylistPlayerTile* tile = new PlaylistPlayerTile;
-    tile->setSoundFileModel(model_);
+    tile->setSoundFileModel(sound_model_);
+    tile->setPresetModel(preset_model_);
     tile->setFlag(QGraphicsItem::ItemIsMovable, true);
     tile->setName(records[0]->name);
     tile->init();
@@ -328,6 +425,11 @@ void GraphicsView::keyPressEvent(QKeyEvent*)
 
 void GraphicsView::keyReleaseEvent(QKeyEvent *event)
 {
+    if(event->key() == Qt::Key_Backspace) {
+        popScene();
+        return;
+    }
+
     foreach(QGraphicsItem* it, scene()->items()) {
         QObject* o = dynamic_cast<QObject*>(it);
         if(o) {

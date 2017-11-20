@@ -21,6 +21,7 @@ DsaMediaControlKit::DsaMediaControlKit(QWidget *parent)
     , sound_file_view_(0)
     , category_view_(0)
     , preset_view_(0)
+    , graphics_view_(0)
     , sound_file_importer_(0)
     , center_h_splitter_(0)
     , left_v_splitter_(0)
@@ -107,7 +108,7 @@ void DsaMediaControlKit::onSaveProject()
     if(project_name_.size() > 0) {
         QJsonDocument doc;
 
-        doc.setObject(preset_view_->toJsonObject());
+        doc.setObject(graphics_view_->toJsonObject());
 
         QFile json_file(project_name_);
         json_file.open(QFile::WriteOnly);
@@ -145,7 +146,7 @@ void DsaMediaControlKit::onOpenProject()
         QJsonDocument doc = QJsonDocument::fromJson(json_file.readAll());
 
         // graphics view could not be set from json
-        if(!preset_view_->setFromJsonObject(doc.object())) {
+        if(!graphics_view_->setFromJsonObject(doc.object())) {
             QMessageBox b;
             b.setText(tr("The selected file does not seem to contain valid project data."));
             b.setInformativeText(tr("Do you wish to select a different file?"));
@@ -163,7 +164,7 @@ void DsaMediaControlKit::onStartWebServer()
 {
     if(web_host_ == 0)
         web_host_ = new Web::Host;
-    web_host_->setPresetView(preset_view_);
+    web_host_->setPresetView(graphics_view_);
     web_host_->show();
 }
 
@@ -193,8 +194,9 @@ void DsaMediaControlKit::initWidgets()
     progress_bar_->setValue(100);
     progress_bar_->hide();
 
-    preset_view_ = new TwoD::GraphicsView(this);
-    preset_view_->setSoundFileModel(db_handler_->getSoundFileTableModel());
+    graphics_view_ = new TwoD::GraphicsView(this);
+    graphics_view_->setSoundFileModel(db_handler_->getSoundFileTableModel());
+    graphics_view_->setPresetModel(db_handler_->getPresetTableModel());
 
     sound_file_importer_ = new Resources::Importer(
         db_handler_->getResourceDirTableModel(),
@@ -203,6 +205,9 @@ void DsaMediaControlKit::initWidgets()
 
     category_view_ = new Category::TreeView(this);
     category_view_->setCategoryTreeModel(db_handler_->getCategoryTreeModel());
+
+    preset_view_ = new Preset::PresetView(this);
+    preset_view_->setPresetTableModel(db_handler_->getPresetTableModel());
 
     left_box_ = new QGroupBox(this);
     right_box_ = new QGroupBox(this);
@@ -227,6 +232,7 @@ void DsaMediaControlKit::initWidgets()
 
     left_tabwidget_->addTab(left_v_splitter_, tr("Sounds"));
     left_tabwidget_->addTab(image_browser_, tr("Images"));
+    left_tabwidget_->addTab(preset_view_, tr("Presets"));
 
     connect(sound_file_importer_, SIGNAL(folderImported(QList<Resources::SoundFile> const&)),
             db_handler_, SLOT(insertSoundFilesAndCategories(QList<Resources::SoundFile> const&)));
@@ -240,7 +246,7 @@ void DsaMediaControlKit::initWidgets()
             db_handler_->getSoundFileTableModel(), SLOT(deleteSoundFile(int)));
     connect(db_handler_->getSoundFileTableModel(), SIGNAL(aboutToBeDeleted(DB::SoundFileRecord*)),
             sound_file_view_, SLOT(onSoundFileAboutToBeDeleted(DB::SoundFileRecord*)));
-    connect(preset_view_, SIGNAL(dropAccepted()),
+    connect(graphics_view_, SIGNAL(dropAccepted()),
             sound_file_view_, SLOT(onDropSuccessful()));
 }
 
@@ -255,7 +261,7 @@ void DsaMediaControlKit::initLayout()
 
     // right layout
     QVBoxLayout* r_layout = new QVBoxLayout;
-    r_layout->addWidget(preset_view_);
+    r_layout->addWidget(graphics_view_);
     right_box_->setLayout(r_layout);
 
     layout->addWidget(center_h_splitter_);

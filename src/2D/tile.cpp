@@ -9,6 +9,8 @@
 #include <QJsonArray>
 #include <QErrorMessage>
 #include <cmath>
+#include <QJsonDocument>
+#include <QMessageBox>
 
 #include "resources/lib.h"
 #include "misc/char_input_dialog.h"
@@ -32,6 +34,7 @@ Tile::Tile(QGraphicsItem* parent)
     , overlay_pixmap_path_()
     , uuid_()
     , is_activated_(false)
+    , preset_model_(0)
 {    
     long_click_timer_ = new QTimer(this);
     connect(long_click_timer_, SIGNAL(timeout()),
@@ -254,6 +257,16 @@ bool Tile::isActivated() const
 const QString Tile::getClassName() const
 {
     return QString("Tile");
+}
+
+void Tile::setPresetModel(DB::Model::PresetTableModel *model)
+{
+    preset_model_ = model;
+}
+
+DB::Model::PresetTableModel* Tile::getPresetModel()
+{
+    return preset_model_;
 }
 
 void Tile::onActivate()
@@ -568,6 +581,29 @@ void Tile::onDelete()
     deleteLater();
 }
 
+void Tile::onSaveAsPreset()
+{
+    if(preset_model_ == 0)
+        return;
+
+    DB::PresetRecord* rec = preset_model_->getPresetByName(name_);
+    if(rec != 0) {
+        QMessageBox msg_box;
+        msg_box.setIcon(QMessageBox::Warning);
+        msg_box.setText("A Preset named '" + name_ + "' already exists.");
+        msg_box.setInformativeText("Please rename your Tile or delete the existing Preset first.");
+        msg_box.exec();
+        return;
+    }
+
+    QJsonDocument doc;
+    QJsonObject obj;
+    obj["data"] = toJsonObject();
+    obj["type"] = metaObject()->className();
+    doc.setObject(obj);
+    preset_model_->addPresetRecord(name_, QString(doc.toJson()));
+}
+
 void Tile::onSetKey()
 {
     Misc::CharInputDialog d;
@@ -669,10 +705,18 @@ void Tile::createContextMenu()
     connect(activate_button_action, SIGNAL(triggered()),
             this, SLOT(onSetKey()));
 
+    // create delete action
+    QAction* save_as_preset_action = new QAction(tr("Save As Preset"), this);
+
+    connect(save_as_preset_action, SIGNAL(triggered()),
+            this, SLOT(onSaveAsPreset()));
+
     // create context menu
     //context_menu_->addAction(activate_action_);
     context_menu_->addAction(activate_button_action);
     context_menu_->addMenu(size_menu);
+    context_menu_->addSeparator();
+    context_menu_->addAction(save_as_preset_action);
     context_menu_->addSeparator();
     context_menu_->addAction(delete_action);
 }

@@ -5,8 +5,10 @@
 #include <QMouseEvent>
 #include <QJsonObject>
 #include <QUuid>
+#include <QStack>
 
 #include "db/model/sound_file_table_model.h"
+#include "db/model/preset_table_model.h"
 
 // TODO: rename namespace to Tile
 namespace TwoD {
@@ -26,7 +28,7 @@ class GraphicsView : public QGraphicsView
 
 public:
     GraphicsView(QGraphicsScene *scene, QWidget *parent);
-    GraphicsView(QWidget *parent);
+    GraphicsView(QWidget *parent = 0);
 
     /**
      * Parses all tiles in scene to JSON object.
@@ -42,6 +44,9 @@ public:
 
     void setSoundFileModel(DB::Model::SoundFileTableModel* m);
     DB::Model::SoundFileTableModel* getSoundFileModel();
+
+    void setPresetModel(DB::Model::PresetTableModel* m);
+    DB::Model::PresetTableModel* getPresetModel();
 
     /**
      * Activates tile with given ID.
@@ -74,6 +79,18 @@ public:
      * @return success of setting volume.
      */
     bool setVolume(const QUuid& tile_id, int volume);
+
+    /**
+     * pushes a scene onto the scene stack and shows it.
+    */
+    void pushScene(QGraphicsScene*);
+
+    /*
+     * pops a scene from the scene stack and shows the next.
+     * will not pop if there is only one scene left.
+     * last scene on stakc is always main scene.
+    */
+    void popScene();
 
 private:
     /**
@@ -113,7 +130,10 @@ private:
      */
     void clearTiles();
 
-    DB::Model::SoundFileTableModel* model_;
+    DB::Model::SoundFileTableModel* sound_model_;
+    DB::Model::PresetTableModel* preset_model_;
+    QGraphicsScene* main_scene_;
+    QStack<QGraphicsScene*> scene_stack_;
 };
 
 }

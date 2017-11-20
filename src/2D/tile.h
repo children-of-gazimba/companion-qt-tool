@@ -17,6 +17,7 @@
 #include <QUuid>
 
 #include "db/handler.h"
+#include "db/model/preset_table_model.h"
 
 namespace TwoD {
 
@@ -181,6 +182,16 @@ public:
      */
     virtual const QString getClassName() const;
 
+    /**
+     * sets the presetmodel for this Tile.
+     */
+    void setPresetModel(DB::Model::PresetTableModel* model);
+
+    /**
+     * gets the presetmodel for this Tile.
+     */
+    DB::Model::PresetTableModel* getPresetModel();
+
 signals:
     void mousePressed(QGraphicsSceneMouseEvent* e);
     void mouseReleased(QGraphicsSceneMouseEvent* e);
@@ -204,6 +215,9 @@ public slots:
 
     /** removes this item from the scene and schedules deletion (see deleteLater) */
     virtual void onDelete();
+
+    /** saves the tile to the preset model */
+    void onSaveAsPreset();
 
 protected slots:
     /** slot to enable move mode after timer */
@@ -288,6 +302,8 @@ protected:
     QString overlay_pixmap_path_;
     QUuid uuid_;
     bool is_activated_;
+    DB::Model::PresetTableModel* preset_model_;
+
 };
 
 } // namespace TwoD

@@ -65,7 +65,10 @@ SOURCES += main.cpp \
     image/view.cpp \
     image/browser.cpp \
     image/list.cpp \
-    db/model/image_dir_table_model.cpp
+    db/model/image_dir_table_model.cpp \
+    2D/nested_tile.cpp \
+    preset/preset_view.cpp \
+    db/model/preset_table_model.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -116,7 +119,10 @@ HEADERS  += main_window.h \
     image/view.h \
     image/browser.h \
     image/list.h \
-    db/model/image_dir_table_model.h
+    db/model/image_dir_table_model.h \
+    2D/nested_tile.h \
+    preset/preset_view.h \
+    db/model/preset_table_model.h
 
 RESOURCES += \
     _RES/resources.qrc

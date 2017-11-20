@@ -11,6 +11,7 @@
 #include "model/sound_file_table_model.h"
 #include "model/resource_dir_table_model.h"
 #include "model/image_dir_table_model.h"
+#include "model/preset_table_model.h"
 
 namespace DB {
 
@@ -30,6 +31,7 @@ public:
     Model::SoundFileTableModel* getSoundFileTableModel();
     Model::ResourceDirTableModel* getResourceDirTableModel();
     Model::ImageDirTableModel* getImageDirTableModel();
+    Model::PresetTableModel* getPresetTableModel();
 
     /*
      * Gets a list of SoundFileRecords,
@@ -77,6 +79,7 @@ private:
     Model::SoundFileTableModel* sound_file_table_model_;
     Model::ResourceDirTableModel* resource_dir_table_model_;
     Model::ImageDirTableModel* image_dir_table_model_;
+    Model::PresetTableModel* preset_table_model_;
 };
 
 } // namespace DB
