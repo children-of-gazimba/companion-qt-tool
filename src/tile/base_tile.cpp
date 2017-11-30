@@ -1,4 +1,4 @@
-#include "tile.h"
+#include "base_tile.h"
 
 #include <QDebug>
 #include <QMimeData>
@@ -17,9 +17,9 @@
 
 #define OFFSET 10
 
-namespace TwoD {
+namespace Tile {
 
-Tile::Tile(QGraphicsItem* parent)
+BaseTile::BaseTile(QGraphicsItem* parent)
     : QObject(0)
     , QGraphicsItem(parent)
     , name_()
@@ -53,23 +53,23 @@ Tile::Tile(QGraphicsItem* parent)
             this, SLOT(onActivate()));
 }
 
-Tile::~Tile()
+BaseTile::~BaseTile()
 {
     context_menu_->deleteLater();
     clearOverlayPixmap();
 }
 
-void Tile::init()
+void BaseTile::init()
 {
     createContextMenu();
 }
 
-QRectF Tile::boundingRect() const
+QRectF BaseTile::boundingRect() const
 {
     return QRectF(0,0,100*size_,100*size_);
 }
 
-void Tile::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+void BaseTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     scene()->update(scene()->sceneRect());
 
@@ -90,27 +90,27 @@ void Tile::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
     }
 }
 
-void Tile::setActivateKey(const QChar &c)
+void BaseTile::setActivateKey(const QChar &c)
 {
     activate_key_ = c;
 }
 
-const QChar &Tile::getActivateKey() const
+const QChar &BaseTile::getActivateKey() const
 {
     return activate_key_;
 }
 
-void Tile::setSize(qreal size)
+void BaseTile::setSize(qreal size)
 {
     size_ = size;
 }
 
-qreal Tile::getSize() const
+qreal BaseTile::getSize() const
 {
     return size_;
 }
 
-void Tile::setSizeAnimated(qreal size)
+void BaseTile::setSizeAnimated(qreal size)
 {
     qreal prev_size = size_;
 
@@ -124,7 +124,7 @@ void Tile::setSizeAnimated(qreal size)
     anim->setEasingCurve(QEasingCurve::InOutQuad);
 }
 
-void Tile::setSizeLayoutAware(qreal size)
+void BaseTile::setSizeLayoutAware(qreal size)
 {
     qreal prev_size = size_;
     size_ = size;
@@ -133,40 +133,40 @@ void Tile::setSizeLayoutAware(qreal size)
     scene()->update(scene()->sceneRect());
 }
 
-void Tile::setName(const QString &str)
+void BaseTile::setName(const QString &str)
 {
     name_ = str;
 }
 
-const QString &Tile::getName() const
+const QString &BaseTile::getName() const
 {
     return name_;
 }
 
-const QMenu *Tile::getContextMenu() const
+const QMenu *BaseTile::getContextMenu() const
 {
     return context_menu_;
 }
 
-const QUuid &Tile::getUuid() const
+const QUuid &BaseTile::getUuid() const
 {
     return uuid_;
 }
 
-bool Tile::hasActivateKey() const
+bool BaseTile::hasActivateKey() const
 {
     return activate_key_ != ' ';
 }
 
-void Tile::receiveExternalData(const QMimeData *data)
+void BaseTile::receiveExternalData(const QMimeData *data)
 {
     qDebug() << "Tile " << name_ <<" : Received Data "<< data->text();
 }
 
-void Tile::receiveWheelEvent(QWheelEvent*)
+void BaseTile::receiveWheelEvent(QWheelEvent*)
 {}
 
-const QJsonObject Tile::toJsonObject() const
+const QJsonObject BaseTile::toJsonObject() const
 {
     QJsonObject obj;
 
@@ -183,7 +183,7 @@ const QJsonObject Tile::toJsonObject() const
     return obj;
 }
 
-bool Tile::setFromJsonObject(const QJsonObject &obj)
+bool BaseTile::setFromJsonObject(const QJsonObject &obj)
 {
     // check format
     if(obj.isEmpty())
@@ -217,7 +217,7 @@ bool Tile::setFromJsonObject(const QJsonObject &obj)
     return true;
 }
 
-void Tile::loadOverlayPixmap(const QString &file_path)
+void BaseTile::loadOverlayPixmap(const QString &file_path)
 {
     if(file_path.compare(overlay_pixmap_path_) == 0)
         return;
@@ -235,12 +235,12 @@ void Tile::loadOverlayPixmap(const QString &file_path)
     }
 }
 
-const QString &Tile::getOverlayPixmapPath() const
+const QString &BaseTile::getOverlayPixmapPath() const
 {
     return overlay_pixmap_path_;
 }
 
-void Tile::clearOverlayPixmap()
+void BaseTile::clearOverlayPixmap()
 {
     if(overlay_pixmap_ != 0) {
         delete overlay_pixmap_;
@@ -249,33 +249,33 @@ void Tile::clearOverlayPixmap()
     }
 }
 
-bool Tile::isActivated() const
+bool BaseTile::isActivated() const
 {
     return is_activated_;
 }
 
-const QString Tile::getClassName() const
+const QString BaseTile::getClassName() const
 {
     return QString("Tile");
 }
 
-void Tile::setPresetModel(DB::Model::PresetTableModel *model)
+void BaseTile::setPresetModel(DB::Model::PresetTableModel *model)
 {
     preset_model_ = model;
 }
 
-DB::Model::PresetTableModel* Tile::getPresetModel()
+DB::Model::PresetTableModel* BaseTile::getPresetModel()
 {
     return preset_model_;
 }
 
-void Tile::onActivate()
+void BaseTile::onActivate()
 {
     is_activated_ = !is_activated_;
     emit activated();
 }
 
-void Tile::mousePressEvent(QGraphicsSceneMouseEvent* e)
+void BaseTile::mousePressEvent(QGraphicsSceneMouseEvent* e)
 {
     if(e->button() == Qt::LeftButton) {
         setMode(SELECTED);
@@ -292,7 +292,7 @@ void Tile::mousePressEvent(QGraphicsSceneMouseEvent* e)
     emit mousePressed(e);
 }
 
-void Tile::mouseReleaseEvent(QGraphicsSceneMouseEvent* e)
+void BaseTile::mouseReleaseEvent(QGraphicsSceneMouseEvent* e)
 {
     setMode(IDLE);
     long_click_timer_->stop();
@@ -300,7 +300,7 @@ void Tile::mouseReleaseEvent(QGraphicsSceneMouseEvent* e)
     emit mouseReleased(e);
 }
 
-void Tile::mouseMoveEvent(QGraphicsSceneMouseEvent* e)
+void BaseTile::mouseMoveEvent(QGraphicsSceneMouseEvent* e)
 {
     if(mode_ == MOVE) {
         QPointF p = pos();
@@ -355,7 +355,7 @@ void Tile::mouseMoveEvent(QGraphicsSceneMouseEvent* e)
     emit mouseMoved(e);
 }
 
-void Tile::hoverEnterEvent(QGraphicsSceneHoverEvent* e)
+void BaseTile::hoverEnterEvent(QGraphicsSceneHoverEvent* e)
 {
     if(mode_ == IDLE)
         setMode(HOVER);
@@ -363,7 +363,7 @@ void Tile::hoverEnterEvent(QGraphicsSceneHoverEvent* e)
     e->accept();
 }
 
-void Tile::hoverLeaveEvent(QGraphicsSceneHoverEvent* e)
+void BaseTile::hoverLeaveEvent(QGraphicsSceneHoverEvent* e)
 {
     if(mode_ == HOVER)
         setMode(IDLE);
@@ -371,27 +371,27 @@ void Tile::hoverLeaveEvent(QGraphicsSceneHoverEvent* e)
     e->accept();
 }
 
-void Tile::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
+void BaseTile::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 {
     QGraphicsItem::dragEnterEvent(event);
 }
 
-void Tile::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
+void BaseTile::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 {
     QGraphicsItem::dragMoveEvent(event);
 }
 
-void Tile::dropEvent(QGraphicsSceneDragDropEvent *event)
+void BaseTile::dropEvent(QGraphicsSceneDragDropEvent *event)
 {
     QGraphicsItem::dropEvent(event);
 }
 
-void Tile::contextMenuEvent(QGraphicsSceneContextMenuEvent *e)
+void BaseTile::contextMenuEvent(QGraphicsSceneContextMenuEvent *e)
 {
     context_menu_->popup(e->screenPos());
 }
 
-void Tile::fixOverlapsAfterResize(qreal prev_size)
+void BaseTile::fixOverlapsAfterResize(qreal prev_size)
 {
     if(prev_size >= size_)
         return;
@@ -415,7 +415,7 @@ void Tile::fixOverlapsAfterResize(qreal prev_size)
         QSet<QGraphicsItem*> remove_items;
         foreach(QGraphicsItem* it, items) {
             // cast necessary for property animation
-            Tile* c_it = dynamic_cast<Tile*>(it);
+            BaseTile* c_it = dynamic_cast<BaseTile*>(it);
 
             // skip non GraphicsItems
             if(!c_it)
@@ -490,7 +490,7 @@ void Tile::fixOverlapsAfterResize(qreal prev_size)
 
 }
 
-const QRectF Tile::getPaintRect() const
+const QRectF BaseTile::getPaintRect() const
 {
     QRectF paint_rect = boundingRect();
     paint_rect.setX(paint_rect.x()+OFFSET);
@@ -500,7 +500,7 @@ const QRectF Tile::getPaintRect() const
     return paint_rect;
 }
 
-const QBrush Tile::getBackgroundBrush() const
+const QBrush BaseTile::getBackgroundBrush() const
 {
     QBrush b(Qt::gray);
 
@@ -516,7 +516,7 @@ const QBrush Tile::getBackgroundBrush() const
     return b;
 }
 
-const QPixmap Tile::getOverlayPixmap() const
+const QPixmap BaseTile::getOverlayPixmap() const
 {
     if (overlay_pixmap_ != 0)
         return *overlay_pixmap_;
@@ -527,7 +527,7 @@ const QPixmap Tile::getOverlayPixmap() const
         return *Resources::Lib::PX_CRACKED_STONE;
 }
 
-const QPixmap Tile::getActivatePixmap() const
+const QPixmap BaseTile::getActivatePixmap() const
 {
     QPixmap* px = Resources::Lib::getKeyPixmap(activate_key_);
     if(px == 0)
@@ -535,7 +535,7 @@ const QPixmap Tile::getActivatePixmap() const
     return *px;
 }
 
-void Tile::setDefaultOpacity()
+void BaseTile::setDefaultOpacity()
 {
     switch(mode_) {
         case MOVE:
@@ -549,39 +549,39 @@ void Tile::setDefaultOpacity()
 
 }
 
-void Tile::setMode(Tile::ItemMode mode)
+void BaseTile::setMode(BaseTile::ItemMode mode)
 {
     mode_ = mode;
     update(boundingRect());
 }
 
-void Tile::setSmallSize()
+void BaseTile::setSmallSize()
 {
     setSizeAnimated(1);
 }
 
-void Tile::setMediumSize()
+void BaseTile::setMediumSize()
 {
     setSizeAnimated(2);
 }
 
-void Tile::setLargeSize()
+void BaseTile::setLargeSize()
 {
     setSizeAnimated(3);
 }
 
-void Tile::onLongClick()
+void BaseTile::onLongClick()
 {
     setMode(MOVE);
 }
 
-void Tile::onDelete()
+void BaseTile::onDelete()
 {
     scene()->removeItem(this);
     deleteLater();
 }
 
-void Tile::onSaveAsPreset()
+void BaseTile::onSaveAsPreset()
 {
     if(preset_model_ == 0)
         return;
@@ -604,7 +604,7 @@ void Tile::onSaveAsPreset()
     preset_model_->addPresetRecord(name_, QString(doc.toJson()));
 }
 
-void Tile::onSetKey()
+void BaseTile::onSetKey()
 {
     Misc::CharInputDialog d;
     if(d.exec()) {
@@ -613,7 +613,7 @@ void Tile::onSetKey()
     }
 }
 
-qreal Tile::distance(const QPointF &p, const QLineF &l)
+qreal BaseTile::distance(const QPointF &p, const QLineF &l)
 {
     // transform to loocal coordinates system (0,0) - (lx, ly)
     QPointF p1 = l.p1();
@@ -633,7 +633,7 @@ qreal Tile::distance(const QPointF &p, const QLineF &l)
     return fabs(x*y2 - y*x2) / norm;
 }
 
-Tile::BOX_SIDE Tile::closestSide(const QPointF &p, const QRectF &rect)
+BaseTile::BOX_SIDE BaseTile::closestSide(const QPointF &p, const QRectF &rect)
 {
     qreal x_min = rect.x();
     qreal x_max = rect.x() + rect.width();
@@ -673,7 +673,7 @@ Tile::BOX_SIDE Tile::closestSide(const QPointF &p, const QRectF &rect)
     return side;
 }
 
-void Tile::createContextMenu()
+void BaseTile::createContextMenu()
 {
     // create size actions
     QAction* small_size_action = new QAction(tr("Small"), this);

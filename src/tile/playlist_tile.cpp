@@ -1,4 +1,4 @@
-#include "playlist_player_tile.h"
+#include "playlist_tile.h"
 #include "resources/lib.h"
 
 #include <QGraphicsScene>
@@ -8,10 +8,10 @@
 
 #include "sound_file/list_view_dialog.h"
 
-namespace TwoD {
+namespace Tile {
 
-PlaylistPlayerTile::PlaylistPlayerTile(QGraphicsItem *parent)
-    : Tile(parent)
+PlaylistTile::PlaylistTile(QGraphicsItem *parent)
+    : BaseTile(parent)
     , player_(0)
     , playlist_settings_widget_(0)
     , playlist_(0)
@@ -30,16 +30,16 @@ PlaylistPlayerTile::PlaylistPlayerTile(QGraphicsItem *parent)
     setAcceptDrops(true);
 }
 
-PlaylistPlayerTile::~PlaylistPlayerTile()
+PlaylistTile::~PlaylistTile()
 {
     delete playlist_;
     playlist_ = 0;
 }
 
 
-void PlaylistPlayerTile::paint(QPainter *painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
+void PlaylistTile::paint(QPainter *painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
-    Tile::paint(painter, option, widget);
+    BaseTile::paint(painter, option, widget);
 
     QRectF p_rect(getPaintRect());
     if(p_rect.width() > 0 && p_rect.height() > 0) {
@@ -70,7 +70,7 @@ void PlaylistPlayerTile::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
 }
 
-void PlaylistPlayerTile::receiveExternalData(const QMimeData *data)
+void PlaylistTile::receiveExternalData(const QMimeData *data)
 {
     // extract DB::TableRecord from mime data
     QList<DB::TableRecord*> records = Misc::JsonMimeDataParser::toTableRecordList(data);
@@ -94,7 +94,7 @@ void PlaylistPlayerTile::receiveExternalData(const QMimeData *data)
 }
 
 
-void PlaylistPlayerTile::receiveWheelEvent(QWheelEvent *event)
+void PlaylistTile::receiveWheelEvent(QWheelEvent *event)
 {
     Playlist::MediaPlaylist* pl = player_->getCustomPlaylist();
     Playlist::Settings* settings = pl->getSettings();
@@ -119,7 +119,7 @@ void PlaylistPlayerTile::receiveWheelEvent(QWheelEvent *event)
     }
 }
 
-bool PlaylistPlayerTile::addMedia(int record_id)
+bool PlaylistTile::addMedia(int record_id)
 {
     if(model_ == 0)
         return false;
@@ -127,7 +127,7 @@ bool PlaylistPlayerTile::addMedia(int record_id)
     return playlist_->addMedia(record_id);
 }
 
-bool PlaylistPlayerTile::addMedia(const DB::SoundFileRecord &r)
+bool PlaylistTile::addMedia(const DB::SoundFileRecord &r)
 {
     if(model_ == 0)
         return false;
@@ -135,20 +135,20 @@ bool PlaylistPlayerTile::addMedia(const DB::SoundFileRecord &r)
     return playlist_->addMedia(r);
 }
 
-void PlaylistPlayerTile::setSoundFileModel(DB::Model::SoundFileTableModel *m)
+void PlaylistTile::setSoundFileModel(DB::Model::SoundFileTableModel *m)
 {
     model_ = m;
     playlist_->setSoundFileModel(model_);
 }
 
-DB::Model::SoundFileTableModel *PlaylistPlayerTile::getSoundFileModel()
+DB::Model::SoundFileTableModel *PlaylistTile::getSoundFileModel()
 {
     return model_;
 }
 
-const QJsonObject PlaylistPlayerTile::toJsonObject() const
+const QJsonObject PlaylistTile::toJsonObject() const
 {
-    QJsonObject obj = Tile::toJsonObject();
+    QJsonObject obj = BaseTile::toJsonObject();
 
     // store playlist
     QJsonArray arr_pl;
@@ -164,9 +164,9 @@ const QJsonObject PlaylistPlayerTile::toJsonObject() const
     return obj;
 }
 
-bool PlaylistPlayerTile::setFromJsonObject(const QJsonObject &obj)
+bool PlaylistTile::setFromJsonObject(const QJsonObject &obj)
 {
-    if(!Tile::setFromJsonObject(obj))
+    if(!BaseTile::setFromJsonObject(obj))
         return false;
 
     // parse playlist
@@ -249,18 +249,18 @@ bool PlaylistPlayerTile::setFromJsonObject(const QJsonObject &obj)
     return true;
 }
 
-const QString PlaylistPlayerTile::getClassName() const
+const QString PlaylistTile::getClassName() const
 {
     return "PlaylistPlayerTile";
 }
 
 
-void PlaylistPlayerTile::setMedia(const QMediaContent &c)
+void PlaylistTile::setMedia(const QMediaContent &c)
 {
     player_->setMedia(c);
 }
 
-void PlaylistPlayerTile::play()
+void PlaylistTile::play()
 {
     if(!player_->media().isNull() && !is_playing_) {
         player_->activate();
@@ -269,7 +269,7 @@ void PlaylistPlayerTile::play()
     }
 }
 
-void PlaylistPlayerTile::stop()
+void PlaylistTile::stop()
 {
     if(!player_->media().isNull() && is_playing_) {
         player_->stop();
@@ -278,27 +278,27 @@ void PlaylistPlayerTile::stop()
     }
 }
 
-void PlaylistPlayerTile::onActivate()
+void PlaylistTile::onActivate()
 {
     if(is_playing_)
         stop();
     else
         play();
 
-    Tile::onActivate();
+    BaseTile::onActivate();
 }
 
-void PlaylistPlayerTile::setVolume(int volume)
+void PlaylistTile::setVolume(int volume)
 {
     player_->setVolume(volume);
 }
 
-int PlaylistPlayerTile::getVolume() const
+int PlaylistTile::getVolume() const
 {
     return player_->volume();
 }
 
-void PlaylistPlayerTile::changePlayerState(QMediaPlayer::State state)
+void PlaylistTile::changePlayerState(QMediaPlayer::State state)
 {
     if (state == QMediaPlayer::PlayingState){
         setIsPlaying(true);
@@ -307,7 +307,7 @@ void PlaylistPlayerTile::changePlayerState(QMediaPlayer::State state)
     }
 }
 
-void PlaylistPlayerTile::changedCustomPlayerActivation(bool state)
+void PlaylistTile::changedCustomPlayerActivation(bool state)
 {
     if (state == true){
         setIsPlaying(true);
@@ -316,7 +316,7 @@ void PlaylistPlayerTile::changedCustomPlayerActivation(bool state)
     }
 }
 
-void PlaylistPlayerTile::onConfigurePlaylist()
+void PlaylistTile::onConfigurePlaylist()
 {
     // TODO: life cycle management
     playlist_settings_widget_ = new Playlist::SettingsWidget(playlist_);
@@ -340,7 +340,7 @@ void PlaylistPlayerTile::onConfigurePlaylist()
             player_, SLOT(mediaVolumeChanged(int)));
 }
 
-void PlaylistPlayerTile::onContents()
+void PlaylistTile::onContents()
 {
     SoundFile::ListViewDialog d(playlist_->getSoundFileList());
     d.setAcceptDrops(false);
@@ -350,7 +350,7 @@ void PlaylistPlayerTile::onContents()
     }
 }
 
-void PlaylistPlayerTile::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
+void PlaylistTile::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
 {
     if(mode_ != MOVE && e->button() == Qt::LeftButton) {
         if(is_playing_)
@@ -359,10 +359,10 @@ void PlaylistPlayerTile::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
             play();
     }
 
-    Tile::mouseReleaseEvent(e);
+    BaseTile::mouseReleaseEvent(e);
 }
 
-void PlaylistPlayerTile::closePlaylistSettings()
+void PlaylistTile::closePlaylistSettings()
 {
     playlist_settings_widget_->hide();
 
@@ -378,7 +378,7 @@ void PlaylistPlayerTile::closePlaylistSettings()
     playlist_settings_widget_->deleteLater();
 }
 
-void PlaylistPlayerTile::savePlaylistSettings(Playlist::Settings* settings)
+void PlaylistTile::savePlaylistSettings(Playlist::Settings* settings)
 {
     if(settings->name.size() > 0 && name_.compare(settings->name) != 0)
         setName(settings->name);
@@ -402,7 +402,7 @@ void PlaylistPlayerTile::savePlaylistSettings(Playlist::Settings* settings)
     playlist_settings_widget_->deleteLater();
 }
 
-void PlaylistPlayerTile::createContextMenu()
+void PlaylistTile::createContextMenu()
 {
     // create configure action
     QAction* configure_action = new QAction(tr("Configure..."),this);
@@ -419,10 +419,10 @@ void PlaylistPlayerTile::createContextMenu()
     context_menu_->addAction(contents_action);
     context_menu_->addSeparator();
 
-    Tile::createContextMenu();
+    BaseTile::createContextMenu();
 }
 
-const QPixmap PlaylistPlayerTile::getPlayStatePixmap() const
+const QPixmap PlaylistTile::getPlayStatePixmap() const
 {
     if(is_playing_)
         return *Resources::Lib::PX_STOP;
@@ -430,7 +430,7 @@ const QPixmap PlaylistPlayerTile::getPlayStatePixmap() const
         return *Resources::Lib::PX_PLAY;
 }
 
-void PlaylistPlayerTile::setIsPlaying(bool state)
+void PlaylistTile::setIsPlaying(bool state)
 {
     is_activated_ = state;
     is_playing_ = state;

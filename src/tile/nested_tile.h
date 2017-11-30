@@ -3,13 +3,13 @@
 
 #include <QGraphicsView>
 
-#include "tile.h"
+#include "base_tile.h"
 #include "graphics_view.h"
 #include "db/model/sound_file_table_model.h"
 
-namespace TwoD {
+namespace Tile {
 
-class NestedTile : public Tile
+class NestedTile : public BaseTile
 {
     Q_OBJECT
 

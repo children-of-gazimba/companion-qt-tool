@@ -21,7 +21,7 @@
 #include "sound_file/master_view.h"
 #include "db/handler.h"
 #include "category/tree_view.h"
-#include "2D/graphics_view.h"
+#include "tile/graphics_view.h"
 #include "web/host.h"
 #include "image/browser.h"
 #include "preset/preset_view.h"
@@ -76,7 +76,7 @@ private:
     Category::TreeView* category_view_;
     Preset::PresetView* preset_view_;
 
-    TwoD::GraphicsView* graphics_view_;
+    Tile::GraphicsView* graphics_view_;
     Resources::Importer* sound_file_importer_;
     QSplitter* center_h_splitter_;
     QSplitter* left_v_splitter_;
