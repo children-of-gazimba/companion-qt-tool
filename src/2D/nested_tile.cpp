@@ -16,10 +16,7 @@ NestedTile::NestedTile(GraphicsView* master_view, QGraphicsItem *parent)
     , master_view_(master_view)
     , scene_(0)
 {
-    scene_ = new QGraphicsScene(QRectF(0,0,100,100),this);
-    clearOverlayPixmap();
-    overlay_pixmap_ = Resources::Lib::PX_FOLDER;
-    overlay_pixmap_path_ = Resources::Lib::IMG_FOLDER_PATH;
+    scene_ = new QGraphicsScene(QRectF(0,0,100,100), this);
 }
 
 NestedTile::~NestedTile()
@@ -104,7 +101,6 @@ bool NestedTile::setFromJsonObject(const QJsonObject &obj)
 
     // scene rect
     QJsonObject rc_obj = sc_obj["scene_rect"].toObject();
-    qDebug() << rc_obj;
     if(rc_obj.contains("x") && rc_obj.contains("y") && rc_obj.contains("width") && rc_obj.contains("height")) {
         QRectF scene_rect = scene_->sceneRect();
         scene_rect.setX((qreal) rc_obj["x"].toDouble());
@@ -168,6 +164,14 @@ const QString NestedTile::getClassName() const
     return "NestedTile";
 }
 
+const QPixmap NestedTile::getOverlayPixmap() const
+{
+    if (overlay_pixmap_ != 0)
+        return *overlay_pixmap_;
+
+    return *Resources::Lib::PX_FOLDER;
+}
+
 void NestedTile::clearTiles()
 {
     foreach(QGraphicsItem* it, scene_->items()) {
@@ -190,12 +194,6 @@ void NestedTile::onActivate()
     }
 
     Tile::onActivate();
-}
-
-void NestedTile::onDelete()
-{
-    clearTiles();
-    Tile::onDelete();
 }
 
 void NestedTile::onContents()
