@@ -7,22 +7,22 @@
 #include <QDrag>
 
 #include "custom_media_player.h"
-#include "tile.h"
+#include "base_tile.h"
 #include "playlist/settings_widget.h"
 #include "playlist/media_playlist.h"
 #include "playlist/settings.h"
 #include "misc/json_mime_data_parser.h"
 #include "db/model/sound_file_table_model.h"
 
-namespace TwoD {
+namespace Tile {
 
-class PlaylistPlayerTile : public Tile
+class PlaylistTile : public BaseTile
 {
     Q_OBJECT
 
 public:
-    PlaylistPlayerTile(QGraphicsItem* parent = 0);
-    virtual ~PlaylistPlayerTile();
+    PlaylistTile(QGraphicsItem* parent = 0);
+    virtual ~PlaylistTile();
 
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 

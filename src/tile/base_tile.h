@@ -19,7 +19,7 @@
 #include "db/handler.h"
 #include "db/model/preset_table_model.h"
 
-namespace TwoD {
+namespace Tile {
 
 /**
  * Square 2D tile.
@@ -28,7 +28,7 @@ namespace TwoD {
  * Defines inteface for evaluating mime data and Setting activation shortscuts.
  * Holds functionality to convert to JSON description and be set from JSON.
 */
-class Tile : public QObject, public QGraphicsItem
+class BaseTile : public QObject, public QGraphicsItem
 {
     Q_OBJECT
 
@@ -58,8 +58,8 @@ protected:
     };
 
 public:
-    Tile(QGraphicsItem* parent = 0);
-    ~Tile();
+    BaseTile(QGraphicsItem* parent = 0);
+    ~BaseTile();
 
     /**
      * See BC.

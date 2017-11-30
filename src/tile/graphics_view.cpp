@@ -4,12 +4,11 @@
 #include <QJsonArray>
 #include <QMimeData>
 
-#include "player_tile.h"
-#include "playlist_player_tile.h"
+#include "playlist_tile.h"
 #include "nested_tile.h"
 #include "misc/json_mime_data_parser.h"
 
-namespace TwoD {
+namespace Tile {
 
 GraphicsView::GraphicsView(QGraphicsScene *scene, QWidget *parent)
     : QGraphicsView(scene, parent)
@@ -63,7 +62,7 @@ const QJsonObject GraphicsView::toJsonObject() const
     foreach(QGraphicsItem* it, scene()->items()) {
         QObject *obj = dynamic_cast<QObject*>(it);
         if(obj) {
-            Tile* t = qobject_cast<Tile*>(obj);
+            BaseTile* t = qobject_cast<BaseTile*>(obj);
             QJsonObject obj_tile;
             obj_tile["type"] = QJsonValue(t->metaObject()->className());
             obj_tile["data"] = QJsonValue(t->toJsonObject());
@@ -116,7 +115,7 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
 
         // create tile, if type is TwoD::PlaylistPlayerTile
         if(t_obj["type"].toString().compare("TwoD::PlaylistPlayerTile") == 0) {
-            PlaylistPlayerTile* tile = new PlaylistPlayerTile;
+            PlaylistTile* tile = new PlaylistTile;
             tile->setSoundFileModel(sound_model_);
             tile->setPresetModel(preset_model_);
             tile->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -178,7 +177,7 @@ bool GraphicsView::activate(const QUuid &tile_id)
     foreach(QGraphicsItem* it, scene()->items()) {
         QObject* o = dynamic_cast<QObject*>(it);
         if(o) {
-            Tile* t = qobject_cast<Tile*>(o);
+            BaseTile* t = qobject_cast<BaseTile*>(o);
             if(t && t->getUuid() == tile_id && !t->isActivated()) {
                 t->onActivate();
                 return true;
@@ -193,7 +192,7 @@ bool GraphicsView::deactivate(const QUuid &tile_id)
     foreach(QGraphicsItem* it, scene()->items()) {
         QObject* o = dynamic_cast<QObject*>(it);
         if(o) {
-            Tile* t = qobject_cast<Tile*>(o);
+            BaseTile* t = qobject_cast<BaseTile*>(o);
             if(t && t->getUuid() == tile_id && t->isActivated()) {
                 t->onActivate();
                 return true;
@@ -208,7 +207,7 @@ bool GraphicsView::isActivated(const QUuid &tile_id)
     foreach(QGraphicsItem* it, scene()->items()) {
         QObject* o = dynamic_cast<QObject*>(it);
         if(o) {
-            Tile* t = qobject_cast<Tile*>(o);
+            BaseTile* t = qobject_cast<BaseTile*>(o);
             if(t && t->getUuid() == tile_id && t->isActivated()) {
                 return t->isActivated();
             }
@@ -222,10 +221,10 @@ int GraphicsView::getVolume(const QUuid &tile_id) const
     foreach(QGraphicsItem* it, scene()->items()) {
         QObject* o = dynamic_cast<QObject*>(it);
         if(o) {
-            Tile* t = qobject_cast<Tile*>(o);
+            BaseTile* t = qobject_cast<BaseTile*>(o);
             if(t && t->getUuid() == tile_id && t->isActivated()) {
                 if(t->getClassName().compare("PlaylistPlayerTile") == 0) {
-                    PlaylistPlayerTile* p = (PlaylistPlayerTile*) t;
+                    PlaylistTile* p = (PlaylistTile*) t;
                     return p->getVolume();
                 }
             }
@@ -239,10 +238,10 @@ bool GraphicsView::setVolume(const QUuid &tile_id, int volume)
     foreach(QGraphicsItem* it, scene()->items()) {
         QObject* o = dynamic_cast<QObject*>(it);
         if(o) {
-            Tile* t = qobject_cast<Tile*>(o);
+            BaseTile* t = qobject_cast<BaseTile*>(o);
             if(t && t->getUuid() == tile_id && t->isActivated()) {
                 if(t->getClassName().compare("PlaylistPlayerTile") == 0) {
-                    PlaylistPlayerTile* p = (PlaylistPlayerTile*) t;
+                    PlaylistTile* p = (PlaylistTile*) t;
                     p->setVolume(volume);
                     return true;
                 }
@@ -273,7 +272,7 @@ const QMenu *GraphicsView::getContextMenu() const
 
 void GraphicsView::createEmptyPlaylistPlayerTile(const QPoint &p)
 {
-    PlaylistPlayerTile* tile = new PlaylistPlayerTile;
+    PlaylistTile* tile = new PlaylistTile;
     tile->setPresetModel(preset_model_);
     tile->setSoundFileModel(sound_model_);
     tile->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -330,7 +329,7 @@ void GraphicsView::wheelEvent(QWheelEvent *event)
             QObject *selected_object = dynamic_cast<QObject*>(item);
             if(selected_object)
             {
-                Tile* t = qobject_cast<Tile*>(selected_object);
+                BaseTile* t = qobject_cast<BaseTile*>(selected_object);
                 if(t){
                     t->receiveWheelEvent(event);
                     return;
@@ -383,7 +382,7 @@ void GraphicsView::dropEvent(QDropEvent *event)
             QObject *selected_object = dynamic_cast<QObject*>(item);
             if(selected_object)
             {
-                Tile* t = qobject_cast<Tile*>(selected_object);
+                BaseTile* t = qobject_cast<BaseTile*>(selected_object);
                 if(t){
                     t->receiveExternalData(event->mimeData());
                     return;
@@ -420,7 +419,7 @@ void GraphicsView::dropEvent(QDropEvent *event)
         }
         else if(doc.object().contains("type") && doc.object()["type"].toString().compare("TwoD::PlaylistPlayerTile") == 0) {
             qDebug() << "received";
-            PlaylistPlayerTile* tile = new PlaylistPlayerTile;
+            PlaylistTile* tile = new PlaylistTile;
             tile->setPresetModel(preset_model_);
             tile->setSoundFileModel(sound_model_);
             tile->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -446,7 +445,7 @@ void GraphicsView::dropEvent(QDropEvent *event)
     }
 
     // create graphics item
-    PlaylistPlayerTile* tile = new PlaylistPlayerTile;
+    PlaylistTile* tile = new PlaylistTile;
     tile->setSoundFileModel(sound_model_);
     tile->setPresetModel(preset_model_);
     tile->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -491,7 +490,7 @@ void GraphicsView::keyReleaseEvent(QKeyEvent *event)
     foreach(QGraphicsItem* it, scene()->items()) {
         QObject* o = dynamic_cast<QObject*>(it);
         if(o) {
-            Tile* t = qobject_cast<Tile*>(o);
+            BaseTile* t = qobject_cast<BaseTile*>(o);
             if(t->hasActivateKey() && t->getActivateKey() == QChar(event->key()))
                 t->onActivate();
         }
@@ -515,7 +514,7 @@ void GraphicsView::clearTiles()
     foreach(QGraphicsItem* it, scene()->items()) {
         QObject* o = dynamic_cast<QObject*>(it);
         if(o) {
-            Tile* t = qobject_cast<Tile*>(o);
+            BaseTile* t = qobject_cast<BaseTile*>(o);
             t->onDelete();
         }
     }

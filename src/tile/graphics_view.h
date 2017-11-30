@@ -12,7 +12,7 @@
 #include "db/model/preset_table_model.h"
 
 // TODO: rename namespace to Tile
-namespace TwoD {
+namespace Tile {
 
 /**
  * Custom QGraphicsView.

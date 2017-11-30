@@ -39,10 +39,7 @@ SOURCES += main.cpp \
     sound_file/list_view.cpp \
     sound_file/master_view.cpp \
     sound_file/list_view_dialog.cpp \
-    2D/graphics_view.cpp \
-    2D/tile.cpp \
-    2D/player_tile.cpp \
-    2D/playlist_player_tile.cpp \
+    tile/graphics_view.cpp \
     playlist/settings_widget.cpp \
     custom_media_player.cpp \
     db/model/resource_dir_table_model.cpp \
@@ -66,9 +63,11 @@ SOURCES += main.cpp \
     image/browser.cpp \
     image/list.cpp \
     db/model/image_dir_table_model.cpp \
-    2D/nested_tile.cpp \
+    tile/nested_tile.cpp \
     preset/preset_view.cpp \
-    db/model/preset_table_model.cpp
+    db/model/preset_table_model.cpp \
+    tile/base_tile.cpp \
+    tile/playlist_tile.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -90,10 +89,7 @@ HEADERS  += main_window.h \
     sound_file/list_view.h \
     sound_file/master_view.h \
     sound_file/list_view_dialog.h \
-    2D/graphics_view.h \
-    2D/tile.h \
-    2D/player_tile.h \
-    2D/playlist_player_tile.h \
+    tile/graphics_view.h \
     playlist/settings.h \
     playlist/settings_widget.h \
     custom_media_player.h \
@@ -120,9 +116,11 @@ HEADERS  += main_window.h \
     image/browser.h \
     image/list.h \
     db/model/image_dir_table_model.h \
-    2D/nested_tile.h \
+    tile/nested_tile.h \
     preset/preset_view.h \
-    db/model/preset_table_model.h
+    db/model/preset_table_model.h \
+    tile/base_tile.h \
+    tile/playlist_tile.h
 
 RESOURCES += \
     _RES/resources.qrc

@@ -1,5 +1,5 @@
 #include "nested_tile.h"
-#include "playlist_player_tile.h"
+#include "playlist_tile.h"
 
 #include <QAction>
 #include <QMenu>
@@ -9,10 +9,10 @@
 
 #include "resources/lib.h"
 
-namespace TwoD {
+namespace Tile {
 
 NestedTile::NestedTile(GraphicsView* master_view, QGraphicsItem *parent)
-    : Tile(parent)
+    : BaseTile(parent)
     , master_view_(master_view)
     , scene_(0)
 {
@@ -26,7 +26,7 @@ NestedTile::~NestedTile()
 
 void NestedTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Tile::paint(painter, option, widget);
+    BaseTile::paint(painter, option, widget);
 
     QRectF p_rect(getPaintRect());
     if(p_rect.width() > 0 && p_rect.height() > 0) {
@@ -46,7 +46,7 @@ void NestedTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
 const QJsonObject NestedTile::toJsonObject() const
 {
-    QJsonObject obj = Tile::toJsonObject();
+    QJsonObject obj = BaseTile::toJsonObject();
 
     QJsonObject contents_obj;
 
@@ -64,7 +64,7 @@ const QJsonObject NestedTile::toJsonObject() const
     foreach(QGraphicsItem* it, scene_->items()) {
         QObject *obj = dynamic_cast<QObject*>(it);
         if(obj) {
-            Tile* t = qobject_cast<Tile*>(obj);
+            BaseTile* t = qobject_cast<BaseTile*>(obj);
             QJsonObject obj_tile;
             obj_tile["type"] = QJsonValue(t->metaObject()->className());
             obj_tile["data"] = QJsonValue(t->toJsonObject());
@@ -81,7 +81,7 @@ const QJsonObject NestedTile::toJsonObject() const
 
 bool NestedTile::setFromJsonObject(const QJsonObject &obj)
 {
-    if(!Tile::setFromJsonObject(obj))
+    if(!BaseTile::setFromJsonObject(obj))
         return false;
 
     if(!(obj.contains("contents") && obj["contents"].isObject()))
@@ -124,7 +124,7 @@ bool NestedTile::setFromJsonObject(const QJsonObject &obj)
 
         // create tile, if type is TwoD::PlaylistPlayerTile
         if(t_obj["type"].toString().compare("TwoD::PlaylistPlayerTile") == 0) {
-            PlaylistPlayerTile* tile = new PlaylistPlayerTile;
+            PlaylistTile* tile = new PlaylistTile;
             tile->setSoundFileModel(master_view_->getSoundFileModel());
             tile->setFlag(QGraphicsItem::ItemIsMovable, true);
             tile->init();
@@ -177,7 +177,7 @@ void NestedTile::clearTiles()
     foreach(QGraphicsItem* it, scene_->items()) {
         QObject* o = dynamic_cast<QObject*>(it);
         if(o) {
-            Tile* t = qobject_cast<Tile*>(o);
+            BaseTile* t = qobject_cast<BaseTile*>(o);
             t->onDelete();
         }
     }
@@ -188,12 +188,12 @@ void NestedTile::onActivate()
     foreach(QGraphicsItem* it, scene_->items()) {
         QObject *obj = dynamic_cast<QObject*>(it);
         if(obj) {
-            Tile* t = qobject_cast<Tile*>(obj);
+            BaseTile* t = qobject_cast<BaseTile*>(obj);
             t->onActivate();
         }
     }
 
-    Tile::onActivate();
+    BaseTile::onActivate();
 }
 
 void NestedTile::onContents()
@@ -218,7 +218,7 @@ void NestedTile::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
     if(mode_ != MOVE && e->button() == Qt::LeftButton)
         onActivate();
 
-    Tile::mouseReleaseEvent(e);
+    BaseTile::mouseReleaseEvent(e);
 }
 
 void NestedTile::createContextMenu()
@@ -237,7 +237,7 @@ void NestedTile::createContextMenu()
     context_menu_->addAction(configure_action);
     context_menu_->addSeparator();
 
-    Tile::createContextMenu();
+    BaseTile::createContextMenu();
 }
 
 const QPixmap NestedTile::getPlayStatePixmap() const
