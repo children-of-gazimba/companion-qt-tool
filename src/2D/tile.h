@@ -258,7 +258,7 @@ protected:
     /**
     * Returns tile background overlay pixmap.
     */
-    const QPixmap getOverlayPixmap() const;
+    virtual const QPixmap getOverlayPixmap() const;
 
     /**
     * Returns activate shortcut pixamp.
