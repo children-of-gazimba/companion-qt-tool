@@ -52,8 +52,8 @@ void PlaylistTile::paint(QPainter *painter, const QStyleOptionGraphicsItem* opti
         );
     }
 
-    QPen p(QColor(Qt::white));
-    painter->setPen(p);
+//    QPen p(QColor(Qt::white))R
+    painter->setPen(QColor(Qt::white));
     painter->drawText(QPointF(p_rect.x(), p_rect.y() - 3), name_);
 
     /*

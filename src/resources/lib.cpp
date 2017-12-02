@@ -97,7 +97,7 @@ void Lib::init()
     if(PX_Y_KEY == 0)
         PX_Y_KEY = new QPixmap(IMG_KEY_Y_PATH);
     if(PX_Z_KEY == 0)
-        PX_Z_KEY = new QPixmap(IMG_KEY_Z_PATH);   
+        PX_Z_KEY = new QPixmap(IMG_KEY_Z_PATH);
 }
 
 void Lib::cleanup()
@@ -236,14 +236,16 @@ void Lib::cleanup()
 
 const QString Lib::loadFileToString(const QString &path)
 {
-    QFile file(path);
+    QString load_path = path;
+    if(!load_path.startsWith(":")) {
+        load_path = QDir::currentPath();
+    }
+    QFile file(load_path);
     if(file.open(QFile::ReadOnly)){
-
         return QLatin1String(file.readAll());
     }
     qDebug() << file.errorString();
-    qDebug() << " > " << path;
-    qDebug() << QDir::currentPath();
+    qDebug() << " > " << load_path;
     return QString("");
 }
 
@@ -330,8 +332,13 @@ QPixmap *Lib::getKeyPixmap(const QChar &k)
 /*
 * DATABASE
 */
-//QString Lib::DATABASE_PATH = "../../pap-media-shared-files/dsa_media_control_kit.db";
-QString Lib::DATABASE_PATH = "../../../../pap-media-shared-files/dsa_media_control_kit.db";
+#ifdef __APPLE__
+QString Lib::DATABASE_PATH = "/../../../../../pap-media-shared-files/dsa_media_control_kit.db";
+#else
+QString Lib::DATABASE_PATH = "/../../../pap-media-shared-files/dsa_media_control_kit.db";
+#endif
+//QString Lib::DATABASE_PATH = "../../../../pap-media-shared-files/dsa_media_control_kit.db";
+
 QString Lib::DEFAULT_PROJECT_PATH = "../../pap-media-shared-files";
 
 /*
@@ -430,7 +437,11 @@ QPixmap* Lib::PX_Z_KEY = 0;
 /*
 * STYLE
 */
+#ifdef __APPLE__
+QString Lib::DARK_STYLE = Lib::loadFileToString("/../../../../src/_Res/dark_style.css");
+#else
 QString Lib::DARK_STYLE = Lib::loadFileToString(":/styles/dark_style.css");
+#endif
 //QString Lib::DARK_STYLE = Lib::loadFileToString("../DsaMediaControlKit/_RES/dark_style.css");
 
 /*
