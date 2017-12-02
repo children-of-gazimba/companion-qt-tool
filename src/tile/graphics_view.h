@@ -1,5 +1,5 @@
-#ifndef TWO_D_GRAPHICS_VIEW_H
-#define TWO_D_GRAPHICS_VIEW_H
+#ifndef TILE_GRAPHICS_VIEW_H
+#define TILE_GRAPHICS_VIEW_H
 
 #include <QGraphicsView>
 #include <QMouseEvent>
@@ -100,9 +100,9 @@ public:
     const QMenu* getContextMenu() const;
 
     /**
-     * Creates an empty PlaylistPlayerTile
+     * Creates an empty PlaylistTile
     */
-    void createEmptyPlaylistPlayerTile(QPoint const& p);
+    void createEmptyPlaylistTile(QPoint const& p);
 
     /**
      * Creates an empty NestedTile
@@ -166,6 +166,6 @@ private:
     QPoint click_pos_;
 };
 
-}
+} // namespace Tile
 
-#endif // TWO_D_GRAPHICS_VIEW_H
+#endif // TILE_GRAPHICS_VIEW_H
