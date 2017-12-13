@@ -3,13 +3,13 @@
 
 #include <QGraphicsView>
 
-#include "tile.h"
+#include "base_tile.h"
 #include "graphics_view.h"
 #include "db/model/sound_file_table_model.h"
 
-namespace TwoD {
+namespace Tile {
 
-class NestedTile : public Tile
+class NestedTile : public BaseTile
 {
     Q_OBJECT
 
@@ -34,14 +34,16 @@ public:
      */
     QString const getClassName() const;
 
+    /**
+     * @brief see BC
+     */
+    const QPixmap getOverlayPixmap() const;
+
     void clearTiles();
 
 public slots:
     /* See BC */
     virtual void onActivate();
-
-    /** See BC */
-    virtual void onDelete();
 
 protected slots:
     /** slot to open contents view */

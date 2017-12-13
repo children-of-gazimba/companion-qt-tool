@@ -194,7 +194,7 @@ void DsaMediaControlKit::initWidgets()
     progress_bar_->setValue(100);
     progress_bar_->hide();
 
-    graphics_view_ = new TwoD::GraphicsView(this);
+    graphics_view_ = new Tile::GraphicsView(this);
     graphics_view_->setSoundFileModel(db_handler_->getSoundFileTableModel());
     graphics_view_->setPresetModel(db_handler_->getPresetTableModel());
 
