@@ -97,9 +97,21 @@ QCheckBox {
     color: white;
 }
 
+QCheckBox::indicator::checked{
+    border: 1px solid gray;
+    /*border-radius: 6px;*/
+    background-color: rgba(50, 152, 253, 255);
+}
+
 QRadioButton {
     border: none;
     color: white;
+}
+
+QRadioButton::indicator::checked{
+    border: 1px solid gray;
+    border-radius: 6px;
+    background-color: rgba(50, 152, 253, 255);
 }
 
 QLabel {
