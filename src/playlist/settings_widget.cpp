@@ -115,7 +115,8 @@ void SettingsWidget::onVolumeSliderChanged(int val)
 
 void SettingsWidget::onOpenImage()
 {
-    QString s = QFileDialog::getOpenFileName(this, tr("Open Image"), "", "Image Files (*.png *.jpg *.bmp)");
+    // QString s = QFileDialog::getOpenFileName(this, tr("Open Image"), "", "Image Files (*.png *.jpg *.bmp)");
+    QString s = QFileDialog::getOpenFileName(this, tr("Open Image"), "", "Image Files (*.png *.jpg *.bmp)",nullptr, QFileDialog::DontUseNativeDialog);
     if(s.size() > 0) {
         qDebug() << s;
         image_path_edit_->setText(s);
