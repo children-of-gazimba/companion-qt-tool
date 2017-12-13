@@ -330,8 +330,8 @@ QPixmap *Lib::getKeyPixmap(const QChar &k)
 /*
 * DATABASE
 */
-//QString Lib::DATABASE_PATH = "../../pap-media-shared-files/dsa_media_control_kit.db";
-QString Lib::DATABASE_PATH = "../../../../pap-media-shared-files/dsa_media_control_kit.db";
+QString Lib::DATABASE_PATH = "/../../pap-media-shared-files/dsa_media_control_kit.db";
+//QString Lib::DATABASE_PATH = "../../../../pap-media-shared-files/dsa_media_control_kit.db"; // win
 QString Lib::DEFAULT_PROJECT_PATH = "../../pap-media-shared-files";
 
 /*
@@ -430,7 +430,8 @@ QPixmap* Lib::PX_Z_KEY = 0;
 /*
 * STYLE
 */
-QString Lib::DARK_STYLE = Lib::loadFileToString(":/styles/dark_style.css");
+//QString Lib::DARK_STYLE = Lib::loadFileToString(":/styles/dark_style.css"); //win
+QString Lib::DARK_STYLE = Lib::loadFileToString("../src/_RES/dark_style.css"); //linux
 //QString Lib::DARK_STYLE = Lib::loadFileToString("../DsaMediaControlKit/_RES/dark_style.css");
 
 /*
