@@ -16,6 +16,7 @@
 #include "misc/char_input_dialog.h"
 
 #define OFFSET 10
+#define TEXT_HEIGHT 25
 
 namespace Tile {
 
@@ -66,19 +67,22 @@ void BaseTile::init()
 
 QRectF BaseTile::boundingRect() const
 {
-    return QRectF(0,0,100*size_,100*size_);
+    return QRectF(0,0,120*size_,120*size_+TEXT_HEIGHT);
 }
 
 void BaseTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
-    scene()->update(scene()->sceneRect());
-
     painter->setRenderHint(QPainter::SmoothPixmapTransform);
 
     setDefaultOpacity();
 
-    QRectF p_rect(getPaintRect());
+    // paint bounding box
+    painter->fillRect(boundingRect(), QBrush(QColor(55,55,56)));
+    painter->setPen(QColor(84,85,86));
+    painter->drawRect(boundingRect());
 
+    // file tile
+    QRectF p_rect(getPaintRect());
     painter->fillRect(p_rect, getBackgroundBrush());
     if(p_rect.width() > 0 && p_rect.height() > 0) {
         painter->setOpacity(0.6);
@@ -88,6 +92,10 @@ void BaseTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
         if(!act_px.isNull())
             painter->drawPixmap((int) p_rect.x()+5, (int) p_rect.y()+5, (int) p_rect.width() / 4, (int) p_rect.height() / 4, act_px);
     }
+
+    // draw name
+    painter->setPen(QColor(Qt::white));
+    painter->drawText(getTextRect(), Qt::TextWrapAnywhere | Qt::AlignCenter, name_);
 }
 
 void BaseTile::setActivateKey(const QChar &c)
@@ -103,6 +111,9 @@ const QChar &BaseTile::getActivateKey() const
 void BaseTile::setSize(qreal size)
 {
     size_ = size;
+    QRectF r(boundingRect());
+    if(r.width() > 5)
+        scene()->update(scene()->sceneRect());
 }
 
 qreal BaseTile::getSize() const
@@ -492,12 +503,24 @@ void BaseTile::fixOverlapsAfterResize(qreal prev_size)
 
 const QRectF BaseTile::getPaintRect() const
 {
-    QRectF paint_rect = boundingRect();
-    paint_rect.setX(paint_rect.x()+OFFSET);
-    paint_rect.setY(paint_rect.y()+OFFSET);
-    paint_rect.setWidth(paint_rect.width()-OFFSET);
-    paint_rect.setHeight(paint_rect.height()-OFFSET);
+    QRectF paint_rect(
+        boundingRect().x()+OFFSET,
+        boundingRect().y()+OFFSET,
+        qMax(boundingRect().width()-2.0f*OFFSET, 0.0),
+        qMax(boundingRect().width()-2.0f*OFFSET, 0.0)
+    );
     return paint_rect;
+}
+
+const QRectF BaseTile::getTextRect() const
+{
+    QRectF text_rect(
+        getPaintRect().x(),
+        getPaintRect().y()+getPaintRect().height(),
+        getPaintRect().width(),
+        TEXT_HEIGHT
+    );
+    return text_rect;
 }
 
 const QBrush BaseTile::getBackgroundBrush() const

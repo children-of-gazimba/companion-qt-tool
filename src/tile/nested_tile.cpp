@@ -38,10 +38,6 @@ void NestedTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
             getPlayStatePixmap()
         );
     }
-
-//    QPen p(QColor(Qt::white));
-    painter->setPen(QColor(Qt::white));
-    painter->drawText(QPointF(p_rect.x(), p_rect.y() - 3), name_);
 }
 
 const QJsonObject NestedTile::toJsonObject() const
