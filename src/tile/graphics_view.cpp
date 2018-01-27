@@ -385,6 +385,7 @@ void GraphicsView::dropEvent(QDropEvent *event)
                 BaseTile* t = qobject_cast<BaseTile*>(selected_object);
                 if(t){
                     t->receiveExternalData(event->mimeData());
+                    event->accept();
                     return;
                 }
             }
