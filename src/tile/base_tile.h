@@ -251,6 +251,11 @@ protected:
     virtual const QRectF getPaintRect() const;
 
     /**
+    * Returns QRectF definition for text area.
+    */
+    virtual const QRectF getTextRect() const;
+
+    /**
     * Returns default background color brush based on ItemMode.
     */
     virtual const QBrush getBackgroundBrush() const;
