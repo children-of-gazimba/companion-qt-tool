@@ -328,6 +328,11 @@ void DsaMediaControlKit::initMenu()
 
 void DsaMediaControlKit::initDB()
 {
-    DB::Core::Api* db_api = new DB::Core::Api(QCoreApplication::applicationDirPath() + Resources::Lib::DATABASE_PATH, this);
+    DB::Core::Api* db_api = nullptr;
+#ifdef _WIN32
+    db_api = new DB::Core::Api(Resources::Lib::DATABASE_PATH, this);
+#else
+    db_api = new DB::Core::Api(QCoreApplication::applicationDirPath() + Resources::Lib::DATABASE_PATH, this);
+#endif
     db_handler_ = new DB::Handler(db_api, this);
 }

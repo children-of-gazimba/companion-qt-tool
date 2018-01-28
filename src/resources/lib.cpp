@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QCoreApplication>
+#include <QStandardPaths>
 
 namespace Resources {
 
@@ -338,7 +339,7 @@ QString Lib::DATABASE_PATH = "/../../../../../pap-media-shared-files/dsa_media_c
 #elif __linux__
 QString Lib::DATABASE_PATH = "/../../pap-media-shared-files/dsa_media_control_kit.db";
 #else
-QString Lib::DATABASE_PATH = "/../../../pap-media-shared-files/dsa_media_control_kit.db";
+QString Lib::DATABASE_PATH = QStandardPaths::locate(QStandardPaths::GenericDataLocation, QString("CoG/pap-media/dsa_media_control_kit.db"));
 #endif
 //QString Lib::DATABASE_PATH = "../../../../pap-media-shared-files/dsa_media_control_kit.db";
 QString Lib::DEFAULT_PROJECT_PATH = "../../pap-media-shared-files";

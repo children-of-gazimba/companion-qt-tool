@@ -125,5 +125,7 @@ HEADERS  += main_window.h \
 RESOURCES += \
     _RES/resources.qrc
 
+RC_FILE = pap-media.rc
+
 OTHER_FILES += _RES/webapp1.ini
 
