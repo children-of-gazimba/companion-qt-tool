@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
     , kit_(0)
     , actions_()
 {
+    setWindowTitle("PaP Media Tool");
     initCentralWidget();
     initActions();
     initMenuBar();
