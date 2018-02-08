@@ -432,4 +432,4 @@ void PlaylistTile::setIsPlaying(bool state)
     is_playing_ = state;
 }
 
-} // namespace TwoD
+} // namespace Tile
