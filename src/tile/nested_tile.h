@@ -72,6 +72,6 @@ protected:
     QGraphicsScene* scene_;
 };
 
-} // namespace TwoD
+} // namespace Tile
 
 #endif // TWO_D_NESTED_TILE_H

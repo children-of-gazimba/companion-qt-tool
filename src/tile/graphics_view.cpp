@@ -104,6 +104,9 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
 
     clearTiles();
 
+    QString pl_class = PlaylistTile::staticMetaObject.className();
+    QString nested_class = NestedTile::staticMetaObject.className();
+
     // tiles
     QJsonArray arr_tiles = sc_obj["tiles"].toArray();
     foreach(QJsonValue val, arr_tiles) {
@@ -114,7 +117,7 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
             continue;
 
         // create tile, if type is Tile::PlaylistTile
-        if(t_obj["type"].toString().compare("Tile::PlaylistTile") == 0) {
+        if(t_obj["type"].toString().compare(pl_class) == 0) {
             PlaylistTile* tile = new PlaylistTile;
             tile->setSoundFileModel(sound_model_);
             tile->setPresetModel(preset_model_);
@@ -131,7 +134,7 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
                 return false;
             }
         }
-        else if(t_obj["type"].toString().compare("Tile::NestedTile") == 0) {
+        else if(t_obj["type"].toString().compare(nested_class) == 0) {
             NestedTile* tile = new NestedTile(this);
             tile->setPresetModel(preset_model_);
             tile->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -395,11 +398,14 @@ void GraphicsView::dropEvent(QDropEvent *event)
     // extract DB::TableRecord from mime data
     QList<DB::TableRecord*> records = Misc::JsonMimeDataParser::toTableRecordList(event->mimeData());
 
+    QString pl_class = PlaylistTile::staticMetaObject.className();
+    QString nested_class = NestedTile::staticMetaObject.className();
+
     // validate parsing
     if(records.size() == 0 || records[0]->index != DB::SOUND_FILE) {
         // TODO make pretty
         QJsonDocument doc = QJsonDocument::fromJson(event->mimeData()->text().toUtf8());
-        if(doc.object().contains("type") && doc.object()["type"].toString().compare("Tile::NestedTile") == 0) {
+        if(doc.object().contains("type") && doc.object()["type"].toString().compare(nested_class) == 0) {
             NestedTile* tile = new NestedTile(this);
             tile->setPresetModel(preset_model_);
             tile->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -418,7 +424,7 @@ void GraphicsView::dropEvent(QDropEvent *event)
             emit dropAccepted();
             return;
         }
-        else if(doc.object().contains("type") && doc.object()["type"].toString().compare("Tile::PlaylistTile") == 0) {
+        else if(doc.object().contains("type") && doc.object()["type"].toString().compare(pl_class) == 0) {
             qDebug() << "received";
             PlaylistTile* tile = new PlaylistTile;
             tile->setPresetModel(preset_model_);
@@ -541,4 +547,4 @@ void GraphicsView::initContextMenu()
     context_menu_->addMenu(create_empty);
 }
 
-} // namespace TwoD
+} // namespace Tile

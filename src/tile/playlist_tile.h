@@ -105,7 +105,7 @@ protected:
     bool is_playing_;
 };
 
-} // namespace TwoD
+} // namespace Tile
 
 #endif // TWO_D_PRESET_PLAYER_TILE_H
 

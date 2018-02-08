@@ -311,6 +311,6 @@ protected:
 
 };
 
-} // namespace TwoD
+} // namespace Tile
 
 #endif // TWO_D_TILE_ITEM_H

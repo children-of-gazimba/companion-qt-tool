@@ -109,6 +109,9 @@ bool NestedTile::setFromJsonObject(const QJsonObject &obj)
     // clear tiles
     clearTiles();
 
+    QString pl_class = PlaylistTile::staticMetaObject.className();
+    QString nested_class = NestedTile::staticMetaObject.className();
+
     // tiles
     QJsonArray arr_tiles = sc_obj["tiles"].toArray();
     foreach(QJsonValue val, arr_tiles) {
@@ -118,8 +121,8 @@ bool NestedTile::setFromJsonObject(const QJsonObject &obj)
         if(!t_obj.contains("type") || !t_obj.contains("data") || !t_obj["data"].isObject())
             continue;
 
-        // create tile, if type is TwoD::PlaylistPlayerTile
-        if(t_obj["type"].toString().compare("TwoD::PlaylistPlayerTile") == 0) {
+        // create tile, if type is Tile::PlaylistTile
+        if(t_obj["type"].toString().compare(pl_class) == 0) {
             PlaylistTile* tile = new PlaylistTile;
             tile->setSoundFileModel(master_view_->getSoundFileModel());
             tile->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -135,7 +138,7 @@ bool NestedTile::setFromJsonObject(const QJsonObject &obj)
                 return false;
             }
         }
-        else if(t_obj["type"].toString().compare("TwoD::NestedTile") == 0) {
+        else if(t_obj["type"].toString().compare(nested_class) == 0) {
             NestedTile* tile = new NestedTile(master_view_);
             tile->setFlag(QGraphicsItem::ItemIsMovable, true);
             tile->init();

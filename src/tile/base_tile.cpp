@@ -112,7 +112,7 @@ void BaseTile::setSize(qreal size)
 {
     size_ = size;
     QRectF r(boundingRect());
-    if(r.width() > 5)
+    if(r.width() > 5 && scene())
         scene()->update(scene()->sceneRect());
 }
 
@@ -222,8 +222,10 @@ bool BaseTile::setFromJsonObject(const QJsonObject &obj)
     }
 
     // set uuid
-    if(obj.contains("uuid") && obj["uuid"].isString())
+    if(obj.contains("uuid") && obj["uuid"].isString()) {
         uuid_ = QUuid(obj["uuid"].toString());
+    }
+
 
     return true;
 }
@@ -744,4 +746,4 @@ void BaseTile::createContextMenu()
     context_menu_->addAction(delete_action);
 }
 
-} // namespace TwoD
+} // namespace Tile
