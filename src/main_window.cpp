@@ -9,10 +9,10 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , kit_(0)
+    , companion_(0)
     , actions_()
 {
-    setWindowTitle("PaP Media Tool");
+    setWindowTitle("Companion");
     initCentralWidget();
     initActions();
     initMenuBar();
@@ -32,8 +32,8 @@ void MainWindow::toggleFullScreen(bool enable_full)
 
 void MainWindow::initCentralWidget()
 {
-    kit_ = new DsaMediaControlKit(this);
-    setCentralWidget(kit_);
+    companion_ = new CompanionWidget(this);
+    setCentralWidget(companion_);
 }
 
 void MainWindow::initActions()
@@ -55,7 +55,7 @@ void MainWindow::initActions()
 void MainWindow::initMenuBar()
 {
     // add actions from DsaMediaControlKit
-    menuBar()->addActions(kit_->getMenu()->actions());
+    menuBar()->addActions(companion_->getMenu()->actions());
 
     // add MainWindow actions
     foreach(QString const& menu_name, actions_.keys()) {
@@ -69,5 +69,5 @@ void MainWindow::initMenuBar()
 
 void MainWindow::initStatusBar()
 {
-    statusBar()->addWidget(kit_->getProgressBar(), 1);
+    statusBar()->addWidget(companion_->getProgressBar(), 1);
 }

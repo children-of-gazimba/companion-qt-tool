@@ -335,14 +335,14 @@ QPixmap *Lib::getKeyPixmap(const QChar &k)
 */
 
 #ifdef __APPLE__
-QString Lib::DATABASE_PATH = "/../../../../../pap-media-shared-files/dsa_media_control_kit.db";
+QString Lib::DATABASE_PATH = "/../../../../../companion-shared-files/companion.db";
 #elif __linux__
-QString Lib::DATABASE_PATH = "/../../pap-media-shared-files/dsa_media_control_kit.db";
+QString Lib::DATABASE_PATH = "/../../companion-shared-files/companion.db";
 #else
-QString Lib::DATABASE_PATH = QStandardPaths::locate(QStandardPaths::GenericDataLocation, QString("CoG/pap-media/dsa_media_control_kit.db"));
+QString Lib::DATABASE_PATH = QStandardPaths::locate(QStandardPaths::GenericDataLocation, QString("CoG/companion/companion.db"));
 #endif
-//QString Lib::DATABASE_PATH = "../../../../pap-media-shared-files/dsa_media_control_kit.db";
-QString Lib::DEFAULT_PROJECT_PATH = "../../pap-media-shared-files";
+//QString Lib::DATABASE_PATH = "../../../../companion-shared-files/companion.db";
+QString Lib::DEFAULT_PROJECT_PATH = "../../companion-shared-files";
 
 /*
 * ICONS
@@ -447,7 +447,6 @@ QString Lib::DARK_STYLE = Lib::loadFileToString("/../src/_RES/dark_style.css"); 
 #else
 QString Lib::DARK_STYLE = Lib::loadFileToString(":/styles/dark_style.css");
 #endif
-//QString Lib::DARK_STYLE = Lib::loadFileToString("../DsaMediaControlKit/_RES/dark_style.css");
 
 /*
 * WEB HOSTING CONFIG

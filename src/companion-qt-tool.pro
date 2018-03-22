@@ -3,7 +3,7 @@
 # Project created by QtCreator 2016-04-20T18:37:45
 #
 #-------------------------------------------------
-TARGET = pap-media-qt-tool
+TARGET = companion-desktop
 TEMPLATE = app
 
 QMAKE_CXXFLAGS += -std=c++0x
@@ -30,7 +30,6 @@ SOURCES += main.cpp \
     db/model/sound_file_table_model.cpp \
     db/handler.cpp \
     db/table_records.cpp \
-    dsa_media_control_kit.cpp \
     category/tree_view.cpp \
     misc/drop_group_box.cpp \
     misc/json_mime_data_parser.cpp \
@@ -67,7 +66,8 @@ SOURCES += main.cpp \
     preset/preset_view.cpp \
     db/model/preset_table_model.cpp \
     tile/base_tile.cpp \
-    tile/playlist_tile.cpp
+    tile/playlist_tile.cpp \
+    companion_widget.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -80,7 +80,6 @@ HEADERS  += main_window.h \
     db/model/sound_file_table_model.h \
     db/handler.h \
     db/table_records.h \
-    dsa_media_control_kit.h \
     category/tree_view.h \
     misc/drop_group_box.h \
     misc/char_input_dialog.h \
@@ -120,12 +119,13 @@ HEADERS  += main_window.h \
     preset/preset_view.h \
     db/model/preset_table_model.h \
     tile/base_tile.h \
-    tile/playlist_tile.h
+    tile/playlist_tile.h \
+    companion_widget.h
 
 RESOURCES += \
     _RES/resources.qrc
 
-RC_FILE = pap-media.rc
+RC_FILE = companion.rc
 
 OTHER_FILES += _RES/webapp1.ini
 

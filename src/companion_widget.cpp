@@ -1,4 +1,4 @@
-#include "dsa_media_control_kit.h"
+#include "companion_widget.h"
 
 #include <QDebug>
 #include <QDir>
@@ -12,7 +12,7 @@
 #include "resources/lib.h"
 #include "misc/json_mime_data_parser.h"
 
-DsaMediaControlKit::DsaMediaControlKit(QWidget *parent)
+CompanionWidget::CompanionWidget(QWidget *parent)
     : QWidget(parent)
     , project_name_("")
     , progress_bar_(0)
@@ -39,29 +39,29 @@ DsaMediaControlKit::DsaMediaControlKit(QWidget *parent)
     initMenu();
 }
 
-DsaMediaControlKit::~DsaMediaControlKit()
+CompanionWidget::~CompanionWidget()
 {
     delete web_host_;
     web_host_ = 0;
 }
 
-QMenu *DsaMediaControlKit::getMenu()
+QMenu *CompanionWidget::getMenu()
 {
     return main_menu_;
 }
 
-const QString &DsaMediaControlKit::getStatusMessage() const
+const QString &CompanionWidget::getStatusMessage() const
 {
     return status_message_;
 }
 
-QProgressBar *DsaMediaControlKit::getProgressBar() const
+QProgressBar *CompanionWidget::getProgressBar() const
 {
     return progress_bar_;
 }
 
 
-void DsaMediaControlKit::onProgressChanged(int value)
+void CompanionWidget::onProgressChanged(int value)
 {
     if(value != 100) {
         if(progress_bar_->isHidden()) {
@@ -74,7 +74,7 @@ void DsaMediaControlKit::onProgressChanged(int value)
     progress_bar_->setValue(value);
 }
 
-void DsaMediaControlKit::onSelectedCategoryChanged(DB::CategoryRecord *rec)
+void CompanionWidget::onSelectedCategoryChanged(DB::CategoryRecord *rec)
 {
     int id = -1;
     if(rec != 0)
@@ -83,13 +83,13 @@ void DsaMediaControlKit::onSelectedCategoryChanged(DB::CategoryRecord *rec)
     sound_file_view_->setSoundFiles(db_handler_->getSoundFileRecordsByCategoryId(id));
 }
 
-void DsaMediaControlKit::onDeleteDatabase()
+void CompanionWidget::onDeleteDatabase()
 {
     db_handler_->deleteAll();
     category_view_->selectRoot();
 }
 
-void DsaMediaControlKit::onSaveProjectAs()
+void CompanionWidget::onSaveProjectAs()
 {
     QString file_name = QFileDialog::getSaveFileName(
         this, tr("Save Project"),
@@ -103,7 +103,7 @@ void DsaMediaControlKit::onSaveProjectAs()
     }
 }
 
-void DsaMediaControlKit::onSaveProject()
+void CompanionWidget::onSaveProject()
 {
     if(project_name_.size() > 0) {
         QJsonDocument doc;
@@ -119,7 +119,7 @@ void DsaMediaControlKit::onSaveProject()
     }
 }
 
-void DsaMediaControlKit::onOpenProject()
+void CompanionWidget::onOpenProject()
 {
     QString file_name = QFileDialog::getOpenFileName(
         this, tr("Open Project"),
@@ -160,7 +160,7 @@ void DsaMediaControlKit::onOpenProject()
     }
 }
 
-void DsaMediaControlKit::onStartWebServer()
+void CompanionWidget::onStartWebServer()
 {
     if(web_host_ == 0)
         web_host_ = new Web::Host;
@@ -168,7 +168,7 @@ void DsaMediaControlKit::onStartWebServer()
     web_host_->show();
 }
 
-void DsaMediaControlKit::setProjectPath(const QString &path)
+void CompanionWidget::setProjectPath(const QString &path)
 {
     if (path.size() == 0) {
         project_name_ = "";
@@ -181,7 +181,7 @@ void DsaMediaControlKit::setProjectPath(const QString &path)
     }
 }
 
-void DsaMediaControlKit::initWidgets()
+void CompanionWidget::initWidgets()
 {
     sound_file_view_ = new SoundFile::MasterView(
         db_handler_->getSoundFileTableModel()->getSoundFiles(),
@@ -250,7 +250,7 @@ void DsaMediaControlKit::initWidgets()
             sound_file_view_, SLOT(onDropSuccessful()));
 }
 
-void DsaMediaControlKit::initLayout()
+void CompanionWidget::initLayout()
 {
     QHBoxLayout* layout = new QHBoxLayout;
 
@@ -269,7 +269,7 @@ void DsaMediaControlKit::initLayout()
     setLayout(layout);
 }
 
-void DsaMediaControlKit::initActions()
+void CompanionWidget::initActions()
 {
     actions_["Import Resource Folder..."] = new QAction(tr("Import Resource Folder..."), this);
     actions_["Import Resource Folder..."]->setToolTip(tr("Imports a folder of resources into the program."));
@@ -307,7 +307,7 @@ void DsaMediaControlKit::initActions()
             this, SLOT(onStartWebServer()));
 }
 
-void DsaMediaControlKit::initMenu()
+void CompanionWidget::initMenu()
 {
     main_menu_ = new QMenu(tr("DsaMediaControlKit"));
 
@@ -326,7 +326,7 @@ void DsaMediaControlKit::initMenu()
     main_menu_->addMenu(tool_menu);
 }
 
-void DsaMediaControlKit::initDB()
+void CompanionWidget::initDB()
 {
     DB::Core::Api* db_api = nullptr;
 #ifdef _WIN32

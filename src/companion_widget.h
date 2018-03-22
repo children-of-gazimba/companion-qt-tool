@@ -1,5 +1,5 @@
-#ifndef DSA_MEDIA_CONTROL_KIT_H
-#define DSA_MEDIA_CONTROL_KIT_H
+#ifndef COMPANION_WIDGET_H
+#define COMPANION_WIDGET_H
 
 #include <QWidget>
 
@@ -26,12 +26,12 @@
 #include "image/browser.h"
 #include "preset/preset_view.h"
 
-class DsaMediaControlKit : public QWidget
+class CompanionWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit DsaMediaControlKit(QWidget *parent = 0);
-    ~DsaMediaControlKit();
+    explicit CompanionWidget(QWidget *parent = 0);
+    ~CompanionWidget();
 
     QMenu* getMenu();
     QString const& getStatusMessage() const;
