@@ -66,7 +66,7 @@ public slots:
     /*
      * Inserts new SoundFiles based on list given.
      * Will also insert new Categories in case any SoundFile
-     * describes a new Category tree.
+     * describes a new path through the category tree.
     */
     void insertSoundFilesAndCategories(QList<Resources::SoundFile> const&);
 

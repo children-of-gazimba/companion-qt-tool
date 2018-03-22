@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QGraphicsView>
 #include <QGraphicsItem>
+#include <QShowEvent>
 
 namespace Image {
 
@@ -18,8 +19,11 @@ signals:
 
 public slots:
     void clear();
+    void scaleContentsToViewport();
 
 private:
+    void resizeEvent(QResizeEvent *event);
+    const QRectF getVisibleRect() const;
     void keyPressEvent(QKeyEvent *event);
     void initWidgets();
     void initLayout();

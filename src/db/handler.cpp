@@ -98,6 +98,8 @@ void Handler::deleteAll()
     getCategoryTreeModel()->update();
     getSoundFileTableModel()->update();
     getResourceDirTableModel()->update();
+    getPresetTableModel()->update();
+    getImageDirTableModel()->update();
 }
 
 void Handler::addSoundFile(const QFileInfo& info, const ResourceDirRecord& resource_dir)

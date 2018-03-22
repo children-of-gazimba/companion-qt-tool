@@ -15,7 +15,7 @@ namespace Core {
  * Class that Provides interface to DB::SqliteWrapper,
  * based on structure of application database.
 */
-class Api : public QObject
+class Api : public SqliteWrapper
 {
     Q_OBJECT
 public:
@@ -59,16 +59,12 @@ signals:
 
 public slots:
 
-private:
+protected:
     /*
      * gets the index of the table descibing relations between given TableIndexes.
      * Returns NONE if non exists
     */
     TableIndex getRelationTable(TableIndex first, TableIndex second);
-
-    void initDB(QString const&);
-
-    SqliteWrapper* db_wrapper_;
 };
 
 } // namespace Core

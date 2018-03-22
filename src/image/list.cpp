@@ -10,6 +10,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QGraphicsPixmapItem>
+#include <QCoreApplication>
 
 namespace Image {
 
@@ -68,9 +69,11 @@ void List::onImageSelected(int row)
     if(row < 0 || row >= model_->rowCount())
         return;
     QString path = model_->data(model_->index(row, 0), Qt::UserRole).toString();
-    image_view_->clear();
     image_view_->setItem(new QGraphicsPixmapItem(QPixmap(path)));
-    image_view_->show();
+    if(image_view_->isHidden())
+        image_view_->showNormal();
+    else
+        image_view_->show();
     image_view_->activateWindow();
 }
 

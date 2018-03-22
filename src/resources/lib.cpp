@@ -13,6 +13,22 @@ namespace Resources {
 */
 void Lib::init()
 {
+#ifdef __APPLE__
+    DATABASE_PATH = "/../../../../../companion-shared-files/companion.db";
+#elif __linux__
+    DATABASE_PATH = "/../../companion-shared-files/companion.db";
+#else
+    DATABASE_PATH = QStandardPaths::locate(QStandardPaths::GenericDataLocation, QString("CoG/companion/companion.db"));
+#endif
+//DATABASE_PATH = "../../../../companion-shared-files/companion.db";
+
+#ifdef __APPLE__
+    DARK_STYLE = loadFileToString("/../../../../src/_Res/dark_style.css");
+#elif __linux__
+    DARK_STYLE = loadFileToString("/../src/_RES/dark_style.css"); //linux
+#else
+    DARK_STYLE = loadFileToString(":/styles/dark_style.css");
+#endif
     if(PX_CRACKED_STONE == 0)
         PX_CRACKED_STONE = new QPixmap(IMG_CRACKED_STONE_PATH);
     if(PX_CRACKED_STONE_INV == 0)
@@ -334,13 +350,7 @@ QPixmap *Lib::getKeyPixmap(const QChar &k)
 * DATABASE
 */
 
-#ifdef __APPLE__
-QString Lib::DATABASE_PATH = "/../../../../../companion-shared-files/companion.db";
-#elif __linux__
-QString Lib::DATABASE_PATH = "/../../companion-shared-files/companion.db";
-#else
-QString Lib::DATABASE_PATH = QStandardPaths::locate(QStandardPaths::GenericDataLocation, QString("CoG/companion/companion.db"));
-#endif
+QString Lib::DATABASE_PATH = ""; // set in init()
 //QString Lib::DATABASE_PATH = "../../../../companion-shared-files/companion.db";
 QString Lib::DEFAULT_PROJECT_PATH = "../../companion-shared-files";
 
@@ -440,13 +450,7 @@ QPixmap* Lib::PX_Z_KEY = 0;
 /*
 * STYLE
 */
-#ifdef __APPLE__
-QString Lib::DARK_STYLE = Lib::loadFileToString("/../../../../src/_Res/dark_style.css");
-#elif __linux__
-QString Lib::DARK_STYLE = Lib::loadFileToString("/../src/_RES/dark_style.css"); //linux
-#else
-QString Lib::DARK_STYLE = Lib::loadFileToString(":/styles/dark_style.css");
-#endif
+QString Lib::DARK_STYLE = ""; // set in init()
 
 /*
 * WEB HOSTING CONFIG
