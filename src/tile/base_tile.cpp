@@ -632,6 +632,7 @@ void BaseTile::onSaveAsPreset()
 void BaseTile::onSetKey()
 {
     Misc::CharInputDialog d;
+    d.setChar(getActivateKey());
     if(d.exec()) {
         setActivateKey(d.getChar());
         activate_action_->setShortcut(QKeySequence(QString(d.getChar())));
