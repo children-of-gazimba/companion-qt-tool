@@ -8,7 +8,7 @@
 
 namespace Image {
 
-class View : public QWidget
+class View : public QGraphicsView
 {
     Q_OBJECT
 public:
@@ -25,10 +25,6 @@ private:
     void resizeEvent(QResizeEvent *event);
     const QRectF getVisibleRect() const;
     void keyPressEvent(QKeyEvent *event);
-    void initWidgets();
-    void initLayout();
-
-    QGraphicsView* view_;
 };
 
 } // namespace Image
