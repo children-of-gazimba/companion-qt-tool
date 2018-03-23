@@ -286,6 +286,7 @@ void BaseTile::onActivate()
 {
     is_activated_ = !is_activated_;
     emit activated();
+    update();
 }
 
 void BaseTile::mousePressEvent(QGraphicsSceneMouseEvent* e)
