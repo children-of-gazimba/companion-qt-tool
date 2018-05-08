@@ -41,8 +41,10 @@ CompanionWidget::CompanionWidget(QWidget *parent)
 
 CompanionWidget::~CompanionWidget()
 {
-    delete web_host_;
-    web_host_ = 0;
+    if(web_host_)
+        web_host_->deleteLater();
+    if(socket_host_)
+        socket_host_->deleteLater();
 }
 
 QMenu *CompanionWidget::getMenu()
@@ -166,6 +168,13 @@ void CompanionWidget::onStartWebServer()
         web_host_ = new Web::Host;
     web_host_->setPresetView(graphics_view_);
     web_host_->show();
+}
+
+void CompanionWidget::onStartSocketServer()
+{
+    if(socket_host_ == 0)
+        socket_host_ = new SocketHostWidget(graphics_view_);
+    socket_host_->show();
 }
 
 void CompanionWidget::setProjectPath(const QString &path)
@@ -293,6 +302,9 @@ void CompanionWidget::initActions()
     actions_["Run Web Host..."] = new QAction(tr("Run Web Host..."), this);
     actions_["Run Web Host..."]->setToolTip(tr("Opens a local web application to control current project."));
 
+    actions_["Run Socket Host..."] = new QAction(tr("Run Socket Host..."), this);
+    actions_["Run Socket Host..."]->setToolTip(tr("Opens a local socket application to control current project."));
+
     connect(actions_["Import Resource Folder..."] , SIGNAL(triggered(bool)),
             sound_file_importer_, SLOT(startBrowseFolder(bool)));
     connect(actions_["Delete Database Contents..."], SIGNAL(triggered()),
@@ -305,6 +317,8 @@ void CompanionWidget::initActions()
             this, SLOT(onOpenProject()));
     connect(actions_["Run Web Host..."], SIGNAL(triggered()),
             this, SLOT(onStartWebServer()));
+    connect(actions_["Run Socket Host..."], SIGNAL(triggered()),
+            this, SLOT(onStartSocketServer()));
 }
 
 void CompanionWidget::initMenu()
@@ -321,6 +335,7 @@ void CompanionWidget::initMenu()
     file_menu->addAction(actions_["Delete Database Contents..."]);
     QMenu* tool_menu = main_menu_->addMenu(tr("Tools"));
     tool_menu->addAction(actions_["Run Web Host..."]);
+    tool_menu->addAction(actions_["Run Socket Host..."]);
 
     main_menu_->addMenu(file_menu);
     main_menu_->addMenu(tool_menu);

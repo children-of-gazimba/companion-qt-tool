@@ -25,6 +25,7 @@
 #include "web/host.h"
 #include "image/browser.h"
 #include "preset/preset_view.h"
+#include "new_web/socket_host_widget.h"
 
 class CompanionWidget : public QWidget
 {
@@ -50,6 +51,7 @@ private slots:
     void onSaveProject();
     void onOpenProject();
     void onStartWebServer();
+    void onStartSocketServer();
 
 private:
     void setProjectPath(QString const& path);
@@ -83,6 +85,7 @@ private:
     QGroupBox* left_box_;
     QGroupBox* right_box_;
     Web::Host* web_host_;
+    SocketHostWidget* socket_host_;
     Image::Browser* image_browser_;
     QTabWidget* left_tabwidget_;
 

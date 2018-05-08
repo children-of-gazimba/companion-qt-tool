@@ -17,6 +17,7 @@ QT       += core \
             network
 
 include(../QtWebApp/QtWebApp/httpserver/httpserver.pri)
+include(../sockets/src/companion-qt-sockets.pri)
 
 SOURCES += main.cpp \
     main_window.cpp \
@@ -67,7 +68,9 @@ SOURCES += main.cpp \
     db/model/preset_table_model.cpp \
     tile/base_tile.cpp \
     tile/playlist_tile.cpp \
-    companion_widget.cpp
+    companion_widget.cpp \
+    new_web/socket_host_widget.cpp \
+    new_web/companion_server.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -120,7 +123,9 @@ HEADERS  += main_window.h \
     db/model/preset_table_model.h \
     tile/base_tile.h \
     tile/playlist_tile.h \
-    companion_widget.h
+    companion_widget.h \
+    new_web/socket_host_widget.h \
+    new_web/companion_server.h
 
 RESOURCES += \
     _RES/resources.qrc
