@@ -10,6 +10,7 @@
 
 #include "db/model/sound_file_table_model.h"
 #include "db/model/preset_table_model.h"
+#include "base_tile.h"
 
 // TODO: rename namespace to Tile
 namespace Tile {
@@ -49,6 +50,11 @@ public:
 
     void setPresetModel(DB::Model::PresetTableModel* m);
     DB::Model::PresetTableModel* getPresetModel();
+
+    /**
+     * Returns the tile with given uuid or 0 if doesn't exist.
+    */
+    BaseTile* getTile(const QUuid& uuid) const;
 
     /**
      * Activates tile with given ID.

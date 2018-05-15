@@ -1,4 +1,5 @@
 #include "companion_server.h"
+#include "network_message.h"
 
 CompanionServer::CompanionServer(int port, QObject *parent)
     : Server(port, parent)
@@ -27,11 +28,8 @@ void CompanionServer::newConnection()
         qDebug() << "    > "  << "Client says:" << socket->readAll();
 
     if(view_) {
-        QJsonDocument doc(view_->toJsonObject());
-        QByteArray data(doc.toJson());
-        socket->write(data);
-        socket->flush();
-        emit messageSent(data);
+        NetworkMessage msg("set_project", view_->toJsonObject());
+        sendToClient(msg.toByteArray(), socket);
     }
     clients_.push_back(socket);
 
@@ -45,24 +43,34 @@ void CompanionServer::newConnection()
     );
 }
 
-void CompanionServer::initServer()
+void CompanionServer::sendToClient(const QByteArray &data, QTcpSocket *client)
 {
-    tcp_server_ = new QTcpServer(this);
+    Server::sendToClient(data, client);
+    emit messageSent(data);
+}
 
-    // whenever a user connects, it will emit signal
-    connect(tcp_server_, SIGNAL(newConnection()),
-            this, SLOT(newConnection()));
-
-    if(!tcp_server_->listen(QHostAddress::Any, port_))
-    {
-        qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
-        qDebug() << "  > " << "Failure: Server couldn't start";
+void CompanionServer::processClientMessage(const NetworkMessage &msg, QTcpSocket *client)
+{
+    qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+    qDebug() << "  > " << msg.toByteArray();
+    if(msg.getMessage().compare("get_project") == 0) {
+        if(view_) {
+            NetworkMessage msg_reply("set_project", view_->toJsonObject());
+            sendToClient(msg_reply.toByteArray(), client);
+        }
     }
-    else
-    {
-        qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
-        qDebug() << "  > " << "Success: Server started.";
+    else if(msg.getMessage().compare("toggle_tile_activation") == 0) {
+        if(view_ && msg.getKwargs().contains("uuid")) {
+            QUuid tile_uuid(msg.getKwargs()["uuid"].toString());
+            Tile::BaseTile* t = view_->getTile(tile_uuid);
+            if(!t)
+                return;
+            t->onActivate();
+            QJsonObject kwargs;
+            kwargs["uuid"] = QString(tile_uuid.toByteArray());
+            kwargs["state"] = t->isActive();
+            NetworkMessage msg_reply("set_tile_active", kwargs);
+            sendToClient(msg_reply.toByteArray(), client);
+        }
     }
-
-    refresh_read_ = new QTimer(this);
 }

@@ -19,7 +19,8 @@ protected slots:
     virtual void newConnection();
 
 protected:
-    virtual void initServer();
+    virtual void sendToClient(const QByteArray& data, QTcpSocket* client);
+    virtual void processClientMessage(const NetworkMessage &msg, QTcpSocket *client);
 
     Tile::GraphicsView* view_;
 };
