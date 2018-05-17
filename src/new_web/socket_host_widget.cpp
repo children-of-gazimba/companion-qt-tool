@@ -10,6 +10,13 @@ SocketHostWidget::SocketHostWidget(Tile::GraphicsView* view, QWidget *parent)
     server_ = new CompanionServer(41736, this);
     server_->setGraphicsView(view);
 
+    qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+    qDebug() << "  > " << "setup companion server";
+
+    udp_dicovery_ = new CompanionUdpDiscovery(41736, this);
+
+    qDebug() << "  > " << "setup udp discovery";
+
     text_edit_ = new QTextEdit(this);
     text_edit_->setReadOnly(true);
     connect(server_, &CompanionServer::messageSent,

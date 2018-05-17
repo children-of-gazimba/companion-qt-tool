@@ -5,6 +5,7 @@
 #include <QTextEdit>
 
 #include "companion_server.h"
+#include "companion_udp_discovery.h"
 
 class SocketHostWidget : public QWidget
 {
@@ -20,6 +21,7 @@ private:
     void initLayout();
 
     CompanionServer* server_;
+    CompanionUdpDiscovery* udp_dicovery_;
     QTextEdit* text_edit_;
 };
 

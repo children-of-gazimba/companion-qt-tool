@@ -70,7 +70,8 @@ SOURCES += main.cpp \
     tile/playlist_tile.cpp \
     companion_widget.cpp \
     new_web/socket_host_widget.cpp \
-    new_web/companion_server.cpp
+    new_web/companion_server.cpp \
+    new_web/companion_udp_discovery.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -125,7 +126,8 @@ HEADERS  += main_window.h \
     tile/playlist_tile.h \
     companion_widget.h \
     new_web/socket_host_widget.h \
-    new_web/companion_server.h
+    new_web/companion_server.h \
+    new_web/companion_udp_discovery.h
 
 RESOURCES += \
     _RES/resources.qrc
