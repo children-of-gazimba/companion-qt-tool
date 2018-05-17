@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include <QTextEdit>
+#include <QLineEdit>
+#include <QPushButton>
 
 #include "companion_server.h"
 #include "companion_udp_discovery.h"
@@ -17,12 +19,18 @@ signals:
 
 public slots:
 
+private slots:
+    void onNameSubmit();
+
 private:
+    void initWidgets();
     void initLayout();
 
     CompanionServer* server_;
-    CompanionUdpDiscovery* udp_dicovery_;
+    CompanionUdpDiscovery* udp_discovery_;
     QTextEdit* text_edit_;
+    QLineEdit* name_edit_;
+    QPushButton* name_submit_;
 };
 
 #endif // SOCKET_HOST_WIDGET_H
