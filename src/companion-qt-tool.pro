@@ -71,7 +71,9 @@ SOURCES += main.cpp \
     companion_widget.cpp \
     new_web/socket_host_widget.cpp \
     new_web/companion_server.cpp \
-    new_web/companion_udp_discovery.cpp
+    new_web/companion_udp_discovery.cpp \
+    image/uncover_image_item.cpp \
+    image/image_item.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -127,7 +129,9 @@ HEADERS  += main_window.h \
     companion_widget.h \
     new_web/socket_host_widget.h \
     new_web/companion_server.h \
-    new_web/companion_udp_discovery.h
+    new_web/companion_udp_discovery.h \
+    image/uncover_image_item.h \
+    image/image_item.h
 
 RESOURCES += \
     _RES/resources.qrc

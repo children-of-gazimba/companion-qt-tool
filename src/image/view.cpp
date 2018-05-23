@@ -7,13 +7,29 @@
 #include <QScrollBar>
 #include <QCoreApplication>
 
+#include "image_item.h"
+#include "uncover_image_item.h"
+
 namespace Image {
 
 View::View(QWidget *parent)
     : QGraphicsView(parent)
+    , item_(0)
+    , context_menu_(0)
 {
     setScene(new QGraphicsScene(this));
     setStyleSheet("background-color: #373738; color: white;");
+    initContextMenu();
+}
+
+View::~View()
+{
+    context_menu_->deleteLater();
+}
+
+void View::setItem(ImageItem* it)
+{
+    setItem((QGraphicsItem*) it);
 }
 
 void View::setItem(QGraphicsItem* item)
@@ -22,6 +38,7 @@ void View::setItem(QGraphicsItem* item)
     scene()->addItem(item);
     scene()->setSceneRect(item->boundingRect());
     scaleContentsToViewport();
+    item_ = item;
 }
 
 void View::clear()
@@ -38,6 +55,15 @@ void View::scaleContentsToViewport()
         visible_rect.height() / scene()->sceneRect().height()
     );
     scale(scale_factor, scale_factor);
+}
+
+void View::onOverlayMapFog()
+{
+    auto it = qgraphicsitem_cast<ImageItem*>(item_);
+    if(it) {
+        QString path = it->getPath();
+        setItem(new UncoverImageItem(path, it->boundingRect().size().toSize()));
+    }
 }
 
 void View::resizeEvent(QResizeEvent *event)
@@ -73,6 +99,28 @@ void View::keyPressEvent(QKeyEvent *event)
             break;
     }
     QWidget::keyPressEvent(event);
+}
+
+void View::mousePressEvent(QMouseEvent *event)
+{
+    QGraphicsView::mousePressEvent(event);
+    if(!event->isAccepted()) {
+        if(event->button() == Qt::RightButton) {
+            context_menu_->popup(event->globalPos());
+            event->accept();
+        }
+    }
+}
+
+void View::initContextMenu()
+{
+    context_menu_ = new QMenu;
+
+    QAction* cover_image = new QAction(tr("Overlay map fog"));
+    connect(cover_image, SIGNAL(triggered()),
+            this, SLOT(onOverlayMapFog()));
+
+    context_menu_->addAction(cover_image);
 }
 
 } // namespace Image

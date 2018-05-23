@@ -12,6 +12,8 @@
 #include <QGraphicsPixmapItem>
 #include <QCoreApplication>
 
+#include "image_item.h"
+
 namespace Image {
 
 List::List(QWidget *parent)
@@ -69,7 +71,7 @@ void List::onImageSelected(int row)
     if(row < 0 || row >= model_->rowCount())
         return;
     QString path = model_->data(model_->index(row, 0), Qt::UserRole).toString();
-    image_view_->setItem(new QGraphicsPixmapItem(QPixmap(path)));
+    image_view_->setItem(new ImageItem(path));
     if(image_view_->isHidden())
         image_view_->showNormal();
     else
