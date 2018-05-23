@@ -175,6 +175,20 @@ DB::Model::PresetTableModel *GraphicsView::getPresetModel()
     return preset_model_;
 }
 
+BaseTile *GraphicsView::getTile(const QUuid &uuid) const
+{
+    foreach(QGraphicsItem* it, scene()->items()) {
+        QObject* o = dynamic_cast<QObject*>(it);
+        if(o) {
+            BaseTile* t = qobject_cast<BaseTile*>(o);
+            if(t && t->getUuid() == uuid) {
+                return t;
+            }
+        }
+    }
+    return 0;
+}
+
 bool GraphicsView::activate(const QUuid &tile_id)
 {
     foreach(QGraphicsItem* it, scene()->items()) {

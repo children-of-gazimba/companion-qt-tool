@@ -1,0 +1,3 @@
+[submodule "sockets"]
+	path = sockets
+	url = https://github.com/children-of-gazimba/companion-qt-sockets
