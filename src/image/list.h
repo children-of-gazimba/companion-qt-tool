@@ -18,6 +18,7 @@ class List : public QWidget
     Q_OBJECT
 public:
     explicit List(QWidget *parent = 0);
+    virtual ~List();
 
     void openDirectory(const QString&);
 
@@ -42,7 +43,8 @@ private:
 
     QStandardItemModel* model_;
     QListView* file_view_;
-    ImageDisplayWidget* image_view_;
+    ImageDisplayWidget* presentation_view_;
+    ImageDisplayWidget* master_view_;
     QPushButton* open_button_;
     QLineEdit* line_edit_;
 };

@@ -50,10 +50,13 @@ public:
     */
     QMenu* getMenuBarExtension();
 
+signals:
+
 public slots:
     void loadImage();
 
 protected slots:
+
     void onHasMoved(const QUuid&);
     void onCreateToken();
     void onUncoverAll();

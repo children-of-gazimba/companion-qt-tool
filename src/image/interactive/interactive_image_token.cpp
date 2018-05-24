@@ -28,6 +28,16 @@ InteractiveImageToken::InteractiveImageToken(const QSizeF &s, QGraphicsItem *par
     setFlag(QGraphicsItem::ItemIsMovable, true);
 }
 
+InteractiveImageToken::InteractiveImageToken(const InteractiveImageToken &it, QGraphicsItem *parent)
+    : QGraphicsObject(parent)
+    , bounding_rect_(it.boundingRect())
+    , state_(IDLE)
+    , uuid_(it.getUuid())
+    , uncover_radius_(it.getUncoverRadius())
+{
+    setFlag(QGraphicsItem::ItemIsMovable, true);
+}
+
 QRectF InteractiveImageToken::boundingRect() const
 {
     return bounding_rect_;

@@ -8,6 +8,7 @@
 #include <QMenu>
 
 class ImageItem;
+class InteractiveImageItem;
 
 namespace Image {
 

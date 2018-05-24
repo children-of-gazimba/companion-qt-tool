@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QMenuBar>
 
+class InteractiveImageToken;
+
 namespace Image {
 class View;
 }
@@ -17,8 +19,6 @@ public:
     Image::View* getView() const;
 
 signals:
-
-public slots:
 
 private slots:
     void onItemSet();

@@ -20,12 +20,21 @@ List::List(QWidget *parent)
     : QWidget(parent)
     , model_(0)
     , file_view_(0)
-    , image_view_(0)
+    , presentation_view_(0)
+    , master_view_(0)
     , open_button_(0)
     , line_edit_(0)
 {
     initWidgets();
     initLayout();
+}
+
+List::~List()
+{
+    if(presentation_view_)
+        presentation_view_->deleteLater();
+    if(master_view_)
+        master_view_->deleteLater();
 }
 
 void List::openDirectory(const QString& dir_name)
@@ -71,12 +80,19 @@ void List::onImageSelected(int row)
     if(row < 0 || row >= model_->rowCount())
         return;
     QString path = model_->data(model_->index(row, 0), Qt::UserRole).toString();
-    image_view_->getView()->setItem(new ImageItem(path));
-    if(image_view_->isHidden())
-        image_view_->showNormal();
+    presentation_view_->getView()->setItem(new ImageItem(path));
+    if(presentation_view_->isHidden())
+        presentation_view_->showNormal();
     else
-        image_view_->show();
-    image_view_->activateWindow();
+        presentation_view_->show();
+    presentation_view_->activateWindow();
+
+    master_view_->getView()->setItem(new ImageItem(path));
+    if(master_view_->isHidden())
+        master_view_->showNormal();
+    else
+        master_view_->show();
+    master_view_->activateWindow();
 }
 
 void List::initWidgets()
@@ -92,9 +108,15 @@ void List::initWidgets()
     connect(file_view_, SIGNAL(clicked(const QModelIndex&)),
             this, SLOT(onImageSelected(const QModelIndex&)));
 
-    image_view_ = new ImageDisplayWidget;
-    image_view_->setWindowFlags(Qt::Window);
-    image_view_->hide();
+    presentation_view_ = new ImageDisplayWidget;
+    presentation_view_->setWindowFlags(Qt::Window);
+    presentation_view_->setWindowTitle(tr("Companion Stage"));
+    presentation_view_->hide();
+
+    master_view_ = new ImageDisplayWidget;
+    master_view_->setWindowFlags(Qt::Window);
+    master_view_->setWindowTitle(tr("Master Stage Monitor"));
+    master_view_->hide();
 
     open_button_ = new QPushButton(tr("browse"), this);
     connect(open_button_, SIGNAL(clicked()),

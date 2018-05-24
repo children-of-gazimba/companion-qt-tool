@@ -20,6 +20,7 @@ public:
 public:
     explicit InteractiveImageToken(QGraphicsItem *parent = nullptr);
     explicit InteractiveImageToken(const QSizeF& s, QGraphicsItem *parent = nullptr);
+    explicit InteractiveImageToken(const InteractiveImageToken&, QGraphicsItem *parent = nullptr);
 
     /**
      * See BC.
@@ -72,7 +73,7 @@ signals:
 public slots:
 
 protected:
-    void setState(State state);
+    void setState(State);
 
     virtual void mousePressEvent(QGraphicsSceneMouseEvent* e);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* e);
