@@ -74,7 +74,8 @@ SOURCES += main.cpp \
     new_web/companion_udp_discovery.cpp \
     image/image_item.cpp \
     image/interactive/interactive_image.cpp \
-    image/interactive/interactive_image_token.cpp
+    image/interactive/interactive_image_token.cpp \
+    image/image_display_widget.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -133,7 +134,8 @@ HEADERS  += main_window.h \
     new_web/companion_udp_discovery.h \
     image/image_item.h \
     image/interactive/interactive_image.h \
-    image/interactive/interactive_image_token.h
+    image/interactive/interactive_image_token.h \
+    image/image_display_widget.h
 
 RESOURCES += \
     _RES/resources.qrc

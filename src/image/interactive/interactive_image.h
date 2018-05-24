@@ -13,6 +13,10 @@ class InteractiveImage : public QGraphicsObject
 {
     Q_OBJECT
 public:
+    enum { Type = UserType + 78 };
+    virtual int type() const { return Type; }
+
+public:
     InteractiveImage(const QSize& size, QGraphicsItem* parent = 0);
     InteractiveImage(const QString& path, const QSize& size, QGraphicsItem* parent = 0);
     virtual ~InteractiveImage();
@@ -27,8 +31,24 @@ public:
     */
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
+    /*
+    * Returns the Token referenced by given uuid,
+    * or 0 if it doesn't exist.
+    */
     InteractiveImageToken* getToken(const QUuid& uuid);
-    void linkToken(InteractiveImageToken* it);
+
+    /*
+    * Adds given token to the view
+    * and connects it to the uncover functionality.
+    */
+    void addToken(InteractiveImageToken* it);
+
+    /*
+    * Returns the QMenu which can be used as a
+    * MenuBar extension. All actions
+    * are also available from the context menu.
+    */
+    QMenu* getMenuBarExtension();
 
 public slots:
     void loadImage();
@@ -39,7 +59,8 @@ protected slots:
     void onUncoverAll();
     void onCoverAll();
 
-protected:
+protected:    
+    void linkToken(InteractiveImageToken* it);
     void clearAllPaths();
     void calcResultImage();
     const QPoint imagePos(const QImage& img) const;
@@ -65,6 +86,7 @@ protected:
     QMenu* context_menu_;
     QMap<QString, QAction*> actions_;
     bool all_uncovered_;
+    QMenu* menu_bar_extension_;
 };
 
 #endif // INTERACTIVE_IMAGE_H

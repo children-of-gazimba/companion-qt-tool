@@ -20,21 +20,23 @@ public:
 
     void setItem(ImageItem*);
 
+    QMenu* getMenuBarExtension();
+
 signals:
+    void itemSet();
 
 public slots:
     void clear();
     void scaleContentsToViewport();
 
 private slots:
-    void onOverlayMapFog();
+    void onMakeInteractive();
 
 private:
     void setItem(QGraphicsItem*);
 
     void resizeEvent(QResizeEvent *event);
     const QRectF getVisibleRect() const;
-    void keyPressEvent(QKeyEvent *event);
     void mousePressEvent(QMouseEvent *event);
     /**
      * @brief initializes the context menu of this view.

@@ -32,6 +32,17 @@ void View::setItem(ImageItem* it)
     setItem((QGraphicsItem*) it);
 }
 
+QMenu *View::getMenuBarExtension()
+{
+    auto it = qgraphicsitem_cast<InteractiveImage*>(item_);
+    if(it) {
+        return it->getMenuBarExtension();
+    }
+    else {
+        return context_menu_;
+    }
+}
+
 void View::setItem(QGraphicsItem* item)
 {
     clear();
@@ -39,6 +50,7 @@ void View::setItem(QGraphicsItem* item)
     scene()->setSceneRect(item->boundingRect());
     scaleContentsToViewport();
     item_ = item;
+    emit itemSet();
 }
 
 void View::clear()
@@ -57,7 +69,7 @@ void View::scaleContentsToViewport()
     scale(scale_factor, scale_factor);
 }
 
-void View::onOverlayMapFog()
+void View::onMakeInteractive()
 {
     auto it = qgraphicsitem_cast<ImageItem*>(item_);
     if(it) {
@@ -80,27 +92,6 @@ const QRectF View::getVisibleRect() const
     return mat.mapRect(QRectF(tl,br));
 }
 
-void View::keyPressEvent(QKeyEvent *event)
-{
-    switch(event->key()) {
-        case '-':
-            scale(0.9,0.9);
-            break;
-        case '+':
-            scale(1.1,1.1);
-            break;
-        case ' ':
-            if (windowState().testFlag(Qt::WindowFullScreen)) {
-                showNormal();
-            }
-            else {
-                showFullScreen();
-            }
-            break;
-    }
-    QWidget::keyPressEvent(event);
-}
-
 void View::mousePressEvent(QMouseEvent *event)
 {
     QGraphicsView::mousePressEvent(event);
@@ -114,11 +105,11 @@ void View::mousePressEvent(QMouseEvent *event)
 
 void View::initContextMenu()
 {
-    context_menu_ = new QMenu;
+    context_menu_ = new QMenu(tr("Actions"));
 
     QAction* cover_image = new QAction(tr("Make Interactive"));
     connect(cover_image, SIGNAL(triggered()),
-            this, SLOT(onOverlayMapFog()));
+            this, SLOT(onMakeInteractive()));
 
     context_menu_->addAction(cover_image);
 }

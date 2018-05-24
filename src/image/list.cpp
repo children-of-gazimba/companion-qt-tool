@@ -71,7 +71,7 @@ void List::onImageSelected(int row)
     if(row < 0 || row >= model_->rowCount())
         return;
     QString path = model_->data(model_->index(row, 0), Qt::UserRole).toString();
-    image_view_->setItem(new ImageItem(path));
+    image_view_->getView()->setItem(new ImageItem(path));
     if(image_view_->isHidden())
         image_view_->showNormal();
     else
@@ -92,7 +92,7 @@ void List::initWidgets()
     connect(file_view_, SIGNAL(clicked(const QModelIndex&)),
             this, SLOT(onImageSelected(const QModelIndex&)));
 
-    image_view_ = new View;
+    image_view_ = new ImageDisplayWidget;
     image_view_->setWindowFlags(Qt::Window);
     image_view_->hide();
 

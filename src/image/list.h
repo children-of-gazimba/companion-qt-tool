@@ -9,6 +9,8 @@
 #include <QStandardItemModel>
 #include <QWidget>
 
+#include "image_display_widget.h"
+
 namespace Image {
 
 class List : public QWidget
@@ -40,7 +42,7 @@ private:
 
     QStandardItemModel* model_;
     QListView* file_view_;
-    View* image_view_;
+    ImageDisplayWidget* image_view_;
     QPushButton* open_button_;
     QLineEdit* line_edit_;
 };

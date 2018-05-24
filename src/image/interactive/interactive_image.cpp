@@ -21,6 +21,7 @@ InteractiveImage::InteractiveImage(const QSize &size, QGraphicsItem* parent)
     , context_menu_(0)
     , actions_()
     , all_uncovered_(true)
+    , menu_bar_extension_(0)
 {
     result_image_ = new QImage(result_size_, QImage::Format_ARGB32_Premultiplied);
     src_image_ = new QImage;
@@ -42,6 +43,7 @@ InteractiveImage::InteractiveImage(const QString& path, const QSize &size, QGrap
     , context_menu_(0)
     , actions_()
     , all_uncovered_(true)
+    , menu_bar_extension_(0)
 {
     result_image_ = new QImage(result_size_, QImage::Format_ARGB32_Premultiplied);
     src_image_ = new QImage;
@@ -56,6 +58,8 @@ InteractiveImage::~InteractiveImage()
     delete result_image_;
     foreach(auto it, token_paths_.keys())
         it->deleteLater();
+    if(menu_bar_extension_)
+        menu_bar_extension_->deleteLater();
 }
 
 QRectF InteractiveImage::boundingRect() const
@@ -78,6 +82,25 @@ InteractiveImageToken *InteractiveImage::getToken(const QUuid &uuid)
         if(uuid == it->getUuid())
             return it;
     return 0;
+}
+
+void InteractiveImage::addToken(InteractiveImageToken *it)
+{
+    scene()->addItem(it);
+    linkToken(it);
+    calcResultImage();
+}
+
+QMenu *InteractiveImage::getMenuBarExtension()
+{
+    if(menu_bar_extension_)
+        return menu_bar_extension_;
+    menu_bar_extension_ = new QMenu(tr("Actions"));
+    QMenu* fog_menu = menu_bar_extension_->addMenu(tr("Fog"));
+    fog_menu->addAction(actions_["cover"]);
+    fog_menu->addAction(actions_["uncover"]);
+    menu_bar_extension_->addMenu(fog_menu);
+    return menu_bar_extension_;
 }
 
 void InteractiveImage::linkToken(InteractiveImageToken *it)
@@ -115,8 +138,7 @@ void InteractiveImage::onCreateToken()
     spawn_pos.setX(spawn_pos.x()-it->boundingRect().width()/2.0f);
     spawn_pos.setY(spawn_pos.y()-it->boundingRect().height()/2.0f);
     it->setPos(spawn_pos);
-    scene()->addItem(it);
-    linkToken(it);
+    addToken(it);
 }
 
 void InteractiveImage::onUncoverAll()
@@ -190,6 +212,7 @@ void InteractiveImage::calcResultImage()
     }
     else {
         foreach(auto it, token_paths_.keys()) {
+            p.setBrush(Qt::NoBrush);
             p.setPen(QPen(Qt::black, it->getUncoverRadius(), Qt::SolidLine, Qt::RoundCap));
             p.drawPath(token_paths_[it]);
             p.setBrush(Qt::black);
