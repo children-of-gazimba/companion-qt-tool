@@ -8,7 +8,7 @@
 #include <QCoreApplication>
 
 #include "image_item.h"
-#include "uncover_image_item.h"
+#include "interactive/interactive_image.h"
 
 namespace Image {
 
@@ -62,7 +62,7 @@ void View::onOverlayMapFog()
     auto it = qgraphicsitem_cast<ImageItem*>(item_);
     if(it) {
         QString path = it->getPath();
-        setItem(new UncoverImageItem(path, it->boundingRect().size().toSize()));
+        setItem(new InteractiveImage(path, it->boundingRect().size().toSize()));
     }
 }
 
@@ -116,7 +116,7 @@ void View::initContextMenu()
 {
     context_menu_ = new QMenu;
 
-    QAction* cover_image = new QAction(tr("Overlay map fog"));
+    QAction* cover_image = new QAction(tr("Make Interactive"));
     connect(cover_image, SIGNAL(triggered()),
             this, SLOT(onOverlayMapFog()));
 
