@@ -4,6 +4,8 @@
 #include <QStatusBar>
 #include <QProgressBar>
 #include <QKeySequence>
+#include <QGuiApplication>
+#include <QWindow>
 
 #include "resources/lib.h"
 
@@ -13,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     , actions_()
 {
     setWindowTitle("Companion");
+
     initCentralWidget();
     initActions();
     initMenuBar();

@@ -41,6 +41,5 @@ void TuioHandler::loadPlugin()
     if(plugin_) {
         touch_handler_ = plugin_->create("TuioTouch", "udp=3333");
         qDebug() << "       > device" << getTuioDevice();
-        setLoggingActivated(true);
     }
 }
