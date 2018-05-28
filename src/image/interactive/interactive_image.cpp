@@ -222,8 +222,8 @@ void InteractiveImage::calcResultImage()
             uncover_area.setY(uncover_area.y()-uncover_area.height()/2.0f);
             p.drawEllipse(uncover_area);
         }
-        p.setBrush(Qt::NoBrush);
-        p.setPen(QPen(Qt::black, 100, Qt::SolidLine, Qt::RoundCap));
+        p.setBrush(Qt::black);
+        p.setPen(QPen(Qt::black, 5, Qt::SolidLine, Qt::RoundCap));
         foreach(auto path, paths_)
             p.drawPath(path);
     }
