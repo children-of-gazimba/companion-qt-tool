@@ -5,6 +5,9 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <QStandardPaths>
+#include <QLibraryInfo>
+
+class QTuioTouchPlugin;
 
 namespace Resources {
 
@@ -21,6 +24,9 @@ void Lib::init()
     DATABASE_PATH = QStandardPaths::locate(QStandardPaths::GenericDataLocation, QString("CoG/companion/companion.db"));
 #endif
 //DATABASE_PATH = "../../../../companion-shared-files/companion.db";
+
+    GLOBAL_PLUGIN_DIR = QLibraryInfo::location(QLibraryInfo::PluginsPath);
+    TUIO_PLUGIN_DIR = GLOBAL_PLUGIN_DIR + "/generic";
 
 #ifdef __APPLE__
     DARK_STYLE = loadFileToString("/../../../../src/_Res/dark_style.css");
@@ -353,6 +359,12 @@ QPixmap *Lib::getKeyPixmap(const QChar &k)
 QString Lib::DATABASE_PATH = ""; // set in init()
 //QString Lib::DATABASE_PATH = "../../../../companion-shared-files/companion.db";
 QString Lib::DEFAULT_PROJECT_PATH = "../../companion-shared-files";
+
+/*
+* PLUGINS
+*/
+QString Lib::GLOBAL_PLUGIN_DIR = ""; // set in init()
+QString Lib::TUIO_PLUGIN_DIR = ""; // set in init()
 
 /*
 * ICONS

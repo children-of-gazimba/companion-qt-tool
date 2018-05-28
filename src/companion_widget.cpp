@@ -31,6 +31,7 @@ CompanionWidget::CompanionWidget(QWidget *parent)
     , image_browser_(0)
     , left_tabwidget_(0)
     , db_handler_(0)
+    , tuio_handler_(0)
 {
     initDB();
     initWidgets();
@@ -177,6 +178,15 @@ void CompanionWidget::onStartSocketServer()
     socket_host_->show();
 }
 
+void CompanionWidget::onStartTuioServer()
+{
+    if(!tuio_handler_) {
+        tuio_handler_ = new TuioHandler(this);
+        tuio_handler_->init();
+        actions_["Enable TUIO"]->setEnabled(false);
+    }
+}
+
 void CompanionWidget::setProjectPath(const QString &path)
 {
     if (path.size() == 0) {
@@ -305,6 +315,11 @@ void CompanionWidget::initActions()
     actions_["Run Socket Host..."] = new QAction(tr("Run Socket Host..."), this);
     actions_["Run Socket Host..."]->setToolTip(tr("Opens a local socket application to control current project."));
 
+    actions_["Enable TUIO"] = new QAction(tr("Enable TUIO"), this);
+    actions_["Enable TUIO"]->setCheckable(true);
+    actions_["Enable TUIO"]->setChecked(false);
+    actions_["Enable TUIO"]->setToolTip(tr("Loads the TUIO plugin to accept remote touch input over UDP using TUIO protocol."));
+
     connect(actions_["Import Resource Folder..."] , SIGNAL(triggered(bool)),
             sound_file_importer_, SLOT(startBrowseFolder(bool)));
     connect(actions_["Delete Database Contents..."], SIGNAL(triggered()),
@@ -319,6 +334,8 @@ void CompanionWidget::initActions()
             this, SLOT(onStartWebServer()));
     connect(actions_["Run Socket Host..."], SIGNAL(triggered()),
             this, SLOT(onStartSocketServer()));
+    connect(actions_["Enable TUIO"], SIGNAL(triggered()),
+            this, SLOT(onStartTuioServer()));
 }
 
 void CompanionWidget::initMenu()
@@ -336,6 +353,9 @@ void CompanionWidget::initMenu()
     QMenu* tool_menu = main_menu_->addMenu(tr("Tools"));
     tool_menu->addAction(actions_["Run Web Host..."]);
     tool_menu->addAction(actions_["Run Socket Host..."]);
+    tool_menu->addSeparator();
+    QMenu* tool_input_menu = tool_menu->addMenu(tr("Input"));
+    tool_input_menu->addAction(actions_["Enable TUIO"]);
 
     main_menu_->addMenu(file_menu);
     main_menu_->addMenu(tool_menu);

@@ -71,7 +71,9 @@ SOURCES += main.cpp \
     companion_widget.cpp \
     new_web/socket_host_widget.cpp \
     new_web/companion_server.cpp \
-    new_web/companion_udp_discovery.cpp
+    new_web/companion_udp_discovery.cpp \
+    plugin/tuio_handler.cpp \
+    plugin/plugin_handler.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -127,7 +129,9 @@ HEADERS  += main_window.h \
     companion_widget.h \
     new_web/socket_host_widget.h \
     new_web/companion_server.h \
-    new_web/companion_udp_discovery.h
+    new_web/companion_udp_discovery.h \
+    plugin/tuio_handler.h \
+    plugin/plugin_handler.h
 
 RESOURCES += \
     _RES/resources.qrc

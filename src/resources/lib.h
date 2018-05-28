@@ -22,6 +22,8 @@ struct Lib
     */
     static QString DATABASE_PATH;
     static QString DEFAULT_PROJECT_PATH;
+    static QString GLOBAL_PLUGIN_DIR;
+    static QString TUIO_PLUGIN_DIR;
 
     /*
     * ICONS

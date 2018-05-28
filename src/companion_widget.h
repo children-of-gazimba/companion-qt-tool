@@ -26,6 +26,7 @@
 #include "image/browser.h"
 #include "preset/preset_view.h"
 #include "new_web/socket_host_widget.h"
+#include "plugin/tuio_handler.h"
 
 class CompanionWidget : public QWidget
 {
@@ -52,6 +53,7 @@ private slots:
     void onOpenProject();
     void onStartWebServer();
     void onStartSocketServer();
+    void onStartTuioServer();
 
 private:
     void setProjectPath(QString const& path);
@@ -91,6 +93,8 @@ private:
 
     // DB handler
     DB::Handler* db_handler_;
+    TuioHandler* tuio_handler_;
+
 };
 
 #endif // DSAMEDIACONTROLKIT_H
