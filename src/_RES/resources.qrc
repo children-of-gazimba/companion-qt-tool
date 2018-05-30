@@ -53,4 +53,7 @@
         <file>Y_key.png</file>
         <file>Z_key.png</file>
     </qresource>
+    <qresource prefix="/config">
+    <file>spotify_credentials.json</file>
+    </qresource>
 </RCC>
