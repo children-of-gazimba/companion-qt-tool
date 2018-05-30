@@ -6,6 +6,7 @@
 
 #include "playlist_tile.h"
 #include "nested_tile.h"
+#include "spotify_tile.h"
 #include "misc/json_mime_data_parser.h"
 
 namespace Tile {
@@ -304,6 +305,21 @@ void GraphicsView::createEmptyNestedTile(const QPoint &p)
     tile->setSmallSize();
 }
 
+void GraphicsView::createEmptySpotifyTile(const QPoint &p)
+{
+    SpotifyTile* tile = new SpotifyTile;
+    tile->setFlag(QGraphicsItem::ItemIsMovable, true);
+    tile->init();
+    tile->setPos(p);
+    tile->setSize(0);
+    tile->setName("Empty Spotify");
+
+    // add to scene
+    scene()->addItem(tile);
+    tile->setSmallSize();
+}
+
+
 void GraphicsView::resizeEvent(QResizeEvent *e)
 {
     QGraphicsView::resizeEvent(e);
@@ -351,6 +367,11 @@ void GraphicsView::onEmptyPlaylistTile()
 void GraphicsView::onEmptyNestedTile()
 {
     createEmptyNestedTile(click_pos_);
+}
+
+void GraphicsView::onEmptySpotifyTile()
+{
+    createEmptySpotifyTile(click_pos_);
 }
 
 void GraphicsView::dragEnterEvent(QDragEnterEvent *event)
@@ -541,8 +562,13 @@ void GraphicsView::initContextMenu()
     connect(empty_nested, SIGNAL(triggered()),
             this, SLOT(onEmptyNestedTile()));
 
+    QAction* empty_spotify = new QAction(tr("Spotify Tile"));
+    connect(empty_spotify, SIGNAL(triggered()),
+            this, SLOT(onEmptySpotifyTile()));
+
     create_empty->addAction(empty_playlist);
     create_empty->addAction(empty_nested);
+    create_empty->addAction(empty_spotify);
 
     context_menu_->addMenu(create_empty);
 }
