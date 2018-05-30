@@ -22,9 +22,9 @@
 #include "db/handler.h"
 #include "category/tree_view.h"
 #include "tile/graphics_view.h"
-#include "web/host.h"
 #include "image/browser.h"
 #include "preset/preset_view.h"
+#include "spotify/spotify_authenticator_widget.h"
 
 class CompanionWidget : public QWidget
 {
@@ -49,7 +49,7 @@ private slots:
     void onSaveProjectAs();
     void onSaveProject();
     void onOpenProject();
-    void onStartWebServer();
+    void onStartSpotifyControlWidget();
 
 private:
     void setProjectPath(QString const& path);
@@ -82,8 +82,8 @@ private:
     QSplitter* left_v_splitter_;
     QGroupBox* left_box_;
     QGroupBox* right_box_;
-    Web::Host* web_host_;
     Image::Browser* image_browser_;
+    SpotifyAuthenticatorWidget *spotify_authenticator_widget_;
     QTabWidget* left_tabwidget_;
 
     // DB handler

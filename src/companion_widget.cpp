@@ -27,8 +27,8 @@ CompanionWidget::CompanionWidget(QWidget *parent)
     , left_v_splitter_(0)
     , left_box_(0)
     , right_box_(0)
-    , web_host_(0)
     , image_browser_(0)
+    , spotify_authenticator_widget_(0)
     , left_tabwidget_(0)
     , db_handler_(0)
 {
@@ -41,8 +41,9 @@ CompanionWidget::CompanionWidget(QWidget *parent)
 
 CompanionWidget::~CompanionWidget()
 {
-    delete web_host_;
-    web_host_ = 0;
+    if(spotify_authenticator_widget_) {
+        spotify_authenticator_widget_->deleteLater();
+    }
 }
 
 QMenu *CompanionWidget::getMenu()
@@ -160,12 +161,24 @@ void CompanionWidget::onOpenProject()
     }
 }
 
-void CompanionWidget::onStartWebServer()
+void CompanionWidget::onStartSpotifyControlWidget()
 {
-    if(web_host_ == 0)
-        web_host_ = new Web::Host;
-    web_host_->setPresetView(graphics_view_);
-    web_host_->show();
+    if (!QSslSocket::supportsSsl()) {
+        QMessageBox b;
+        b.setText("Spotify authentication cannot be established.");
+        b.setInformativeText("SSL not supported on this device.");
+        b.exec();
+        return;
+    }
+
+    qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
+    qDebug() << "  >" << "initializing Spotify...";
+    qDebug() << "    >" << "SSL version:" << QSslSocket::sslLibraryVersionString();
+
+    if(spotify_authenticator_widget_ == 0) {
+        spotify_authenticator_widget_ = new SpotifyAuthenticatorWidget;
+    }
+    spotify_authenticator_widget_->show();
 }
 
 void CompanionWidget::setProjectPath(const QString &path)
@@ -290,8 +303,8 @@ void CompanionWidget::initActions()
     actions_["Open Project..."]->setToolTip(tr("Opens a previously saved state from a file."));
     actions_["Open Project..."]->setShortcut(QKeySequence(tr("Ctrl+O")));
 
-    actions_["Run Web Host..."] = new QAction(tr("Run Web Host..."), this);
-    actions_["Run Web Host..."]->setToolTip(tr("Opens a local web application to control current project."));
+    actions_["Run Spotify Host..."] = new QAction(tr("Run Spotify Host..."), this);
+    actions_["Run Spotify Host..."]->setToolTip(tr("Creates Spotify control widget (debug)."));
 
     connect(actions_["Import Resource Folder..."] , SIGNAL(triggered(bool)),
             sound_file_importer_, SLOT(startBrowseFolder(bool)));
@@ -303,8 +316,9 @@ void CompanionWidget::initActions()
             this, SLOT(onSaveProject()));
     connect(actions_["Open Project..."], SIGNAL(triggered()),
             this, SLOT(onOpenProject()));
-    connect(actions_["Run Web Host..."], SIGNAL(triggered()),
-            this, SLOT(onStartWebServer()));
+    connect(actions_["Run Spotify Host..."], SIGNAL(triggered()),
+            this, SLOT(onStartSpotifyControlWidget()));
+
 }
 
 void CompanionWidget::initMenu()
@@ -320,7 +334,7 @@ void CompanionWidget::initMenu()
     file_menu->addSeparator();
     file_menu->addAction(actions_["Delete Database Contents..."]);
     QMenu* tool_menu = main_menu_->addMenu(tr("Tools"));
-    tool_menu->addAction(actions_["Run Web Host..."]);
+    tool_menu->addAction(actions_["Run Spotify Host..."]);
 
     main_menu_->addMenu(file_menu);
     main_menu_->addMenu(tool_menu);
