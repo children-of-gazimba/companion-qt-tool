@@ -14,9 +14,10 @@ QT       += core \
             multimediawidgets \
             widgets \
             sql \
-            network
+            network \
+            networkauth  \
+            webenginewidgets
 
-include(../QtWebApp/QtWebApp/httpserver/httpserver.pri)
 
 SOURCES += main.cpp \
     main_window.cpp \
@@ -42,7 +43,6 @@ SOURCES += main.cpp \
     playlist/settings_widget.cpp \
     custom_media_player.cpp \
     db/model/resource_dir_table_model.cpp \
-    web/host.cpp \
     resources/importer.cpp \
     resources/lib.cpp \
     resources/path_fixer.cpp \
@@ -50,14 +50,7 @@ SOURCES += main.cpp \
     resources/resource_file.cpp \
     resources/sound_file.cpp \
     playlist/media_playlist.cpp \
-    web/request_handler.cpp \
-    web/controllers/preset_controller.cpp \
     log/file_logger.cpp \
-    web/app/chat.cpp \
-    web/controllers/chat_controller.cpp \
-    web/app/chat_message_model.cpp \
-    web/app/image_loader.cpp \
-    web/controllers/image_controller.cpp \
     image/view.cpp \
     image/browser.cpp \
     image/list.cpp \
@@ -67,7 +60,14 @@ SOURCES += main.cpp \
     db/model/preset_table_model.cpp \
     tile/base_tile.cpp \
     tile/playlist_tile.cpp \
-    companion_widget.cpp
+    companion_widget.cpp \
+    spotify/oauth2_request_handler.cpp \
+    spotify/spotify_authenticator_widget.cpp \
+    spotify/spotify_authenticator.cpp \
+    spotify/spotify_handler.cpp \
+    spotify/spotify_remote_controller.cpp \
+    tile/spotify_tile.cpp \
+    spotify/spotify_configure_dialog.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -93,7 +93,6 @@ HEADERS  += main_window.h \
     playlist/settings_widget.h \
     custom_media_player.h \
     db/model/resource_dir_table_model.h \
-    web/host.h \
     resources/importer.h \
     resources/lib.h \
     resources/path_fixer.h \
@@ -101,16 +100,7 @@ HEADERS  += main_window.h \
     resources/resource_file.h \
     resources/sound_file.h \
     playlist/media_playlist.h \
-    web/request_handler.h \
-    web/controllers/preset_controller.h \
-    web/response.h \
     log/file_logger.h \
-    web/app/chat.h \
-    web/controllers/chat_controller.h \
-    web/app/chat_message_model.h \
-    web/app/chat_message.h \
-    web/app/image_loader.h \
-    web/controllers/image_controller.h \
     image/view.h \
     image/browser.h \
     image/list.h \
@@ -120,7 +110,14 @@ HEADERS  += main_window.h \
     db/model/preset_table_model.h \
     tile/base_tile.h \
     tile/playlist_tile.h \
-    companion_widget.h
+    companion_widget.h \
+    spotify/oauth2_request_handler.h \
+    spotify/spotify_authenticator_widget.h \
+    spotify/spotify_authenticator.h \
+    spotify/spotify_handler.h \
+    spotify/spotify_remote_controller.h \
+    tile/spotify_tile.h \
+    spotify/spotify_configure_dialog.h
 
 RESOURCES += \
     _RES/resources.qrc
