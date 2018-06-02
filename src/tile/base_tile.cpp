@@ -17,6 +17,7 @@
 
 #define OFFSET 10
 #define TEXT_HEIGHT 25
+#define TEXT_POINT_SIZE 9
 
 namespace Tile {
 
@@ -94,8 +95,16 @@ void BaseTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
     }
 
     // draw name
+    QFont old_font = painter->font();
+    QFont font = old_font;
+    /* twice the size than the current font size */
+    if(font.pointSize() != TEXT_POINT_SIZE)
+        font.setPointSize(TEXT_POINT_SIZE);
+    /* set the modified font to the painter */
+    painter->setFont(font);
     painter->setPen(QColor(Qt::white));
     painter->drawText(getTextRect(), Qt::TextWrapAnywhere | Qt::AlignCenter, name_);
+    painter->setFont(old_font);
 }
 
 void BaseTile::setActivateKey(const QChar &c)
