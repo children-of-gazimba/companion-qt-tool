@@ -3,6 +3,9 @@
 
 #include <QLineEdit>
 #include <QSlider>
+#include <QRadioButton>
+#include <QButtonGroup>
+#include <QCheckBox>
 
 #include <QDialog>
 
@@ -22,24 +25,30 @@ class SpotifyConfigureDialog : public QDialog
     signals:
 
     public slots:
-        void onAddPlaylist();
-        void onAddTrack();
+        void onSubmit();
 
     private:
+
+        enum Category {PLAYLIST, TRACK};
+
         void initWidgets();
         void initLayout();
 
+        QButtonGroup *mode_button_group_;
+        QRadioButton *radio_playlist_;
+        QRadioButton *radio_track_;
+
+        QLineEdit *edit_uri_;
+
+        QButtonGroup *repeat_button_group_;
+        QRadioButton *radio_repeat_off;
+        QRadioButton *radio_repeat_track_;
+        QRadioButton *radio_repeat_context_;
+
+        QCheckBox *shuffle_checkbox_;
+
         QPushButton *btn_submit_;
         QPushButton *btn_cancel_;
-
-        QLineEdit *edit_playlist_id_;
-        QLineEdit *edit_track_id_;
-
-        QPushButton *btn_playlist_info_;
-        QPushButton *btn_track_info_;
-
-//        QPushButton *btn_ctrl_shuffle_mode_;
-//        QPushButton *btn_ctrl_set_repeat_mode_;
 
 //        QSlider *volume_slider_;
 
