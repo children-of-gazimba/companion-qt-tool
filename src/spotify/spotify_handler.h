@@ -20,7 +20,6 @@ class SpotifyHandler
         void operator=(const SpotifyHandler&) = delete;
         void operator=(SpotifyHandler&&) = delete;
 
-
         void play(const SpotifyRemoteController::Settings &settings);
         void stop();
 
@@ -30,6 +29,7 @@ class SpotifyHandler
     private:
         explicit SpotifyHandler();
 
+        SpotifyRemoteController::Settings current_settings;
         static SpotifyHandler* instance_;
 };
 
