@@ -1,7 +1,12 @@
 #ifndef SPOTIFY_HANDLER_H
 #define SPOTIFY_HANDLER_H
 
+#include <QList>
+
 #include "spotify_remote_controller.h"
+#include "tile/spotify_tile.h"
+
+#include <QNetworkReply>
 
 // singleton implementation taken from
 // http://www.yolinux.com/TUTORIALS/C++Singleton.html
@@ -20,16 +25,24 @@ class SpotifyHandler
         void operator=(const SpotifyHandler&) = delete;
         void operator=(SpotifyHandler&&) = delete;
 
-        void play(const SpotifyRemoteController::Settings &settings);
+        void play(Tile::SpotifyTile *tile);
         void stop();
 
+        void setVolume(int volume);
+
+        void addTile(Tile::SpotifyTile *tile);
+        void removeTile(Tile::SpotifyTile *tile);
+
+        QNetworkReply *playlistInfo(const QString &uri);
 
         SpotifyRemoteController remote;
 
     private:
+
         explicit SpotifyHandler();
 
-        SpotifyRemoteController::Settings current_settings;
+        Tile::SpotifyTile *active_tile_;
+        QList<Tile::SpotifyTile*> existing_tiles_;
         static SpotifyHandler* instance_;
 };
 

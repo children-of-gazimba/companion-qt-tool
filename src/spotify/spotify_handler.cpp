@@ -4,7 +4,8 @@ SpotifyHandler* SpotifyHandler::instance_ = nullptr;
 
 SpotifyHandler::SpotifyHandler()
     : remote()
-    , current_settings()
+    , active_tile_(0)
+    , existing_tiles_()
 {}
 
 SpotifyHandler* SpotifyHandler::instance() {
@@ -18,39 +19,74 @@ SpotifyHandler::~SpotifyHandler() {
     delete instance_;
 }
 
-void SpotifyHandler::play(const SpotifyRemoteController::Settings &settings)
+void SpotifyHandler::play(Tile::SpotifyTile *selected_tile)
 {
 
-    if(settings.playlist_uri != "") {
-
-        if(settings.playlist_uri == current_settings.playlist_uri)
-            remote.play();
-        else
-            remote.playUserPlaylist(settings.playlist_uri);
-
-    } else if (settings.track_uri != "") {
-
-        if(settings.track_uri == current_settings.track_uri)
-            remote.play();
-        else
-            remote.playTrack(settings.track_uri);
+    SpotifyRemoteController::Settings current_settings = selected_tile->getSettings();
+    if(active_tile_ == selected_tile) {
+        remote.play();
     } else {
-        qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
-        qDebug() << "  >" << "something went wrong, there are no uri's given in the current settings object";
+        switch (current_settings.mode) {
+            case SpotifyRemoteController::Settings::Playlist:
+                remote.playUserPlaylist(current_settings.playlist_uri);
+                break;
+            case SpotifyRemoteController::Settings::Track:
+                remote.playTrack(current_settings.track_uri);
+                break;
+            default:
+                qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
+                qDebug() << "  >" << "Active Tile exists!";
+                qDebug() << "    >" << "Error in getting settings mode!";
+                break;
+        }
+
     }
 
-    remote.setRepeat(settings.repeat_mode);
-    remote.setShuffle(settings.shuffle_enabled);
+    active_tile_ = selected_tile;
 
-    current_settings = settings;
+    remote.setShuffle(current_settings.shuffle_enabled);
+    remote.setRepeat(current_settings.repeat_mode);
+
+    // disable all other tiles
+    for(auto tile : existing_tiles_) {
+        if(tile != selected_tile) {
+            tile->setPlaying(false);
+        }
+    }
+
 }
+
 
 void SpotifyHandler::stop()
 {
     remote.pause();
+    for(auto tile: existing_tiles_) {
+        tile->setPlaying(false);
+    }
 }
 
 void SpotifyHandler::setVolume(int volume)
 {
     remote.setVolume(volume);
+}
+
+void SpotifyHandler::addTile(Tile::SpotifyTile *tile)
+{
+    existing_tiles_.append(tile);
+
+    qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
+    qDebug() << "  >" << "added tile to active tile list";
+    qDebug() << "    >" << "number of existing spotify tiles:" << existing_tiles_.length();
+}
+
+void SpotifyHandler::removeTile(Tile::SpotifyTile *tile)
+{
+    existing_tiles_.removeAll(tile);
+}
+
+QNetworkReply *SpotifyHandler::playlistInfo(const QString &uri)
+{
+    return remote.getPlaylistInfo(uri);
+
+
 }
