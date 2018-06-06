@@ -4,6 +4,7 @@
 #include <QJsonArray>
 #include <QMimeData>
 #include <QJsonValue>
+#include <QMessageBox>
 
 #include "playlist_tile.h"
 #include "nested_tile.h"
@@ -358,6 +359,20 @@ bool GraphicsView::loadLayout(const QString &name)
 {
     if(!layouts_.contains(name))
         return false;
+    if(name.compare("main") != 0) {
+        if(!hasLayout("main")) {
+            storeAsLayout("main");
+        }
+        else {
+            QMessageBox b;
+            b.setText(tr("If this is your main layout you might want to override it's current definition before switching to '") + name + tr("'."));
+            b.setInformativeText(tr("Do you wish to override the main layout?"));
+            b.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            b.setDefaultButton(QMessageBox::Yes);
+            if(b.exec() == QMessageBox::Yes)
+                storeAsLayout("main");
+        }
+    }
     return setFromJsonObject(sanitizeLayout(layouts_[name]));
 }
 
