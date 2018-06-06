@@ -24,7 +24,7 @@ class SpotifyAuthenticatorWidget : public QWidget
     public slots:
         void onGranted();
         void onAuthorize(const QUrl &url);
-        void onResponse(SpotifyResponse response);
+        void onResponse();
 
         void onPlayPlaylist();
         void onPlayTrack();

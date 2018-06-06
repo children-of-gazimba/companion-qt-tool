@@ -31,8 +31,8 @@ SpotifyAuthenticatorWidget::SpotifyAuthenticatorWidget(QWidget *parent)
 //            QDesktopS
 //           ;
 
-    connect(&SpotifyHandler::instance()->remote, &SpotifyRemoteController::serverResponse,
-            this, &SpotifyAuthenticatorWidget::onResponse);
+//    connect(&SpotifyHandler::instance()->remote, &SpotifyRemoteController::serverResponse,
+//            this, &SpotifyAuthenticatorWidget::onResponse);
 
     // ui connections
     connect(btn_play_playlist_, &QPushButton::clicked,
@@ -157,34 +157,34 @@ void SpotifyAuthenticatorWidget::onAuthorize(const QUrl &url) {
     web_view_->show();
 }
 
-void SpotifyAuthenticatorWidget::onResponse(SpotifyResponse response) {
-    QString type_str;
-    switch(response.type) {
-    case SpotifyRemoteController::PLAYLIST_INFO   : type_str="PLAYLIST_INFO"; break;
-    case SpotifyRemoteController::PLAYLIST_TRACKS : type_str="PLAYLIST_TRACKS"; break;
-    case SpotifyRemoteController::TRACK_INFO      : type_str="TRACK_INFO"; break;
-    case SpotifyRemoteController::ERROR           : type_str="ERROR"; break;
-    case SpotifyRemoteController::OTHER           : type_str="OTHER"; break;
-    case SpotifyRemoteController::PLAY            : type_str="PLAY"; break;
-    case SpotifyRemoteController::PAUSE           : type_str="PAUSE"; break;
-    case SpotifyRemoteController::NEXT            : type_str="NEXT"; break;
-    case SpotifyRemoteController::PREVIOUS        : type_str="PREVIOUS"; break;
-    case SpotifyRemoteController::SHUFFLE         : type_str="SHUFFLE"; break;
-    case SpotifyRemoteController::SET_VOLUME      : type_str="SET_VOLUME"; break;
-    case SpotifyRemoteController::PLAY_TRACK      : type_str="PLAY_TRACK"; break;
-    case SpotifyRemoteController::PLAY_PLAYLIST   : type_str="PLAY_PLAYLIST"; break;
-    case SpotifyRemoteController::REPEAT_TRACK    : type_str="REPEAT_TRACK"; break;
-    case SpotifyRemoteController::REPEAT_CONTEXT  : type_str="REPEAT_CONTEXT"; break;
-    case SpotifyRemoteController::REPEAT_OFF      : type_str="REPEAT_OFF"; break;
-    default: break;
-    }
-    qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
-    qDebug() << "  >" << "response type:" << response.type << ":" << type_str;
-    qDebug() << "  >" << "response content:" << response.message;
+void SpotifyAuthenticatorWidget::onResponse() {
+//    QString type_str;
+//    switch(response.type) {
+//    case SpotifyRemoteController::PLAYLIST_INFO   : type_str="PLAYLIST_INFO"; break;
+//    case SpotifyRemoteController::PLAYLIST_TRACKS : type_str="PLAYLIST_TRACKS"; break;
+//    case SpotifyRemoteController::TRACK_INFO      : type_str="TRACK_INFO"; break;
+//    case SpotifyRemoteController::ERROR           : type_str="ERROR"; break;
+//    case SpotifyRemoteController::OTHER           : type_str="OTHER"; break;
+//    case SpotifyRemoteController::PLAY            : type_str="PLAY"; break;
+//    case SpotifyRemoteController::PAUSE           : type_str="PAUSE"; break;
+//    case SpotifyRemoteController::NEXT            : type_str="NEXT"; break;
+//    case SpotifyRemoteController::PREVIOUS        : type_str="PREVIOUS"; break;
+//    case SpotifyRemoteController::SHUFFLE         : type_str="SHUFFLE"; break;
+//    case SpotifyRemoteController::SET_VOLUME      : type_str="SET_VOLUME"; break;
+//    case SpotifyRemoteController::PLAY_TRACK      : type_str="PLAY_TRACK"; break;
+//    case SpotifyRemoteController::PLAY_PLAYLIST   : type_str="PLAY_PLAYLIST"; break;
+//    case SpotifyRemoteController::REPEAT_TRACK    : type_str="REPEAT_TRACK"; break;
+//    case SpotifyRemoteController::REPEAT_CONTEXT  : type_str="REPEAT_CONTEXT"; break;
+//    case SpotifyRemoteController::REPEAT_OFF      : type_str="REPEAT_OFF"; break;
+//    default: break;
+//    }
+//    qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
+//    qDebug() << "  >" << "response type:" << response.type << ":" << type_str;
+//    qDebug() << "  >" << "response content:" << response.message;
 
-    response_plain_text_->setPlainText(QString::number(response.type));
-    response_plain_text_->setPlainText("yeah");
-    response_plain_text_->setPlainText(response.message.toJson());
+//    response_plain_text_->setPlainText(QString::number(response.type));
+//    response_plain_text_->setPlainText("yeah");
+//    response_plain_text_->setPlainText(response.message.toJson());
     //    response_plain_text_->setPlainText("==================================");
 }
 

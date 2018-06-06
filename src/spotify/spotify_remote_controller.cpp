@@ -21,8 +21,8 @@ SpotifyRemoteController::SpotifyRemoteController(QObject *parent) : QObject(pare
             this, &SpotifyRemoteController::authorizeWithBrowser);
 
     // request handler connections
-    connect(request_handler_, &OAuth2RequestHandler::requestFinished,
-            this, &SpotifyRemoteController::onResponse);
+//    connect(request_handler_, &OAuth2RequestHandler::requestFinished,
+//            this, &SpotifyRemoteController::onResponse);
 
     //    connect(request_handler_, &OAuth2RequestHandler::requestFinished,
     //            this, &SpotifyRemoteHandler::serverResponse);
@@ -50,14 +50,14 @@ void SpotifyRemoteController::onTokenChanged(const QString &token) {
 }
 
 void SpotifyRemoteController::onResponse(QNetworkReply *reply) {
-    SpotifyResponse response;
+    Q_UNUSED(reply)
+//    SpotifyResponse response;
 
-    response.type = request_queue_.first();
+//    response.type = request_queue_.first();
 
-    request_queue_.pop_back();
-    response.message = QJsonDocument::fromJson(reply->readAll());
+//    response.message = QJsonDocument::fromJson(reply->readAll());
 
-    emit serverResponse(response);
+//    emit serverResponse(response);
 }
 
 
@@ -65,7 +65,6 @@ void SpotifyRemoteController::onResponse(QNetworkReply *reply) {
 void SpotifyRemoteController::play() {
     QString url = "me/player/play";
     request_handler_->put(url);
-    request_queue_.append(PLAY);
 }
 
 void SpotifyRemoteController::playUserPlaylist(const QString &user, const QString &playlist_id) {
@@ -76,7 +75,6 @@ void SpotifyRemoteController::playUserPlaylist(const QString &user, const QStrin
     QJsonDocument parameter_doc(parameter_obj);
 
     request_handler_->put(url, parameter_doc.toJson());
-    request_queue_.append(PLAY_PLAYLIST);
 }
 
 void SpotifyRemoteController::playUserPlaylist(const QString &spotify_uri) {
@@ -87,7 +85,6 @@ void SpotifyRemoteController::playUserPlaylist(const QString &spotify_uri) {
     QJsonDocument parameter_doc(parameter_obj);
 
     request_handler_->put(url, parameter_doc.toJson());
-    request_queue_.append(PLAY_PLAYLIST);
 }
 
 void SpotifyRemoteController::playTrack(const QString &spotify_uri) {
@@ -99,25 +96,21 @@ void SpotifyRemoteController::playTrack(const QString &spotify_uri) {
     QJsonDocument parameter_doc(parameter_obj);
 
     request_handler_->put(url, parameter_doc.toJson());
-    request_queue_.append(PLAY_TRACK);
 }
 
 void SpotifyRemoteController::pause() {
     const QString url = "me/player/pause";
     request_handler_->put(url);
-    request_queue_.append(PAUSE);
 }
 
 void SpotifyRemoteController::next() {
     const QString url = "me/player/next";
     request_handler_->post(url);
-    request_queue_.append(NEXT);
 }
 
 void SpotifyRemoteController::prev() {
     const QString url = "me/player/previous";
     request_handler_->post(url);
-    request_queue_.append(PREVIOUS);
 }
 
 void SpotifyRemoteController::setRepeat(RepeatMode mode) {
@@ -127,15 +120,12 @@ void SpotifyRemoteController::setRepeat(RepeatMode mode) {
     switch (mode) {
     case Track:
         url += "?state=track";
-        request_queue_.append(REPEAT_TRACK);
         break;
     case Context:
         url += "?state=context";
-        request_queue_.append(REPEAT_CONTEXT);
         break;
     case Off:
         url += "?state=off";
-        request_queue_.append(REPEAT_OFF);
         break;
     default:
         break;
@@ -147,47 +137,37 @@ void SpotifyRemoteController::setRepeat(RepeatMode mode) {
 void SpotifyRemoteController::setShuffle(bool enabled) {
     QString url = QString("me/player/shuffle?state=%1").arg(enabled);
     request_handler_->put(url);
-    request_queue_.append(SHUFFLE);
 }
 
 void SpotifyRemoteController::setVolume(int value) {
     QString url = QString("me/player/volume?volume_percent=%1").arg(value);
     request_handler_->put(url);
-    request_queue_.append(SET_VOLUME);
 }
 
-void SpotifyRemoteController::getPlaylistInfo(const QString &spotify_uri) {
+QNetworkReply *SpotifyRemoteController::getPlaylistInfo(const QString &spotify_uri) {
     auto components = spotify_uri.split(":");
 
     QString url = QString("users/%1/playlists/%2").arg(components[2]).arg(components[4]);
-
-    request_handler_->get(url);
-    request_queue_.append(PLAYLIST_INFO);
-
+    return request_handler_->get(url);
 }
 
-void SpotifyRemoteController::getPlaylistInfo(const QString &user, const QString &playlist_id) {
+QNetworkReply *SpotifyRemoteController::getPlaylistInfo(const QString &user, const QString &playlist_id) {
     QString url = QString("users/%1/playlists/%2").arg(user).arg(playlist_id);
-
-    request_handler_->get(url);
-    request_queue_.append(PLAYLIST_INFO);
+    return request_handler_->get(url);
 }
 
-void SpotifyRemoteController::getPlaylistTracks(const QString &spotify_uri) {
+QNetworkReply *SpotifyRemoteController::getPlaylistTracks(const QString &spotify_uri) {
     auto components = spotify_uri.split(":");
     QString url = QString("users/%1/playlists/%2/tracks").arg(components[2]).arg(components[4]);
-    request_handler_->get(url);
-    request_queue_.append(PLAYLIST_TRACKS);
+    return request_handler_->get(url);
 }
 
-void SpotifyRemoteController::getPlaylistTracks(const QString &user, const QString &playlist_id) {
+QNetworkReply *SpotifyRemoteController::getPlaylistTracks(const QString &user, const QString &playlist_id) {
     QString url = QString("users/%1/playlists/%2/tracks").arg(user).arg(playlist_id);
-    request_handler_->get(url);
-    request_queue_.append(PLAYLIST_TRACKS);
+    return request_handler_->get(url);
 }
 
 void SpotifyRemoteController::getTrackInfo(const QString &track_id) {
     QString url = QString("tracks/%1").arg(track_id);
     request_handler_->get(url);
-    request_queue_.append(TRACK_INFO);
 }

@@ -8,24 +8,26 @@
 
 #include "oauth2_request_handler.h"
 
-struct SpotifyResponse;
-
-
 class SpotifyRemoteController : public QObject
 {
         Q_OBJECT
     public:
-        enum SpotifyRequestType {PLAYLIST_INFO, PLAYLIST_TRACKS, TRACK_INFO, ERROR, OTHER, PLAY, PAUSE, NEXT, PREVIOUS, SHUFFLE, SET_VOLUME, PLAY_TRACK, PLAY_PLAYLIST, REPEAT_TRACK, REPEAT_CONTEXT, REPEAT_OFF};
         enum RepeatMode {Track, Context, Off};
 
         struct Settings
         {
+
+                enum Category {Playlist, Track};
+
+                Category mode;
+
                 QString track_uri;
                 QString playlist_uri;
 
                 RepeatMode repeat_mode;
                 bool shuffle_enabled;
         };
+
 
         explicit SpotifyRemoteController(QObject *parent = nullptr);
 
@@ -43,18 +45,18 @@ class SpotifyRemoteController : public QObject
         void setShuffle(bool enable);
         void setVolume(int value);
 
-        void getPlaylistInfo(const QString &user, const QString &playlist_id);
-        void getPlaylistInfo(const QString &spotify_uri);
+        QNetworkReply *getPlaylistInfo(const QString &user, const QString &playlist_id);
+        QNetworkReply *getPlaylistInfo(const QString &spotify_uri);
 
-        void getPlaylistTracks(const QString &user, const QString &playlist_id);
-        void getPlaylistTracks(const QString &spotify_uri);
+        QNetworkReply *getPlaylistTracks(const QString &user, const QString &playlist_id);
+        QNetworkReply *getPlaylistTracks(const QString &spotify_uri);
 
         void getTrackInfo(const QString &track_id);
 
     signals:
         void accessGranted();
         void authorizeWithBrowser(const QUrl &url);
-        void serverResponse(SpotifyResponse);
+//        void serverResponse(SpotifyResponse);
 
     public slots:
         void onAccessGranted();
@@ -62,15 +64,9 @@ class SpotifyRemoteController : public QObject
         void onResponse(QNetworkReply *reply);
 
     private:
-        QQueue<SpotifyRequestType> request_queue_;
         OAuth2RequestHandler *request_handler_;
         SpotifyAuthenticator *authenticator_;
 };
 
-struct SpotifyResponse
-{
-        SpotifyRemoteController::SpotifyRequestType type;
-        QJsonDocument message;
-};
 
 #endif // SPOTIFY_REMOTE_HANDLER_H
