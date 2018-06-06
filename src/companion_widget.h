@@ -50,8 +50,11 @@ private slots:
     void onSaveProjectAs();
     void onSaveProject();
     void onOpenProject();
+    void onSaveViewAsLayout();
+    void onLoadLayout();
     void onStartWebServer();
     void onStartSocketServer();
+    void onLayoutAdded(const QString& name);
 
 private:
     void setProjectPath(QString const& path);

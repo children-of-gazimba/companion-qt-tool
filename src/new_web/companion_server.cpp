@@ -1,6 +1,8 @@
 #include "companion_server.h"
 #include "network_message.h"
 
+#include <QMessageBox>
+
 CompanionServer::CompanionServer(int port, QObject *parent)
     : Server(port, parent)
     , view_(0)
@@ -72,5 +74,20 @@ void CompanionServer::processClientMessage(const NetworkMessage &msg, QTcpSocket
             NetworkMessage msg_reply("set_tile_active", kwargs);
             sendToClient(msg_reply.toByteArray(), client);
         }
+    }
+    else if(msg.getMessage().compare("store_layout") == 0) {
+        QString name = msg.getKwargs()["name"].toString();
+        QJsonObject layout = msg.getKwargs()["json"].toObject();
+        QString err = "";
+        if(!layout.isEmpty()) {
+            view_->storeAsLayout(name, layout);
+        }
+        else {
+            err = "couldn't parse layout definition";
+        }
+        QJsonObject kwargs;
+        kwargs["name"] = name;
+        NetworkMessage msg_reply("store_layout", kwargs, err);
+        sendToClient(msg_reply.toByteArray(), client);
     }
 }
