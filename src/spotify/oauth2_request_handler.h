@@ -17,13 +17,15 @@ class OAuth2RequestHandler : public QObject
     public:
         explicit OAuth2RequestHandler(QObject *parent = nullptr);
 
-        void get(const QString &url);
+        ~OAuth2RequestHandler();
 
-        void put(const QString &url, const QByteArray &parameter);
-        void put(const QString &url);
+        QNetworkReply *get(const QString &url);
 
-        void post(const QString &url, const QByteArray &parameter);
-        void post(const QString &url);
+        QNetworkReply *put(const QString &url, const QByteArray &parameter);
+        QNetworkReply *put(const QString &url);
+
+        QNetworkReply *post(const QString &url, const QByteArray &parameter);
+        QNetworkReply *post(const QString &url);
 
     signals:
         void requestFinished(QNetworkReply *reply);
