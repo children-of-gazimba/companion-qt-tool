@@ -37,6 +37,23 @@ public:
     */
     virtual bool setFromJsonObject(const QJsonObject& obj);
 
+    /**
+     * @brief Returns the current settings object
+     * @return
+     */
+    const SpotifyRemoteController::Settings &getSettings() const;
+
+    /**
+     * @brief creates Tile from WebLink
+     * @param link
+     */
+    void fromWebLink(const QString &link);
+
+    /**
+     * @brief set Playing state
+     * @param playing
+     */
+    void setPlaying(bool playing);
 
 public slots:
     virtual void play();
@@ -74,6 +91,7 @@ protected:
     void setIsPlaying(bool state);
 
     bool is_playing_;
+    QJsonDocument playback_info_;
     SpotifyRemoteController::Settings settings_;
 };
 

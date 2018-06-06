@@ -19,10 +19,17 @@ SpotifyTile::SpotifyTile(QGraphicsItem *parent)
     , is_playing_(false)
 {
     setAcceptDrops(true);
+
+
+    SpotifyHandler::instance()->addTile(this);
 }
 
 SpotifyTile::~SpotifyTile()
-{ }
+{
+
+    SpotifyHandler::instance()->removeTile(this);
+
+}
 
 
 void SpotifyTile::paint(QPainter *painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
@@ -32,12 +39,12 @@ void SpotifyTile::paint(QPainter *painter, const QStyleOptionGraphicsItem* optio
     QRectF p_rect(getPaintRect());
     if(p_rect.width() > 0 && p_rect.height() > 0) {
         painter->drawPixmap(
-            (int) p_rect.x(),
-            (int) p_rect.y(),
-            (int) p_rect.width(),
-            (int) p_rect.height(),
-            getPlayStatePixmap()
-        );
+                    (int) p_rect.x(),
+                    (int) p_rect.y(),
+                    (int) p_rect.width(),
+                    (int) p_rect.height(),
+                    getPlayStatePixmap()
+                    );
     }
 }
 
@@ -67,10 +74,10 @@ void SpotifyTile::receiveWheelEvent(QWheelEvent *event)
         }
     }
 
-//    settings->volume = volume;
-//    if (pl->setSettings(settings)) {
-//        emit wheelChangedVolume(volume);
-//    }
+    //    settings->volume = volume;
+    //    if (pl->setSettings(settings)) {
+    //        emit wheelChangedVolume(volume);
+    //    }
 }
 
 
@@ -79,19 +86,19 @@ const QJsonObject SpotifyTile::toJsonObject() const
     QJsonObject obj = BaseTile::toJsonObject();
 
     qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
-    qDebug() << "  >" << "TODO: extend to json fucntion";
+    qDebug() << "  >" << "TODO: extend to json function";
 
 
-//    // store playlist
-//    QJsonArray arr_pl;
-//    foreach(DB::SoundFileRecord* rec, playlist_->getSoundFileList())
-//        arr_pl.append(Misc::JsonMimeDataParser::toJsonObject(rec));
-//    obj["playlist"] = arr_pl;
+    //    // store playlist
+    //    QJsonArray arr_pl;
+    //    foreach(DB::SoundFileRecord* rec, playlist_->getSoundFileList())
+    //        arr_pl.append(Misc::JsonMimeDataParser::toJsonObject(rec));
+    //    obj["playlist"] = arr_pl;
 
-//    //store settings
-//    QJsonObject obj_settings;
-//    obj_settings = Misc::JsonMimeDataParser::toJsonObject(playlist_->getSettings());
-//    obj["settings"] = obj_settings;
+    //    //store settings
+    //    QJsonObject obj_settings;
+    //    obj_settings = Misc::JsonMimeDataParser::toJsonObject(playlist_->getSettings());
+    //    obj["settings"] = obj_settings;
 
     return obj;
 }
@@ -107,14 +114,49 @@ bool SpotifyTile::setFromJsonObject(const QJsonObject &obj)
     return true;
 }
 
+const SpotifyRemoteController::Settings &SpotifyTile::getSettings() const
+{
+    return settings_;
+}
+
+void SpotifyTile::fromWebLink(const QString &link)
+{
+    QStringList link_components = link.split("/");
+
+    if(link_components[3] == "track") {
+        QString id = link_components.last().split("?")[0];
+        QString uri = QString("spotify:track:%1").arg(id);
+
+        settings_.mode = SpotifyRemoteController::Settings::Track;
+        settings_.playlist_uri = "";
+        settings_.track_uri = uri;
+        settings_.shuffle_enabled = false;
+        settings_.repeat_mode = SpotifyRemoteController::Off;
+    } else {
+        QString user_name = link_components[4];
+        QString id = link_components.last().split("?")[0];
+        QString uri = QString("spotify:user:%1:playlist:%2").arg(user_name).arg(id);
+
+        settings_.mode = SpotifyRemoteController::Settings::Playlist;
+        settings_.playlist_uri = uri;
+        settings_.track_uri = "";
+        settings_.shuffle_enabled = false;
+        settings_.repeat_mode = SpotifyRemoteController::Off;
+    }
+}
+
+void SpotifyTile::setPlaying(bool playing)
+{
+    setIsPlaying(playing);
+}
+
 void SpotifyTile::play()
 {
     if(is_playing_) {
         return;
     }
 
-    SpotifyHandler::instance()->play(settings_);
-
+    SpotifyHandler::instance()->play(this);
     setIsPlaying(true);
 }
 
@@ -125,7 +167,6 @@ void SpotifyTile::stop()
     }
 
     SpotifyHandler::instance()->stop();
-
     setIsPlaying(false);
 }
 
@@ -141,7 +182,7 @@ void SpotifyTile::onActivate()
 
 void SpotifyTile::setVolume(int volume)
 {
-//    player_->setVolume(volume);
+    //    player_->setVolume(volume);
     Q_UNUSED(volume);
     qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
     qDebug() << "  >" << "TODO: set volume";
@@ -149,7 +190,7 @@ void SpotifyTile::setVolume(int volume)
 
 int SpotifyTile::getVolume() const
 {
-//    return player_->volume();
+    //    return player_->volume();
 
     qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
     qDebug() << "  >" << "TODO: get volume";
@@ -166,6 +207,10 @@ void SpotifyTile::onConfigure()
         return;
 
     settings_ = d.getSettings();
+    playback_info_ = d.getPlaybackInfo();
+
+    // set name
+    setName(playback_info_.object()["name"].toString());
 }
 
 void SpotifyTile::onContents()
