@@ -22,14 +22,14 @@ class SpotifyConfigureDialog : public QDialog
         const SpotifyRemoteController::Settings &getSettings() const;
         void setSettings(const SpotifyRemoteController::Settings & settings);
 
+        const QJsonDocument &getPlaybackInfo() const;
+
     signals:
 
     public slots:
         void onSubmit();
 
     private:
-
-        enum Category {PLAYLIST, TRACK};
 
         void initWidgets();
         void initLayout();
@@ -52,7 +52,9 @@ class SpotifyConfigureDialog : public QDialog
 
 //        QSlider *volume_slider_;
 
+        QJsonDocument playback_info_;
         SpotifyRemoteController::Settings settings_;
+
 };
 
 #endif // SPOTIFY_CONFIGURE_DIALOG_H
