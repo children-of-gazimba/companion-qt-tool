@@ -31,6 +31,8 @@ SpotifyConfigureDialog::SpotifyConfigureDialog(QWidget *parent)
 {
     initWidgets();
     initLayout();
+
+    resize(QSize(400,300));
 }
 
 SpotifyConfigureDialog::SpotifyConfigureDialog(const SpotifyRemoteController::Settings &settings, QWidget *parent)
@@ -50,6 +52,8 @@ SpotifyConfigureDialog::SpotifyConfigureDialog(const SpotifyRemoteController::Se
 {
     initWidgets();
     initLayout();
+
+    resize(QSize(400,300));
 }
 
 const SpotifyRemoteController::Settings &SpotifyConfigureDialog::getSettings() const
@@ -61,46 +65,55 @@ void SpotifyConfigureDialog::setSettings(const SpotifyRemoteController::Settings
 {
     settings_ = settings;
 
-    if(settings.playlist_uri != "") {
-        if(settings.track_uri != "") {
-            qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
-            qDebug() << "  >" << "Error: Cannot set spotify tile with two modes!";
-        } else {
-            settings_.playlist_uri = settings.playlist_uri;
-            edit_uri_->setText(settings.playlist_uri);
-        }
-    } else if(settings.track_uri != "") {
-        if(settings.playlist_uri !="") {
-            qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
-            qDebug() << "  >" << "Error: Cannot set spotify tile with two modes!";
-        } else {
-            settings_.track_uri = settings.track_uri;
-            edit_uri_->setText(settings.track_uri);
-        }
-    } else {
+    if(settings.mode != SpotifyRemoteController::Settings::Playlist ||
+            settings.mode != SpotifyRemoteController::Settings::Track) {
+
         qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
-        qDebug() << "  >" << "Error: There was neither a track nor a playlist URL given.";
-    }
+        qDebug() << "  >" << "Error: There was no Mode specified... exiting!";
+        return;
 
+    } else {
 
-    switch (settings.repeat_mode) {
-        case SpotifyRemoteController::Context:
-            radio_repeat_context_->setChecked(true);
-            break;
-        case SpotifyRemoteController::Track:
-            radio_repeat_track_->setChecked(true);
-            break;
-        case SpotifyRemoteController::Off:
-            radio_repeat_off->setChecked(true);
-        default:
+        if(settings.playlist_uri != "") {
+            if(settings.track_uri != "") {
+                qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
+                qDebug() << "  >" << "Error: Cannot set spotify tile with two modes!";
+            } else {
+                settings_.playlist_uri = settings.playlist_uri;
+                edit_uri_->setText(settings.playlist_uri);
+            }
+        } else if(settings.track_uri != "") {
+            if(settings.playlist_uri !="") {
+                qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
+                qDebug() << "  >" << "Error: Cannot set spotify tile with two modes!";
+            } else {
+                settings_.track_uri = settings.track_uri;
+                edit_uri_->setText(settings.track_uri);
+            }
+        } else {
             qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
-            qDebug() << "  >" << "Error: There was no repeat mode set in the given configuration";
-            qDebug() << "     >" << "setting context as default mode!";
-            radio_repeat_context_->setChecked(true);
-            break;
-    }
+            qDebug() << "  >" << "Error: There was neither a track nor a playlist URL given.";
+        }
 
-    shuffle_checkbox_->setChecked(settings.shuffle_enabled);
+
+        switch (settings.repeat_mode) {
+            case SpotifyRemoteController::Context:
+                radio_repeat_context_->setChecked(true);
+                break;
+            case SpotifyRemoteController::Track:
+                radio_repeat_track_->setChecked(true);
+                break;
+            case SpotifyRemoteController::Off:
+                radio_repeat_off->setChecked(true);
+            default:
+                qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
+                qDebug() << "  >" << "Error: There was no repeat mode set in the given configuration";
+                qDebug() << "     >" << "setting context as default mode!";
+                radio_repeat_context_->setChecked(true);
+                break;
+        }
+        shuffle_checkbox_->setChecked(settings.shuffle_enabled);
+    }
 
 }
 

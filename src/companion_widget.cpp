@@ -305,6 +305,7 @@ void CompanionWidget::initActions()
 
     actions_["Run Spotify Host..."] = new QAction(tr("Run Spotify Host..."), this);
     actions_["Run Spotify Host..."]->setToolTip(tr("Creates Spotify control widget (debug)."));
+    actions_["Run Spotify Host..."]->setShortcut(QKeySequence(tr("Ctrl+Y")));
 
     connect(actions_["Import Resource Folder..."] , SIGNAL(triggered(bool)),
             sound_file_importer_, SLOT(startBrowseFolder(bool)));
