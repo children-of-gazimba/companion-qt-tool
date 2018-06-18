@@ -125,28 +125,38 @@ const QJsonDocument &SpotifyConfigureDialog::getPlaybackInfo() const
 
 void SpotifyConfigureDialog::onSubmit()
 {
+    QNetworkReply *reply;
     switch (mode_button_group_->checkedId()) {
         case SpotifyRemoteController::Settings::Playlist:
             settings_.mode = SpotifyRemoteController::Settings::Playlist;
             settings_.playlist_uri = edit_uri_->text();
+            reply = SpotifyHandler::instance()->playlistInfo(settings_.playlist_uri);
             break;
         case SpotifyRemoteController::Settings::Track:
+        {
             settings_.mode =  SpotifyRemoteController::Settings::Track;
             settings_.track_uri = edit_uri_->text();
+
+            // filter for id
+            QStringList track_uri_components = settings_.track_uri.split(":");
+            reply = SpotifyHandler::instance()->trackInfo(track_uri_components.last());
             break;
+        }
         default:
             break;
     }
 
-    // move to switch
-    auto reply = SpotifyHandler::instance()->playlistInfo(settings_.playlist_uri);
 
     settings_.repeat_mode = (SpotifyRemoteController::RepeatMode) repeat_button_group_->checkedId();
     settings_.shuffle_enabled = shuffle_checkbox_->isChecked();
 
+
+    // connect to finished event of reply to get the servers response
     connect(reply, &QNetworkReply::finished,
             this, [=]() {
         playback_info_ = QJsonDocument::fromJson(reply->readAll());
+        qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
+        qDebug() << "  >" << "gotit boi";
         accept();
     });
 

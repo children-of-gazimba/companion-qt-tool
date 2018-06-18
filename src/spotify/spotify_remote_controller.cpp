@@ -167,7 +167,7 @@ QNetworkReply *SpotifyRemoteController::getPlaylistTracks(const QString &user, c
     return request_handler_->get(url);
 }
 
-void SpotifyRemoteController::getTrackInfo(const QString &track_id) {
+QNetworkReply *SpotifyRemoteController::getTrackInfo(const QString &track_id) {
     QString url = QString("tracks/%1").arg(track_id);
     request_handler_->get(url);
 }

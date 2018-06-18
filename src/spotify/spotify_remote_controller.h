@@ -51,7 +51,7 @@ class SpotifyRemoteController : public QObject
         QNetworkReply *getPlaylistTracks(const QString &user, const QString &playlist_id);
         QNetworkReply *getPlaylistTracks(const QString &spotify_uri);
 
-        void getTrackInfo(const QString &track_id);
+        QNetworkReply *getTrackInfo(const QString &track_id);
 
     signals:
         void accessGranted();

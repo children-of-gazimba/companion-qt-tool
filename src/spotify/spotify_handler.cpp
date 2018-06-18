@@ -90,3 +90,8 @@ QNetworkReply *SpotifyHandler::playlistInfo(const QString &uri)
 
 
 }
+
+QNetworkReply *SpotifyHandler::trackInfo(const QString &track_id)
+{
+    return remote.getTrackInfo(track_id);
+}

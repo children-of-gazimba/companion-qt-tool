@@ -34,6 +34,7 @@ class SpotifyHandler
         void removeTile(Tile::SpotifyTile *tile);
 
         QNetworkReply *playlistInfo(const QString &uri);
+        QNetworkReply *trackInfo(const QString &uri);
 
         SpotifyRemoteController remote;
 
