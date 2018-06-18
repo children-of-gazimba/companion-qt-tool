@@ -122,7 +122,6 @@ const QJsonDocument &SpotifyConfigureDialog::getPlaybackInfo() const
     return  playback_info_;
 }
 
-
 void SpotifyConfigureDialog::onSubmit()
 {
     QNetworkReply *reply;
@@ -150,7 +149,6 @@ void SpotifyConfigureDialog::onSubmit()
     settings_.repeat_mode = (SpotifyRemoteController::RepeatMode) repeat_button_group_->checkedId();
     settings_.shuffle_enabled = shuffle_checkbox_->isChecked();
 
-
     // connect to finished event of reply to get the servers response
     connect(reply, &QNetworkReply::finished,
             this, [=]() {
@@ -162,19 +160,40 @@ void SpotifyConfigureDialog::onSubmit()
 
 }
 
+void SpotifyConfigureDialog::onTextChanged(const QString &t)
+{
+    if(t.startsWith("https://"))
+        settings_.setFromWebLink(t);
+    else
+        settings_.setFromURI(t);
+    updateUI();
+}
+
+void SpotifyConfigureDialog::updateUI()
+{
+    if(settings_.playlist_uri.size() > 0)
+        edit_uri_->setText(settings_.playlist_uri);
+    else if(settings_.track_uri.size() > 0)
+        edit_uri_->setText(settings_.track_uri);
+    radio_playlist_->setChecked(settings_.playlist_uri.size() > 0);
+    radio_track_->setChecked(settings_.track_uri.size() > 0);
+    radio_repeat_off->setChecked(settings_.repeat_mode == SpotifyRemoteController::Off);
+    radio_repeat_track_->setChecked(settings_.repeat_mode == SpotifyRemoteController::Track);
+    radio_repeat_context_->setChecked(settings_.repeat_mode == SpotifyRemoteController::Context);
+    shuffle_checkbox_->setChecked(settings_.shuffle_enabled);
+}
 
 void SpotifyConfigureDialog::initWidgets()
 {
     edit_uri_ = new QLineEdit(this);
     edit_uri_->setPlaceholderText(tr("Playlist or Track URI"));
+    connect(edit_uri_, &QLineEdit::textChanged,
+            this, &SpotifyConfigureDialog::onTextChanged);
 
     radio_playlist_ = new QRadioButton("Playlist");
-    radio_playlist_->setChecked(true);
     radio_track_ = new QRadioButton("Track");
 
     radio_repeat_off = new QRadioButton("Off");
-    radio_repeat_off->setChecked(true);
-
     radio_repeat_track_ = new QRadioButton("Track");
     radio_repeat_context_ = new QRadioButton("Context");
 
@@ -187,6 +206,8 @@ void SpotifyConfigureDialog::initWidgets()
     btn_cancel_ = new QPushButton("Cancel", this);
     connect(btn_cancel_, &QPushButton::clicked,
             this, &SpotifyConfigureDialog::reject);
+
+    updateUI();
 }
 
 void SpotifyConfigureDialog::initLayout()

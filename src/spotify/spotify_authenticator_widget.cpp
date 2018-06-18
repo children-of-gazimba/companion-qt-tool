@@ -18,14 +18,14 @@ SpotifyAuthenticatorWidget::SpotifyAuthenticatorWidget(QWidget *parent)
 {
     initLayout();
 
-    web_view_ = new QWebEngineView;
+    //web_view_ = new QWebEngineView;
 
     // handler connections
     connect(&SpotifyHandler::instance()->remote, &SpotifyRemoteController::accessGranted,
             this, &SpotifyAuthenticatorWidget::onGranted);
 
-    connect(&SpotifyHandler::instance()->remote, &SpotifyRemoteController::authorizeWithBrowser,
-            this, &SpotifyAuthenticatorWidget::onAuthorize);
+    /*connect(&SpotifyHandler::instance()->remote, &SpotifyRemoteController::authorizeWithBrowser,
+            this, &SpotifyAuthenticatorWidget::onAuthorize);*/
 
 //    connect(&SpotifyHandler::instance()->remote, &SpotifyRemoteController::authorizeWithBrowser,
 //            QDesktopS
@@ -152,10 +152,10 @@ void SpotifyAuthenticatorWidget::onGranted() {
     btn_ctrl_set_repeat_off->setEnabled(true);
 }
 
-void SpotifyAuthenticatorWidget::onAuthorize(const QUrl &url) {
+/*void SpotifyAuthenticatorWidget::onAuthorize(const QUrl &url) {
     web_view_->load(url);
     web_view_->show();
-}
+}*/
 
 void SpotifyAuthenticatorWidget::onResponse() {
 //    QString type_str;

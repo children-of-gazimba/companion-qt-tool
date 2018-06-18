@@ -8,7 +8,7 @@
 #include <QPlainTextEdit>
 #include <QSlider>
 
-#include <QWebEngineView>
+//#include <QWebEngineView>
 
 #include <spotify/spotify_remote_controller.h>
 
@@ -23,7 +23,7 @@ class SpotifyAuthenticatorWidget : public QWidget
 
     public slots:
         void onGranted();
-        void onAuthorize(const QUrl &url);
+        //void onAuthorize(const QUrl &url);
         void onResponse();
 
         void onPlayPlaylist();
@@ -69,7 +69,7 @@ class SpotifyAuthenticatorWidget : public QWidget
 
         QPlainTextEdit *response_plain_text_;
 
-        QWebEngineView *web_view_;
+        //QWebEngineView *web_view_;
 };
 
 #endif // SPOTIFY_AUTHENTICATORWIDGET_H

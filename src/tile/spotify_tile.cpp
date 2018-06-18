@@ -26,9 +26,7 @@ SpotifyTile::SpotifyTile(QGraphicsItem *parent)
 
 SpotifyTile::~SpotifyTile()
 {
-
     SpotifyHandler::instance()->removeTile(this);
-
 }
 
 
@@ -43,6 +41,13 @@ void SpotifyTile::paint(QPainter *painter, const QStyleOptionGraphicsItem* optio
                     (int) p_rect.y(),
                     (int) p_rect.width(),
                     (int) p_rect.height(),
+                    *Resources::Lib::PX_SPUNGIFY
+                    );
+        painter->drawPixmap(
+                    (int) p_rect.x(),
+                    (int) p_rect.y(),
+                    (int) p_rect.width(),
+                    (int) p_rect.height(),
                     getPlayStatePixmap()
                     );
     }
@@ -50,10 +55,13 @@ void SpotifyTile::paint(QPainter *painter, const QStyleOptionGraphicsItem* optio
 
 void SpotifyTile::receiveExternalData(const QMimeData *data)
 {
-    Q_UNUSED(data);
-    qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
-    qDebug() << "  >" << "TODO: receive external data.";
-    qDebug() << "  >" << data;
+    if(!data->text().contains("spotify"))
+        return;
+    if(data->text().startsWith("https://"))
+        settings_.setFromWebLink(data->text());
+    else
+        settings_.setFromURI(data->text());
+    onConfigure();
 }
 
 
@@ -85,20 +93,13 @@ const QJsonObject SpotifyTile::toJsonObject() const
 {
     QJsonObject obj = BaseTile::toJsonObject();
 
-    qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
-    qDebug() << "  >" << "TODO: extend to json function";
-
-
-    //    // store playlist
-    //    QJsonArray arr_pl;
-    //    foreach(DB::SoundFileRecord* rec, playlist_->getSoundFileList())
-    //        arr_pl.append(Misc::JsonMimeDataParser::toJsonObject(rec));
-    //    obj["playlist"] = arr_pl;
-
-    //    //store settings
-    //    QJsonObject obj_settings;
-    //    obj_settings = Misc::JsonMimeDataParser::toJsonObject(playlist_->getSettings());
-    //    obj["settings"] = obj_settings;
+    QJsonObject settings;
+    settings["mode"] = settings_.mode;
+    settings["playlist_uri"] = settings_.playlist_uri;
+    settings["track_uri"] = settings_.track_uri;
+    settings["repeat_mode"] = settings_.repeat_mode;
+    settings["shuffle_enabled"] = settings_.shuffle_enabled;
+    obj["settings"] = settings;
 
     return obj;
 }
@@ -108,8 +109,14 @@ bool SpotifyTile::setFromJsonObject(const QJsonObject &obj)
     if(!BaseTile::setFromJsonObject(obj))
         return false;
 
-    qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
-    qDebug() << "  >" << "TODO: extend set from json";
+    if(obj.contains("settings") && obj["settings"].isObject()) {
+        QJsonObject settings(obj["settings"].toObject());
+        settings_.mode = (SpotifyRemoteController::Settings::Category) settings["mode"].toInt();
+        settings_.playlist_uri = settings["playlist_uri"].toString();
+        settings_.track_uri = settings["track_uri"].toString();
+        settings_.repeat_mode = (SpotifyRemoteController::RepeatMode) settings["repeat_mode"].toInt();
+        settings_.shuffle_enabled = settings["shuffle_enabled"].toBool();
+    }
 
     return true;
 }
@@ -147,6 +154,7 @@ void SpotifyTile::fromWebLink(const QString &link)
 
 void SpotifyTile::setPlaying(bool playing)
 {
+    prepareGeometryChange();
     setIsPlaying(playing);
 }
 
@@ -205,6 +213,8 @@ void SpotifyTile::onConfigure()
 
     if(d.exec() == SpotifyConfigureDialog::Rejected)
         return;
+
+    prepareGeometryChange();
 
     settings_ = d.getSettings();
     playback_info_ = d.getPlaybackInfo();

@@ -4,6 +4,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QStringList>
+#include <QJsonArray>
 
 SpotifyRemoteController::SpotifyRemoteController(QObject *parent) : QObject(parent)
 {
@@ -92,7 +93,9 @@ void SpotifyRemoteController::playTrack(const QString &spotify_uri) {
     const QString url = "me/player/play";
 
     QJsonObject parameter_obj;
-    parameter_obj["context_uri"] = spotify_uri;
+    QJsonArray tracks;
+    tracks.append(spotify_uri);
+    parameter_obj["uris"] = tracks;
     QJsonDocument parameter_doc(parameter_obj);
 
     request_handler_->put(url, parameter_doc.toJson());
@@ -169,5 +172,5 @@ QNetworkReply *SpotifyRemoteController::getPlaylistTracks(const QString &user, c
 
 QNetworkReply *SpotifyRemoteController::getTrackInfo(const QString &track_id) {
     QString url = QString("tracks/%1").arg(track_id);
-    request_handler_->get(url);
+    return request_handler_->get(url);
 }

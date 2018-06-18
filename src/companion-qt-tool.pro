@@ -6,7 +6,7 @@
 TARGET = companion-desktop
 TEMPLATE = app
 
-QMAKE_CXXFLAGS += -std=c++0x
+#QMAKE_CXXFLAGS += -std=c++0x
 
 QT       += core \
             gui \
@@ -15,8 +15,8 @@ QT       += core \
             widgets \
             sql \
             network \
-            networkauth  \
-            webenginewidgets
+            networkauth  #\
+            #webenginewidgets
 
 
 SOURCES += main.cpp \

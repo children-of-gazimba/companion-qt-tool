@@ -16,16 +16,60 @@ class SpotifyRemoteController : public QObject
 
         struct Settings
         {
+            enum Category {Playlist, Track};
 
-                enum Category {Playlist, Track};
+            Settings()
+                : mode(Playlist)
+                , track_uri()
+                , playlist_uri()
+                , repeat_mode(Context)
+                , shuffle_enabled(false)
+            {}
 
-                Category mode;
+            Category mode;
+            QString track_uri;
+            QString playlist_uri;
+            RepeatMode repeat_mode;
+            bool shuffle_enabled;
 
-                QString track_uri;
-                QString playlist_uri;
+            void setFromWebLink(const QString& link)
+            {
+                QStringList link_components = link.split("/");
 
-                RepeatMode repeat_mode;
-                bool shuffle_enabled;
+                if(link_components[3] == "track") {
+                    QString id = link_components.last().split("?")[0];
+                    QString uri = QString("spotify:track:%1").arg(id);
+
+                    mode = Track;
+                    playlist_uri = "";
+                    track_uri = uri;
+                } else {
+                    QString user_name = link_components[4];
+                    QString id = link_components.last().split("?")[0];
+                    QString uri = QString("spotify:user:%1:playlist:%2").arg(user_name).arg(id);
+
+                    mode = Playlist;
+                    playlist_uri = uri;
+                    track_uri = "";
+                }
+            }
+
+            void setFromURI(const QString& uri) {
+                if(uri.contains(":track:")) {
+                    mode = Track;
+                    playlist_uri = "";
+                    track_uri = uri;
+                }
+                else if(uri.contains(":playlist:")) {
+                    mode = Playlist;
+                    playlist_uri = uri;
+                    track_uri = "";
+                }
+                else {
+                    playlist_uri = "";
+                    track_uri = "";
+                }
+            }
         };
 
 

@@ -21,9 +21,21 @@ SpotifyHandler::~SpotifyHandler() {
 
 void SpotifyHandler::play(Tile::SpotifyTile *selected_tile)
 {
-
     SpotifyRemoteController::Settings current_settings = selected_tile->getSettings();
-    if(active_tile_ == selected_tile) {
+    switch (current_settings.mode) {
+        case SpotifyRemoteController::Settings::Playlist:
+            remote.playUserPlaylist(current_settings.playlist_uri);
+            break;
+        case SpotifyRemoteController::Settings::Track:
+            remote.playTrack(current_settings.track_uri);
+            break;
+        default:
+            qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
+            qDebug() << "  >" << "Active Tile exists!";
+            qDebug() << "    >" << "Error in getting settings mode!";
+            break;
+    }
+    /*if(active_tile_ == selected_tile) {
         remote.play();
     } else {
         switch (current_settings.mode) {
@@ -40,7 +52,7 @@ void SpotifyHandler::play(Tile::SpotifyTile *selected_tile)
                 break;
         }
 
-    }
+    }*/
 
     active_tile_ = selected_tile;
 

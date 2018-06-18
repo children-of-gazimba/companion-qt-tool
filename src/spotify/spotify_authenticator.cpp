@@ -6,6 +6,7 @@
 #include <QFile>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QDesktopServices>
 
 #include <QMessageBox>
 
@@ -38,7 +39,7 @@ SpotifyAuthenticator::SpotifyAuthenticator(QObject *parent)
             this, &SpotifyAuthenticator::tokenChanged);
 
     connect(&spotify_, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser,
-            this, &SpotifyAuthenticator::authorizeWithBrowser);
+            &QDesktopServices::openUrl);
 }
 
 void SpotifyAuthenticator::loadCredentials()

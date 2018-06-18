@@ -29,7 +29,11 @@ class SpotifyConfigureDialog : public QDialog
     public slots:
         void onSubmit();
 
+    private slots:
+        void onTextChanged(const QString&);
+
     private:
+        void updateUI();
 
         void initWidgets();
         void initLayout();
