@@ -11,6 +11,7 @@ class CompanionUdpDiscovery : public UdpBroadcastServer
 public:
     explicit CompanionUdpDiscovery(unsigned discovery_port, QObject *parent = nullptr);
     explicit CompanionUdpDiscovery(unsigned discovery_port, QString discovery_name, QObject *parent = nullptr);
+    virtual ~CompanionUdpDiscovery();
 
     void setDiscoveryPort(unsigned);
     unsigned getDiscoveryPort() const;

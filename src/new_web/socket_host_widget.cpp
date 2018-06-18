@@ -6,13 +6,13 @@
 SocketHostWidget::SocketHostWidget(Tile::GraphicsView* view, QWidget *parent)
     : QWidget(parent)
     , server_(0)
+    , udp_discovery_(0)
     , text_edit_(0)
     , name_edit_(0)
 {
     server_ = new CompanionServer(41736, this);
     server_->setGraphicsView(view);
     udp_discovery_ = new CompanionUdpDiscovery(41736, "Companion Host", this);
-
     initWidgets();
     initLayout();
 }

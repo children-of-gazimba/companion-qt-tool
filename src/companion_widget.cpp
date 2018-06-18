@@ -29,6 +29,7 @@ CompanionWidget::CompanionWidget(QWidget *parent)
     , left_box_(0)
     , right_box_(0)
     , web_host_(0)
+    , socket_host_(0)
     , image_browser_(0)
     , left_tabwidget_(0)
     , db_handler_(0)
@@ -434,7 +435,7 @@ void CompanionWidget::initMenu()
     file_menu->addSeparator();
     file_menu->addAction(actions_["Delete Database Contents..."]);
     QMenu* tool_menu = main_menu_->addMenu(tr("Tools"));
-    tool_menu->addAction(actions_["Run Web Host..."]);
+    //tool_menu->addAction(actions_["Run Web Host..."]);
     tool_menu->addAction(actions_["Run Socket Host..."]);
 
     main_menu_->addMenu(file_menu);
