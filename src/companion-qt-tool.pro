@@ -62,12 +62,12 @@ SOURCES += main.cpp \
     tile/playlist_tile.cpp \
     companion_widget.cpp \
     spotify/oauth2_request_handler.cpp \
-    spotify/spotify_authenticator_widget.cpp \
     spotify/spotify_authenticator.cpp \
     spotify/spotify_handler.cpp \
     spotify/spotify_remote_controller.cpp \
     tile/spotify_tile.cpp \
-    spotify/spotify_configure_dialog.cpp
+    spotify/spotify_control_panel.cpp \
+    spotify/spotify_tile_configure_dialog.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -112,12 +112,12 @@ HEADERS  += main_window.h \
     tile/playlist_tile.h \
     companion_widget.h \
     spotify/oauth2_request_handler.h \
-    spotify/spotify_authenticator_widget.h \
     spotify/spotify_authenticator.h \
     spotify/spotify_handler.h \
     spotify/spotify_remote_controller.h \
     tile/spotify_tile.h \
-    spotify/spotify_configure_dialog.h
+    spotify/spotify_control_panel.h \
+    spotify/spotify_tile_configure_dialog.h
 
 RESOURCES += \
     _RES/resources.qrc

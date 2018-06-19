@@ -24,7 +24,7 @@
 #include "tile/graphics_view.h"
 #include "image/browser.h"
 #include "preset/preset_view.h"
-#include "spotify/spotify_authenticator_widget.h"
+#include "spotify/spotify_control_panel.h"
 
 class CompanionWidget : public QWidget
 {
@@ -83,8 +83,9 @@ private:
     QGroupBox* left_box_;
     QGroupBox* right_box_;
     Image::Browser* image_browser_;
-    SpotifyAuthenticatorWidget *spotify_authenticator_widget_;
+    SpotifyControlPanel *spotify_authenticator_widget_;
     QTabWidget* left_tabwidget_;
+    QMenu* spotify_menu_;
 
     // DB handler
     DB::Handler* db_handler_;

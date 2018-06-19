@@ -14,32 +14,11 @@ SpotifyAuthenticator::SpotifyAuthenticator(QObject *parent)
     : QObject(parent)
     , spotify_()
     , token_()
+    , initialized_(false)
 {
     // creates a handler on 'http://localhost:8080/cb'
     // NOTE: The path “/cb” is mandatory in the current QOAuthHttpServerReplyHandler implementation.
     // from: http://blog.qt.io/blog/2017/01/25/connecting-qt-application-google-services-using-oauth-2-0/
-
-    loadCredentials();
-
-    auto replyHandler = new QOAuthHttpServerReplyHandler(8080, this);
-    spotify_.setReplyHandler(replyHandler);
-    spotify_.setAuthorizationUrl(QUrl("https://accounts.spotify.com/authorize"));
-    spotify_.setAccessTokenUrl(QUrl("https://accounts.spotify.com/api/token"));
-
-    spotify_.setClientIdentifier(client_id_);
-    spotify_.setClientIdentifierSharedKey(client_secret_);
-
-    spotify_.setScope("user-modify-playback-state user-read-currently-playing user-read-playback-state user-read-birthdate user-read-email user-read-private user-follow-read user-follow-modify streaming user-library-modify user-library-read playlist-read-collaborative playlist-read-private playlist-modify-private playlist-modify-public user-read-recently-played user-top-read");
-
-    // connections
-    connect(&spotify_, &QOAuth2AuthorizationCodeFlow::granted,
-            this, &SpotifyAuthenticator::onAccessGranted);
-
-    connect(&spotify_, &QOAuth2AuthorizationCodeFlow::tokenChanged,
-            this, &SpotifyAuthenticator::tokenChanged);
-
-    connect(&spotify_, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser,
-            &QDesktopServices::openUrl);
 }
 
 void SpotifyAuthenticator::loadCredentials()
@@ -76,10 +55,39 @@ QString SpotifyAuthenticator::getToken() const {
 }
 
 void SpotifyAuthenticator::grant() {
+    if(!initialized_)
+        init();
     spotify_.grant();
 }
 
 void SpotifyAuthenticator::onAccessGranted() {
     token_ = spotify_.token();
     emit accessGranted();
+}
+
+void SpotifyAuthenticator::init()
+{
+    loadCredentials();
+
+    auto replyHandler = new QOAuthHttpServerReplyHandler(8080, this);
+    spotify_.setReplyHandler(replyHandler);
+    spotify_.setAuthorizationUrl(QUrl("https://accounts.spotify.com/authorize"));
+    spotify_.setAccessTokenUrl(QUrl("https://accounts.spotify.com/api/token"));
+
+    spotify_.setClientIdentifier(client_id_);
+    spotify_.setClientIdentifierSharedKey(client_secret_);
+
+    spotify_.setScope("user-modify-playback-state user-read-currently-playing user-read-playback-state user-read-birthdate user-read-email user-read-private user-follow-read user-follow-modify streaming user-library-modify user-library-read playlist-read-collaborative playlist-read-private playlist-modify-private playlist-modify-public user-read-recently-played user-top-read");
+
+    // connections
+    connect(&spotify_, &QOAuth2AuthorizationCodeFlow::granted,
+            this, &SpotifyAuthenticator::onAccessGranted);
+
+    connect(&spotify_, &QOAuth2AuthorizationCodeFlow::tokenChanged,
+            this, &SpotifyAuthenticator::tokenChanged);
+
+    connect(&spotify_, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser,
+            &QDesktopServices::openUrl);
+
+    initialized_ = true;
 }

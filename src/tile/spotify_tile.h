@@ -63,6 +63,7 @@ public slots:
 
 signals:
     void wheelChangedVolume(int val);
+    void acceptAllNotifcations();
 
 protected slots:
     /** slot to open configuration */
@@ -70,6 +71,24 @@ protected slots:
 
     /** slot to open contents view */
     virtual void onContents();
+
+    /**
+     * connects to accessGranted of SpotifyHandler remote.
+     * Calls onConfigure(). Disconnects as soon as executed once.
+    */
+    void onAccessGrantedOnceConfigure();
+
+    /**
+     * connects to accessGranted of SpotifyHandler remote.
+     * Calls play(). Disconnects as soon as executed once.
+    */
+    void onAccessGrantedOncePlay();
+
+    /**
+     * connects to accessGranted of SpotifyHandler remote.
+     * Calls stop(). Disconnects as soon as executed once.
+    */
+    void onAccessGrantedOnceStop();
 
 protected:
     /*
@@ -88,6 +107,20 @@ protected:
     virtual const QPixmap getPlayStatePixmap() const;
 
     void setIsPlaying(bool state);
+
+    /**
+     * Ensures the access to the spotify api has been granted.
+     * Attempts to grant access if not granted yet.
+     * Returns true if access granted, false otherwise.
+    */
+    bool ensureAccessGranted();
+
+    /**
+     * Updates the playback info of this tile,
+     * Will trigger an update of the tile name
+     * as soon as data has been received.
+    */
+    void updatePlaybackInfo();
 
     bool is_playing_;
     QJsonDocument playback_info_;

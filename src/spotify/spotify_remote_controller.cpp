@@ -6,7 +6,11 @@
 #include <QStringList>
 #include <QJsonArray>
 
-SpotifyRemoteController::SpotifyRemoteController(QObject *parent) : QObject(parent)
+SpotifyRemoteController::SpotifyRemoteController(QObject *parent)
+    : QObject(parent)
+    , request_handler_(0)
+    , authenticator_(0)
+    , access_granted_(false)
 {
     request_handler_ = new OAuth2RequestHandler(this);
     authenticator_ = new SpotifyAuthenticator(this);
@@ -43,6 +47,7 @@ void SpotifyRemoteController::onAccessGranted() {
     qDebug() << "  >" << authenticator_->getToken();
 
     request_handler_->setRequestHeaders(authenticator_->getToken());
+    access_granted_ = true;
     emit accessGranted();
 }
 
@@ -173,4 +178,9 @@ QNetworkReply *SpotifyRemoteController::getPlaylistTracks(const QString &user, c
 QNetworkReply *SpotifyRemoteController::getTrackInfo(const QString &track_id) {
     QString url = QString("tracks/%1").arg(track_id);
     return request_handler_->get(url);
+}
+
+bool SpotifyRemoteController::isAccessGranted() const
+{
+    return access_granted_;
 }

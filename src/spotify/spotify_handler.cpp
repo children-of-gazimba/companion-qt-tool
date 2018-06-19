@@ -1,5 +1,7 @@
 #include "spotify_handler.h"
 
+#include <QMessageBox>
+
 SpotifyHandler* SpotifyHandler::instance_ = nullptr;
 
 SpotifyHandler::SpotifyHandler()
@@ -99,11 +101,33 @@ void SpotifyHandler::removeTile(Tile::SpotifyTile *tile)
 QNetworkReply *SpotifyHandler::playlistInfo(const QString &uri)
 {
     return remote.getPlaylistInfo(uri);
-
-
 }
 
 QNetworkReply *SpotifyHandler::trackInfo(const QString &track_id)
 {
     return remote.getTrackInfo(track_id);
+}
+
+bool SpotifyHandler::isAccessGranted()
+{
+    return instance_ != 0 && instance_->remote.isAccessGranted();
+}
+
+void SpotifyHandler::requestGrantAccess()
+{
+    if(!isAccessGranted()) {
+        if (!QSslSocket::supportsSsl()) {
+            QMessageBox b;
+            b.setText("Spotify authentication cannot be established.");
+            b.setInformativeText("SSL not supported on this device.");
+            b.exec();
+            return;
+        }
+
+        qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
+        qDebug() << "  >" << "initializing Spotify...";
+        qDebug() << "     >" << "SSL version:" << QSslSocket::sslLibraryVersionString();
+
+        instance()->remote.grantAccess();
+    }
 }

@@ -7,10 +7,9 @@
 #include <QJsonArray>
 #include <QMessageBox>
 
-#include "spotify/spotify_configure_dialog.h"
-
+#include "spotify/spotify_tile_configure_dialog.h"
 #include "spotify/spotify_handler.h"
-
+#include "spotify/spotify_remote_controller.h"
 
 namespace Tile {
 
@@ -160,7 +159,18 @@ void SpotifyTile::setPlaying(bool playing)
 
 void SpotifyTile::play()
 {
-    if(is_playing_) {
+    if(is_playing_ || !ensureAccessGranted()) {
+        connect(&SpotifyHandler::instance()->remote, &SpotifyRemoteController::accessGranted,
+                this, &SpotifyTile::onAccessGrantedOncePlay);
+        QMessageBox b;
+        connect(this, &SpotifyTile::acceptAllNotifcations,
+                &b, &QMessageBox::accept);
+        b.setWindowTitle(tr("Requesting access to Spotify"));
+        b.setText(tr("Companion is being connected to Spotify!"));
+        b.setInformativeText(tr("You should see and follow the authentication prompts popping up in your browser shortly."));
+        b.setStandardButtons(QMessageBox::Ok);
+        b.setDefaultButton(QMessageBox::Ok);
+        b.exec();
         return;
     }
 
@@ -170,7 +180,18 @@ void SpotifyTile::play()
 
 void SpotifyTile::stop()
 {
-    if(!is_playing_) {
+    if(!is_playing_ || !ensureAccessGranted()) {
+        connect(&SpotifyHandler::instance()->remote, &SpotifyRemoteController::accessGranted,
+                this, &SpotifyTile::onAccessGrantedOnceStop);
+        QMessageBox b;
+        connect(this, &SpotifyTile::acceptAllNotifcations,
+                &b, &QMessageBox::accept);
+        b.setWindowTitle(tr("Requesting access to Spotify"));
+        b.setText(tr("Companion is being connected to Spotify!"));
+        b.setInformativeText(tr("You should see and follow the authentication prompts popping up in your browser shortly."));
+        b.setStandardButtons(QMessageBox::Ok);
+        b.setDefaultButton(QMessageBox::Ok);
+        b.exec();
         return;
     }
 
@@ -206,21 +227,30 @@ int SpotifyTile::getVolume() const
     return 0;
 }
 
-
 void SpotifyTile::onConfigure()
 {
-    SpotifyConfigureDialog d(settings_);
+    if(!ensureAccessGranted()) {
+        connect(&SpotifyHandler::instance()->remote, &SpotifyRemoteController::accessGranted,
+                this, &SpotifyTile::onAccessGrantedOnceConfigure);
+        QMessageBox b;
+        connect(this, &SpotifyTile::acceptAllNotifcations,
+                &b, &QMessageBox::accept);
+        b.setWindowTitle(tr("Requesting access to Spotify"));
+        b.setText(tr("Companion is being connected to Spotify!"));
+        b.setInformativeText(tr("You should see and follow the authentication prompts popping up in your browser shortly."));
+        b.setStandardButtons(QMessageBox::Ok);
+        b.setDefaultButton(QMessageBox::Ok);
+        b.exec();
+        return;
+    }
 
-    if(d.exec() == SpotifyConfigureDialog::Rejected)
+    SpotifyTileConfigureDialog d(settings_);
+
+    if(d.exec() == SpotifyTileConfigureDialog::Rejected)
         return;
 
-    prepareGeometryChange();
-
     settings_ = d.getSettings();
-    playback_info_ = d.getPlaybackInfo();
-
-    // set name
-    setName(playback_info_.object()["name"].toString());
+    updatePlaybackInfo();
 }
 
 void SpotifyTile::onContents()
@@ -228,6 +258,30 @@ void SpotifyTile::onContents()
     QMessageBox b;
     b.setText("Configure show contents here");
     b.exec();
+}
+
+void SpotifyTile::onAccessGrantedOnceConfigure()
+{
+    disconnect(&SpotifyHandler::instance()->remote, &SpotifyRemoteController::accessGranted,
+               this, &SpotifyTile::onAccessGrantedOnceConfigure);
+    emit acceptAllNotifcations();
+    onConfigure();
+}
+
+void SpotifyTile::onAccessGrantedOncePlay()
+{
+    disconnect(&SpotifyHandler::instance()->remote, &SpotifyRemoteController::accessGranted,
+               this, &SpotifyTile::onAccessGrantedOncePlay);
+    emit acceptAllNotifcations();
+    play();
+}
+
+void SpotifyTile::onAccessGrantedOnceStop()
+{
+    disconnect(&SpotifyHandler::instance()->remote, &SpotifyRemoteController::accessGranted,
+               this, &SpotifyTile::onAccessGrantedOnceStop);
+    emit acceptAllNotifcations();
+    stop();
 }
 
 void SpotifyTile::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
@@ -238,7 +292,6 @@ void SpotifyTile::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
         else
             play();
     }
-
     BaseTile::mouseReleaseEvent(e);
 }
 
@@ -275,6 +328,35 @@ void SpotifyTile::setIsPlaying(bool state)
 {
     is_activated_ = state;
     is_playing_ = state;
+}
+
+bool SpotifyTile::ensureAccessGranted()
+{
+    if(SpotifyHandler::isAccessGranted())
+        return true;
+    SpotifyHandler::requestGrantAccess();
+    return false;
+}
+
+void SpotifyTile::updatePlaybackInfo()
+{
+    QNetworkReply *reply = nullptr;
+    if(settings_.mode == SpotifyRemoteController::Settings::Playlist) {
+        reply = SpotifyHandler::instance()->playlistInfo(settings_.playlist_uri);
+    }
+    else if(settings_.mode == SpotifyRemoteController::Settings::Track) {
+        QStringList track_uri_components = settings_.track_uri.split(":");
+        reply = SpotifyHandler::instance()->trackInfo(track_uri_components.last());
+    }
+    // connect to finished event of reply to get the servers response
+    connect(reply, &QNetworkReply::finished,
+            this, [=]() {
+        playback_info_ = QJsonDocument::fromJson(reply->readAll());
+        // set name
+        prepareGeometryChange();
+        setName(playback_info_.object()["name"].toString());
+        reply->deleteLater();
+    });
 }
 
 } // namespace Tile

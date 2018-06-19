@@ -11,6 +11,7 @@
 #include "db/core/api.h"
 #include "resources/lib.h"
 #include "misc/json_mime_data_parser.h"
+#include "spotify/spotify_handler.h"
 
 CompanionWidget::CompanionWidget(QWidget *parent)
     : QWidget(parent)
@@ -30,6 +31,7 @@ CompanionWidget::CompanionWidget(QWidget *parent)
     , image_browser_(0)
     , spotify_authenticator_widget_(0)
     , left_tabwidget_(0)
+    , spotify_menu_(0)
     , db_handler_(0)
 {
     initDB();
@@ -163,22 +165,16 @@ void CompanionWidget::onOpenProject()
 
 void CompanionWidget::onStartSpotifyControlWidget()
 {
-    if (!QSslSocket::supportsSsl()) {
-        QMessageBox b;
-        b.setText("Spotify authentication cannot be established.");
-        b.setInformativeText("SSL not supported on this device.");
-        b.exec();
-        return;
-    }
-
-    qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
-    qDebug() << "  >" << "initializing Spotify...";
-    qDebug() << "    >" << "SSL version:" << QSslSocket::sslLibraryVersionString();
-
     if(spotify_authenticator_widget_ == 0) {
-        spotify_authenticator_widget_ = new SpotifyAuthenticatorWidget;
+        spotify_authenticator_widget_ = new SpotifyControlPanel;
     }
-    spotify_authenticator_widget_->show();
+    if(spotify_authenticator_widget_->isVisible()) {
+        spotify_authenticator_widget_->raise();
+        spotify_authenticator_widget_->activateWindow();
+    }
+    else {
+        spotify_authenticator_widget_->show();
+    }
 }
 
 void CompanionWidget::setProjectPath(const QString &path)
@@ -303,9 +299,20 @@ void CompanionWidget::initActions()
     actions_["Open Project..."]->setToolTip(tr("Opens a previously saved state from a file."));
     actions_["Open Project..."]->setShortcut(QKeySequence(tr("Ctrl+O")));
 
-    actions_["Run Spotify Host..."] = new QAction(tr("Run Spotify Host..."), this);
-    actions_["Run Spotify Host..."]->setToolTip(tr("Creates Spotify control widget (debug)."));
-    actions_["Run Spotify Host..."]->setShortcut(QKeySequence(tr("Ctrl+Y")));
+    actions_["Connect to Spotify"] = new QAction(tr("Connect to Spotify"), this);
+    actions_["Connect to Spotify"]->setToolTip(tr("Requests connection to the Spotify music streaming service."));
+    actions_["Connect to Spotify"]->setCheckable(true);
+    actions_["Connect to Spotify"]->setChecked(false);
+    actions_["Spotify Control Panel..."] = new QAction(tr("Spotify Control Panel..."), this);
+    actions_["Spotify Control Panel..."]->setToolTip(tr("Shows the Spotify control panel."));
+    actions_["Spotify Control Panel..."]->setEnabled(false);
+    actions_["Spotify Control Panel..."]->setShortcut(QKeySequence(tr("Ctrl+Y")));
+    connect(&SpotifyHandler::instance()->remote, &SpotifyRemoteController::accessGranted,
+            this, [=]() {
+        actions_["Connect to Spotify"]->setChecked(true);
+        actions_["Connect to Spotify"]->setEnabled(false);
+        actions_["Spotify Control Panel..."]->setEnabled(true);
+    });
 
     connect(actions_["Import Resource Folder..."] , SIGNAL(triggered(bool)),
             sound_file_importer_, SLOT(startBrowseFolder(bool)));
@@ -317,9 +324,10 @@ void CompanionWidget::initActions()
             this, SLOT(onSaveProject()));
     connect(actions_["Open Project..."], SIGNAL(triggered()),
             this, SLOT(onOpenProject()));
-    connect(actions_["Run Spotify Host..."], SIGNAL(triggered()),
+    connect(actions_["Connect to Spotify"], SIGNAL(triggered()),
             this, SLOT(onStartSpotifyControlWidget()));
-
+    connect(actions_["Spotify Control Panel..."], SIGNAL(triggered()),
+            this, SLOT(onStartSpotifyControlWidget()));
 }
 
 void CompanionWidget::initMenu()
@@ -335,7 +343,9 @@ void CompanionWidget::initMenu()
     file_menu->addSeparator();
     file_menu->addAction(actions_["Delete Database Contents..."]);
     QMenu* tool_menu = main_menu_->addMenu(tr("Tools"));
-    tool_menu->addAction(actions_["Run Spotify Host..."]);
+    spotify_menu_ = tool_menu->addMenu(tr("Spotify"));
+    spotify_menu_->addAction(actions_["Connect to Spotify"]);
+    spotify_menu_->addAction(actions_["Spotify Control Panel..."]);
 
     main_menu_->addMenu(file_menu);
     main_menu_->addMenu(tool_menu);

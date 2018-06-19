@@ -97,6 +97,8 @@ class SpotifyRemoteController : public QObject
 
         QNetworkReply *getTrackInfo(const QString &track_id);
 
+        bool isAccessGranted() const;
+
     signals:
         void accessGranted();
         void authorizeWithBrowser(const QUrl &url);
@@ -110,6 +112,7 @@ class SpotifyRemoteController : public QObject
     private:
         OAuth2RequestHandler *request_handler_;
         SpotifyAuthenticator *authenticator_;
+        bool access_granted_;
 };
 
 

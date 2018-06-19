@@ -23,12 +23,14 @@ class SpotifyAuthenticator : public QObject
         void onAccessGranted();
 
     private:
+        void init();
         void loadCredentials();
 
         QString client_id_;
         QString client_secret_;
         QOAuth2AuthorizationCodeFlow spotify_;
         QString token_;
+        bool initialized_;
 };
 
 #endif // SPOTIFY_AUTHENTICATOR_H

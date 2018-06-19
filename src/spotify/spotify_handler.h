@@ -38,8 +38,10 @@ class SpotifyHandler
 
         SpotifyRemoteController remote;
 
-    private:
+        static bool isAccessGranted();
+        static void requestGrantAccess();
 
+    private:
         explicit SpotifyHandler();
 
         Tile::SpotifyTile *active_tile_;

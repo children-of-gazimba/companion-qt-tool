@@ -1,4 +1,4 @@
-#include "spotify_configure_dialog.h"
+#include "spotify_tile_configure_dialog.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -9,16 +9,13 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-#include <QNetworkReply>
-
 #include "spotify/spotify_handler.h"
 
-SpotifyConfigureDialog::SpotifyConfigureDialog(QWidget *parent)
+SpotifyTileConfigureDialog::SpotifyTileConfigureDialog(QWidget *parent)
     : QDialog(parent)
-    , mode_button_group_(0)
-    , radio_playlist_(0)
-    , radio_track_(0)
     , edit_uri_(0)
+    , name_label_(0)
+    , repeat_label_(0)
     , repeat_button_group_(0)
     , radio_repeat_off(0)
     , radio_repeat_track_(0)
@@ -31,16 +28,14 @@ SpotifyConfigureDialog::SpotifyConfigureDialog(QWidget *parent)
 {
     initWidgets();
     initLayout();
-
-    resize(QSize(400,300));
+    setAcceptDrops(true);
 }
 
-SpotifyConfigureDialog::SpotifyConfigureDialog(const SpotifyRemoteController::Settings &settings, QWidget *parent)
+SpotifyTileConfigureDialog::SpotifyTileConfigureDialog(const SpotifyRemoteController::Settings &settings, QWidget *parent)
     : QDialog(parent)
-    , mode_button_group_(0)
-    , radio_playlist_(0)
-    , radio_track_(0)
     , edit_uri_(0)
+    , name_label_(0)
+    , repeat_label_(0)
     , repeat_button_group_(0)
     , radio_repeat_off(0)
     , radio_repeat_track_(0)
@@ -52,28 +47,25 @@ SpotifyConfigureDialog::SpotifyConfigureDialog(const SpotifyRemoteController::Se
 {
     initWidgets();
     initLayout();
-
-    resize(QSize(400,300));
+    setAcceptDrops(true);
 }
 
-const SpotifyRemoteController::Settings &SpotifyConfigureDialog::getSettings() const
+const SpotifyRemoteController::Settings &SpotifyTileConfigureDialog::getSettings() const
 {
     return settings_;
 }
 
-void SpotifyConfigureDialog::setSettings(const SpotifyRemoteController::Settings &settings)
+void SpotifyTileConfigureDialog::setSettings(const SpotifyRemoteController::Settings &settings)
 {
     settings_ = settings;
 
     if(settings.mode != SpotifyRemoteController::Settings::Playlist ||
             settings.mode != SpotifyRemoteController::Settings::Track) {
-
         qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
         qDebug() << "  >" << "Error: There was no Mode specified... exiting!";
         return;
 
     } else {
-
         if(settings.playlist_uri != "") {
             if(settings.track_uri != "") {
                 qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
@@ -94,8 +86,6 @@ void SpotifyConfigureDialog::setSettings(const SpotifyRemoteController::Settings
             qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
             qDebug() << "  >" << "Error: There was neither a track nor a playlist URL given.";
         }
-
-
         switch (settings.repeat_mode) {
             case SpotifyRemoteController::Context:
                 radio_repeat_context_->setChecked(true);
@@ -114,123 +104,87 @@ void SpotifyConfigureDialog::setSettings(const SpotifyRemoteController::Settings
         }
         shuffle_checkbox_->setChecked(settings.shuffle_enabled);
     }
-
 }
 
-const QJsonDocument &SpotifyConfigureDialog::getPlaybackInfo() const
+void SpotifyTileConfigureDialog::onSubmit()
 {
-    return  playback_info_;
-}
-
-void SpotifyConfigureDialog::onSubmit()
-{
-    QNetworkReply *reply;
-    switch (mode_button_group_->checkedId()) {
+    switch (settings_.mode) {
         case SpotifyRemoteController::Settings::Playlist:
-            settings_.mode = SpotifyRemoteController::Settings::Playlist;
             settings_.playlist_uri = edit_uri_->text();
-            reply = SpotifyHandler::instance()->playlistInfo(settings_.playlist_uri);
             break;
         case SpotifyRemoteController::Settings::Track:
-        {
-            settings_.mode =  SpotifyRemoteController::Settings::Track;
             settings_.track_uri = edit_uri_->text();
-
-            // filter for id
-            QStringList track_uri_components = settings_.track_uri.split(":");
-            reply = SpotifyHandler::instance()->trackInfo(track_uri_components.last());
             break;
-        }
         default:
             break;
     }
-
-
     settings_.repeat_mode = (SpotifyRemoteController::RepeatMode) repeat_button_group_->checkedId();
     settings_.shuffle_enabled = shuffle_checkbox_->isChecked();
-
-    // connect to finished event of reply to get the servers response
-    connect(reply, &QNetworkReply::finished,
-            this, [=]() {
-        playback_info_ = QJsonDocument::fromJson(reply->readAll());
-        qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
-        qDebug() << "  >" << "gotit boi";
-        accept();
-    });
-
+    accept();
 }
 
-void SpotifyConfigureDialog::onTextChanged(const QString &t)
+void SpotifyTileConfigureDialog::onTextChanged(const QString &t)
 {
     if(t.startsWith("https://"))
         settings_.setFromWebLink(t);
     else
         settings_.setFromURI(t);
     updateUI();
+    updatePlaybackInfo();
 }
 
-void SpotifyConfigureDialog::updateUI()
+void SpotifyTileConfigureDialog::updateUI()
 {
     if(settings_.playlist_uri.size() > 0)
         edit_uri_->setText(settings_.playlist_uri);
     else if(settings_.track_uri.size() > 0)
         edit_uri_->setText(settings_.track_uri);
-    radio_playlist_->setChecked(settings_.playlist_uri.size() > 0);
-    radio_track_->setChecked(settings_.track_uri.size() > 0);
     radio_repeat_off->setChecked(settings_.repeat_mode == SpotifyRemoteController::Off);
     radio_repeat_track_->setChecked(settings_.repeat_mode == SpotifyRemoteController::Track);
     radio_repeat_context_->setChecked(settings_.repeat_mode == SpotifyRemoteController::Context);
     shuffle_checkbox_->setChecked(settings_.shuffle_enabled);
 }
 
-void SpotifyConfigureDialog::initWidgets()
+void SpotifyTileConfigureDialog::updatePlaybackInfo()
 {
+    QNetworkReply *reply = nullptr;
+    if(settings_.mode == SpotifyRemoteController::Settings::Playlist) {
+        reply = SpotifyHandler::instance()->playlistInfo(settings_.playlist_uri);
+    }
+    else if(settings_.mode == SpotifyRemoteController::Settings::Track) {
+        QStringList track_uri_components = settings_.track_uri.split(":");
+        reply = SpotifyHandler::instance()->trackInfo(track_uri_components.last());
+    }
+    // connect to finished event of reply to get the servers response
+    connect(reply, &QNetworkReply::finished,
+            this, [=]() {
+        QJsonDocument playback_info = QJsonDocument::fromJson(reply->readAll());
+        QString name(playback_info.object()["name"].toString());
+        if(name.size() == 0)
+            name_label_->setText("INVALID RESOURCE");
+        else
+            name_label_->setText(name);
+        reply->deleteLater();
+    });
+}
+
+void SpotifyTileConfigureDialog::initWidgets()
+{
+    name_label_ = new QLabel(this);
+    QFont f(name_label_->font());
+    f.setPointSize(f.pointSize()*3);
+    name_label_->setFont(f);
+
     edit_uri_ = new QLineEdit(this);
-    edit_uri_->setPlaceholderText(tr("Playlist or Track URI"));
+    edit_uri_->setReadOnly(true);
+    edit_uri_->setPlaceholderText(tr("Drag and drop playlist or track URI/link here"));
     connect(edit_uri_, &QLineEdit::textChanged,
-            this, &SpotifyConfigureDialog::onTextChanged);
+            this, &SpotifyTileConfigureDialog::onTextChanged);
 
-    radio_playlist_ = new QRadioButton("Playlist");
-    radio_track_ = new QRadioButton("Track");
-
+    repeat_label_ = new QLabel("Repeat Mode:", this);
     radio_repeat_off = new QRadioButton("Off");
     radio_repeat_track_ = new QRadioButton("Track");
     radio_repeat_context_ = new QRadioButton("Context");
-
-    shuffle_checkbox_ = new QCheckBox("Shuffle", this);
-
-    btn_submit_ = new QPushButton("Submit", this);
-    connect(btn_submit_, &QPushButton::clicked,
-            this, &SpotifyConfigureDialog::onSubmit);
-
-    btn_cancel_ = new QPushButton("Cancel", this);
-    connect(btn_cancel_, &QPushButton::clicked,
-            this, &SpotifyConfigureDialog::reject);
-
-    updateUI();
-}
-
-void SpotifyConfigureDialog::initLayout()
-{
-    // mode group
-    mode_button_group_ = new QButtonGroup;
-    mode_button_group_->addButton(radio_playlist_);
-    mode_button_group_->setId(radio_playlist_, SpotifyRemoteController::Settings::Playlist);
-    mode_button_group_->addButton(radio_track_);
-    mode_button_group_->setId(radio_track_, SpotifyRemoteController::Settings::Track);
-
-    QGroupBox *mode_group = new QGroupBox(tr("Mode"));
-    QHBoxLayout *mode_layout = new QHBoxLayout;
-    mode_layout->addWidget(radio_playlist_);
-    mode_layout->addWidget(radio_track_);
-    mode_group->setLayout(mode_layout);
-
-
-    QHBoxLayout *edit_layout = new QHBoxLayout;
-    edit_layout->addWidget(edit_uri_);
-    QGroupBox *edit_group = new QGroupBox("URI");
-    edit_group->setLayout(edit_layout);
-
     repeat_button_group_ = new QButtonGroup;
     repeat_button_group_->addButton(radio_repeat_context_);
     repeat_button_group_->setId(radio_repeat_context_, SpotifyRemoteController::Context);
@@ -239,8 +193,30 @@ void SpotifyConfigureDialog::initLayout()
     repeat_button_group_->addButton(radio_repeat_off);
     repeat_button_group_->setId(radio_repeat_off, SpotifyRemoteController::Off);
 
+    shuffle_checkbox_ = new QCheckBox("Shuffle", this);
+
+    btn_submit_ = new QPushButton("Submit", this);
+    connect(btn_submit_, &QPushButton::clicked,
+            this, &SpotifyTileConfigureDialog::onSubmit);
+
+    btn_cancel_ = new QPushButton("Cancel", this);
+    connect(btn_cancel_, &QPushButton::clicked,
+            this, &SpotifyTileConfigureDialog::reject);
+
+    updateUI();
+}
+
+void SpotifyTileConfigureDialog::initLayout()
+{
+    // mode group
+    QHBoxLayout *edit_layout = new QHBoxLayout;
+    edit_layout->addWidget(edit_uri_);
+    QGroupBox *edit_group = new QGroupBox("URI");
+    edit_group->setLayout(edit_layout);
+
     QGroupBox *option_group = new QGroupBox("Options");
     QHBoxLayout *repeat_layout = new QHBoxLayout;
+    repeat_layout->addWidget(repeat_label_);
     repeat_layout->addWidget(radio_repeat_context_);
     repeat_layout->addWidget(radio_repeat_track_);
     repeat_layout->addWidget(radio_repeat_off);
@@ -256,10 +232,49 @@ void SpotifyConfigureDialog::initLayout()
     finalize_layout->addWidget(btn_cancel_, 1);
 
     QVBoxLayout *root = new QVBoxLayout;
-    root->addWidget(mode_group);
+    root->addWidget(name_label_);
     root->addWidget(edit_group);
     root->addWidget(option_group);
     root->addLayout(finalize_layout, -1);
 
     setLayout(root);
+    setMinimumWidth(400);
+    setFixedSize(minimumSize());
+}
+
+void SpotifyTileConfigureDialog::dragEnterEvent(QDragEnterEvent *event)
+{
+    QString mime_text(event->mimeData()->text());
+    qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+    qDebug() << "  > " << mime_text;
+    if (event->source() != this && mime_text.contains("spotify")) {
+        event->setDropAction(Qt::CopyAction);
+        event->accept();
+        return;
+    }
+}
+
+void SpotifyTileConfigureDialog::dragMoveEvent(QDragMoveEvent *event)
+{
+    QString mime_text(event->mimeData()->text());
+    qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+    qDebug() << "  > " << mime_text;
+    if (event->source() != this && mime_text.contains("spotify")) {
+        event->setDropAction(Qt::CopyAction);
+        event->accept();
+        return;
+    }
+}
+
+void SpotifyTileConfigureDialog::dropEvent(QDropEvent *event)
+{
+    QString mime_text(event->mimeData()->text());
+    qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+    qDebug() << "  > " << mime_text;
+    if (event->source() != this && mime_text.contains("spotify")) {
+        event->setDropAction(Qt::CopyAction);
+        event->accept();
+        edit_uri_->setText(mime_text);
+        return;
+    }
 }
