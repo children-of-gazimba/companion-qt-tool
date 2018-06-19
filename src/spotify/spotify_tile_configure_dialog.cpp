@@ -6,6 +6,7 @@
 
 #include <QPushButton>
 
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 
@@ -15,6 +16,7 @@ SpotifyTileConfigureDialog::SpotifyTileConfigureDialog(QWidget *parent)
     : QDialog(parent)
     , edit_uri_(0)
     , name_label_(0)
+    , image_container_(0)
     , repeat_label_(0)
     , repeat_button_group_(0)
     , radio_repeat_off(0)
@@ -24,11 +26,10 @@ SpotifyTileConfigureDialog::SpotifyTileConfigureDialog(QWidget *parent)
     , btn_submit_(0)
     , btn_cancel_(0)
     , settings_()
+    , web_pixmap_()
 
 {
-    initWidgets();
-    initLayout();
-    setAcceptDrops(true);
+    init();
 }
 
 SpotifyTileConfigureDialog::SpotifyTileConfigureDialog(const SpotifyRemoteController::Settings &settings, QWidget *parent)
@@ -45,9 +46,7 @@ SpotifyTileConfigureDialog::SpotifyTileConfigureDialog(const SpotifyRemoteContro
     , btn_cancel_(0)
     , settings_(settings)
 {
-    initWidgets();
-    initLayout();
-    setAcceptDrops(true);
+    init();
 }
 
 const SpotifyRemoteController::Settings &SpotifyTileConfigureDialog::getSettings() const
@@ -133,6 +132,13 @@ void SpotifyTileConfigureDialog::onTextChanged(const QString &t)
     updatePlaybackInfo();
 }
 
+void SpotifyTileConfigureDialog::onWebImageChanged()
+{
+    qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+    qDebug() << "  > " << web_pixmap_.getUrl();
+    image_container_->setPixmap(web_pixmap_.getPixmap().scaled(128, 128, Qt::KeepAspectRatio));
+}
+
 void SpotifyTileConfigureDialog::updateUI()
 {
     if(settings_.playlist_uri.size() > 0)
@@ -159,13 +165,27 @@ void SpotifyTileConfigureDialog::updatePlaybackInfo()
     connect(reply, &QNetworkReply::finished,
             this, [=]() {
         QJsonDocument playback_info = QJsonDocument::fromJson(reply->readAll());
+        reply->deleteLater();
+        if(!playback_info.isObject() || !playback_info.object().contains("name"))
+            return;
         QString name(playback_info.object()["name"].toString());
         if(name.size() == 0)
             name_label_->setText("INVALID RESOURCE");
         else
             name_label_->setText(name);
-        reply->deleteLater();
+        QUrl url(getImageUrl(playback_info.object()));
+        if(!url.isEmpty())
+            web_pixmap_.setUrl(url);
     });
+}
+
+void SpotifyTileConfigureDialog::init()
+{
+    initWidgets();
+    initLayout();
+    setAcceptDrops(true);
+    connect(&web_pixmap_, &WebPixmap::contentChanged,
+            this, &SpotifyTileConfigureDialog::onWebImageChanged);
 }
 
 void SpotifyTileConfigureDialog::initWidgets()
@@ -174,6 +194,9 @@ void SpotifyTileConfigureDialog::initWidgets()
     QFont f(name_label_->font());
     f.setPointSize(f.pointSize()*3);
     name_label_->setFont(f);
+    name_label_->setWordWrap(true);
+
+    image_container_ = new QLabel(this);
 
     edit_uri_ = new QLineEdit(this);
     edit_uri_->setReadOnly(true);
@@ -208,6 +231,12 @@ void SpotifyTileConfigureDialog::initWidgets()
 
 void SpotifyTileConfigureDialog::initLayout()
 {
+    QHBoxLayout* header_layout = new QHBoxLayout;
+    header_layout->addWidget(image_container_, 1);
+    header_layout->addWidget(name_label_, 3);
+    header_layout->setAlignment(name_label_, Qt::AlignCenter);
+    header_layout->setContentsMargins(0,0,0,0);
+
     // mode group
     QHBoxLayout *edit_layout = new QHBoxLayout;
     edit_layout->addWidget(edit_uri_);
@@ -232,7 +261,7 @@ void SpotifyTileConfigureDialog::initLayout()
     finalize_layout->addWidget(btn_cancel_, 1);
 
     QVBoxLayout *root = new QVBoxLayout;
-    root->addWidget(name_label_);
+    root->addLayout(header_layout);
     root->addWidget(edit_group);
     root->addWidget(option_group);
     root->addLayout(finalize_layout, -1);
@@ -277,4 +306,22 @@ void SpotifyTileConfigureDialog::dropEvent(QDropEvent *event)
         edit_uri_->setText(mime_text);
         return;
     }
+}
+
+const QUrl SpotifyTileConfigureDialog::getImageUrl(const QJsonObject& info)
+{
+    QJsonArray img_array;
+    if(info.contains("images") && info["images"].isArray()) {
+        img_array = info["images"].toArray();
+    }
+    else if(info.contains("album") && info["album"].isObject()) {
+        QJsonObject album = info["album"].toObject();
+        if(album.contains("images") && album["images"].isArray())
+            img_array = album["images"].toArray();
+    }
+
+    if(img_array.size() == 0 || !img_array[0].toObject().contains("url"))
+        return QUrl();
+
+    return QUrl(img_array[0].toObject()["url"].toString());
 }

@@ -9,6 +9,7 @@
 #include "base_tile.h"
 #include "misc/json_mime_data_parser.h"
 #include "spotify/spotify_remote_controller.h"
+#include "resources/web_pixmap.h"
 
 namespace Tile {
 
@@ -90,6 +91,8 @@ protected slots:
     */
     void onAccessGrantedOnceStop();
 
+    void onWebImageChanged();
+
 protected:
     /*
      * BC overrides
@@ -122,9 +125,18 @@ protected:
     */
     void updatePlaybackInfo();
 
+    /**
+     * Attempt to update the image linked to the playback resource.
+    */
+    void updateRemotePixmap();
+
+    static const QUrl getImageUrl(const QJsonObject&);
+
     bool is_playing_;
     QJsonDocument playback_info_;
     SpotifyRemoteController::Settings settings_;
+    WebPixmap web_pixmap_;
+    QPixmap background_pixmap_;
 };
 
 } // namespace Tile

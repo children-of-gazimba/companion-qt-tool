@@ -67,7 +67,8 @@ SOURCES += main.cpp \
     spotify/spotify_remote_controller.cpp \
     tile/spotify_tile.cpp \
     spotify/spotify_control_panel.cpp \
-    spotify/spotify_tile_configure_dialog.cpp
+    spotify/spotify_tile_configure_dialog.cpp \
+    resources/web_pixmap.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -117,7 +118,8 @@ HEADERS  += main_window.h \
     spotify/spotify_remote_controller.h \
     tile/spotify_tile.h \
     spotify/spotify_control_panel.h \
-    spotify/spotify_tile_configure_dialog.h
+    spotify/spotify_tile_configure_dialog.h \
+    resources/web_pixmap.h
 
 RESOURCES += \
     _RES/resources.qrc

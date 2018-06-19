@@ -16,11 +16,15 @@ namespace Tile {
 SpotifyTile::SpotifyTile(QGraphicsItem *parent)
     : BaseTile(parent)
     , is_playing_(false)
+    , playback_info_()
+    , settings_()
+    , web_pixmap_()
+    , background_pixmap_()
 {
     setAcceptDrops(true);
-
-
     SpotifyHandler::instance()->addTile(this);
+    connect(&web_pixmap_, &WebPixmap::contentChanged,
+            this, &SpotifyTile::onWebImageChanged);
 }
 
 SpotifyTile::~SpotifyTile()
@@ -35,20 +39,31 @@ void SpotifyTile::paint(QPainter *painter, const QStyleOptionGraphicsItem* optio
 
     QRectF p_rect(getPaintRect());
     if(p_rect.width() > 0 && p_rect.height() > 0) {
+        if(background_pixmap_.isNull()) {
+            painter->drawPixmap(
+                (int) p_rect.x(),
+                (int) p_rect.y(),
+                (int) p_rect.width(),
+                (int) p_rect.height(),
+                *Resources::Lib::PX_SPUNGIFY
+            );
+        }
+        else {
+            painter->drawPixmap(
+                (int) p_rect.x(),
+                (int) p_rect.y(),
+                (int) p_rect.width(),
+                (int) p_rect.height(),
+                background_pixmap_
+            );
+        }
         painter->drawPixmap(
-                    (int) p_rect.x(),
-                    (int) p_rect.y(),
-                    (int) p_rect.width(),
-                    (int) p_rect.height(),
-                    *Resources::Lib::PX_SPUNGIFY
-                    );
-        painter->drawPixmap(
-                    (int) p_rect.x(),
-                    (int) p_rect.y(),
-                    (int) p_rect.width(),
-                    (int) p_rect.height(),
-                    getPlayStatePixmap()
-                    );
+            (int) p_rect.x(),
+            (int) p_rect.y(),
+            (int) p_rect.width(),
+            (int) p_rect.height(),
+            getPlayStatePixmap()
+        );
     }
 }
 
@@ -284,6 +299,14 @@ void SpotifyTile::onAccessGrantedOnceStop()
     stop();
 }
 
+void SpotifyTile::onWebImageChanged()
+{
+    qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+    qDebug() << "  > " << "SETTING IMAGE BIATCH";
+    prepareGeometryChange();
+    background_pixmap_ = web_pixmap_.getPixmap();
+}
+
 void SpotifyTile::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
 {
     if(mode_ != MOVE && e->button() == Qt::LeftButton) {
@@ -352,11 +375,42 @@ void SpotifyTile::updatePlaybackInfo()
     connect(reply, &QNetworkReply::finished,
             this, [=]() {
         playback_info_ = QJsonDocument::fromJson(reply->readAll());
-        // set name
+        reply->deleteLater();
+        if(!playback_info_.isObject())
+            return;
+        if(!playback_info_.object().contains("name"))
+            return;
         prepareGeometryChange();
         setName(playback_info_.object()["name"].toString());
-        reply->deleteLater();
+        updateRemotePixmap();
     });
+}
+
+void SpotifyTile::updateRemotePixmap()
+{
+    if(!playback_info_.isObject())
+        return;
+    QUrl url(getImageUrl(playback_info_.object()));
+    if(!url.isEmpty())
+        web_pixmap_.setUrl(url);
+}
+
+const QUrl SpotifyTile::getImageUrl(const QJsonObject& info)
+{
+    QJsonArray img_array;
+    if(info.contains("images") && info["images"].isArray()) {
+        img_array = info["images"].toArray();
+    }
+    else if(info.contains("album") && info["album"].isObject()) {
+        QJsonObject album = info["album"].toObject();
+        if(album.contains("images") && album["images"].isArray())
+            img_array = album["images"].toArray();
+    }
+
+    if(img_array.size() == 0 || !img_array[0].toObject().contains("url"))
+        return QUrl();
+
+    return QUrl(img_array[0].toObject()["url"].toString());
 }
 
 } // namespace Tile
