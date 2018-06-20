@@ -235,7 +235,6 @@ bool BaseTile::setFromJsonObject(const QJsonObject &obj)
         uuid_ = QUuid(obj["uuid"].toString());
     }
 
-
     return true;
 }
 
@@ -633,7 +632,10 @@ void BaseTile::onSaveAsPreset()
 
     QJsonDocument doc;
     QJsonObject obj;
-    obj["data"] = toJsonObject();
+    QJsonObject obj_data = toJsonObject();
+    if(obj_data.contains("uuid"))
+        obj_data.remove("uuid");
+    obj["data"] = obj_data;
     obj["type"] = metaObject()->className();
     doc.setObject(obj);
     preset_model_->addPresetRecord(name_, QString(doc.toJson()));

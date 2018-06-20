@@ -156,6 +156,12 @@ public:
     */
     const QStringList getLayoutNames() const;
 
+    /*
+     * @brief Creates an empty SpotifyTile
+     * @param p
+     */
+    void createEmptySpotifyTile(QPoint const& p);
+
 private:
     /**
      * Handle scene size when widget resizes.
@@ -174,6 +180,7 @@ signals:
 private slots:
     void onEmptyPlaylistTile();
     void onEmptyNestedTile();
+    void onEmptySpotifyTile();
 
 private:
     /**

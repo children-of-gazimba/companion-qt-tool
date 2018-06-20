@@ -308,7 +308,6 @@ protected:
     QUuid uuid_;
     bool is_activated_;
     DB::Model::PresetTableModel* preset_model_;
-
 };
 
 } // namespace Tile

@@ -12,6 +12,7 @@
 #include "db/core/api.h"
 #include "resources/lib.h"
 #include "misc/json_mime_data_parser.h"
+#include "spotify/spotify_handler.h"
 
 CompanionWidget::CompanionWidget(QWidget *parent)
     : QWidget(parent)
@@ -28,10 +29,11 @@ CompanionWidget::CompanionWidget(QWidget *parent)
     , left_v_splitter_(0)
     , left_box_(0)
     , right_box_(0)
-    , web_host_(0)
     , socket_host_(0)
     , image_browser_(0)
+    , spotify_authenticator_widget_(0)
     , left_tabwidget_(0)
+    , spotify_menu_(0)
     , db_handler_(0)
 {
     initDB();
@@ -43,8 +45,9 @@ CompanionWidget::CompanionWidget(QWidget *parent)
 
 CompanionWidget::~CompanionWidget()
 {
-    if(web_host_)
-        web_host_->deleteLater();
+    if(spotify_authenticator_widget_) {
+        spotify_authenticator_widget_->deleteLater();
+    }
     if(socket_host_)
         socket_host_->deleteLater();
 }
@@ -236,12 +239,18 @@ void CompanionWidget::onLoadLayout()
     }
 }
 
-void CompanionWidget::onStartWebServer()
+void CompanionWidget::onStartSpotifyControlWidget()
 {
-    if(web_host_ == 0)
-        web_host_ = new Web::Host;
-    web_host_->setPresetView(graphics_view_);
-    web_host_->show();
+    if(spotify_authenticator_widget_ == 0) {
+        spotify_authenticator_widget_ = new SpotifyControlPanel;
+    }
+    if(spotify_authenticator_widget_->isVisible()) {
+        spotify_authenticator_widget_->raise();
+        spotify_authenticator_widget_->activateWindow();
+    }
+    else {
+        spotify_authenticator_widget_->show();
+    }
 }
 
 void CompanionWidget::onStartSocketServer()
@@ -393,8 +402,20 @@ void CompanionWidget::initActions()
     actions_["Save View as Layout..."]->setToolTip(tr("Saves the current view as a layout within the current project."));
     //actions_["Load Layout..."]->setShortcut(QKeySequence(tr("Ctrl+O")));
 
-    actions_["Run Web Host..."] = new QAction(tr("Run Web Host..."), this);
-    actions_["Run Web Host..."]->setToolTip(tr("Opens a local web application to control current project."));
+    actions_["Connect to Spotify"] = new QAction(tr("Connect to Spotify"), this);
+    actions_["Connect to Spotify"]->setToolTip(tr("Requests connection to the Spotify music streaming service."));
+    actions_["Connect to Spotify"]->setCheckable(true);
+    actions_["Connect to Spotify"]->setChecked(false);
+    actions_["Spotify Control Panel..."] = new QAction(tr("Spotify Control Panel..."), this);
+    actions_["Spotify Control Panel..."]->setToolTip(tr("Shows the Spotify control panel."));
+    actions_["Spotify Control Panel..."]->setEnabled(false);
+    actions_["Spotify Control Panel..."]->setShortcut(QKeySequence(tr("Ctrl+Y")));
+    connect(&SpotifyHandler::instance()->remote, &SpotifyRemoteController::accessGranted,
+            this, [=]() {
+        actions_["Connect to Spotify"]->setChecked(true);
+        actions_["Connect to Spotify"]->setEnabled(false);
+        actions_["Spotify Control Panel..."]->setEnabled(true);
+    });
 
     actions_["Run Socket Host..."] = new QAction(tr("Run Socket Host..."), this);
     actions_["Run Socket Host..."]->setToolTip(tr("Opens a local socket application to control current project."));
@@ -413,15 +434,17 @@ void CompanionWidget::initActions()
             this, SLOT(onLoadLayout()));
     connect(actions_["Save View as Layout..."], SIGNAL(triggered()),
             this, SLOT(onSaveViewAsLayout()));
-    connect(actions_["Run Web Host..."], SIGNAL(triggered()),
-            this, SLOT(onStartWebServer()));
+    connect(actions_["Connect to Spotify"], SIGNAL(triggered()),
+            this, SLOT(onStartSpotifyControlWidget()));
+    connect(actions_["Spotify Control Panel..."], SIGNAL(triggered()),
+            this, SLOT(onStartSpotifyControlWidget()));
     connect(actions_["Run Socket Host..."], SIGNAL(triggered()),
             this, SLOT(onStartSocketServer()));
 }
 
 void CompanionWidget::initMenu()
 {
-    main_menu_ = new QMenu(tr("DsaMediaControlKit"));
+    main_menu_ = new QMenu(tr("Companion"));
 
     QMenu* file_menu = main_menu_->addMenu(tr("File"));
     file_menu->addAction(actions_["Open Project..."]);
@@ -435,7 +458,9 @@ void CompanionWidget::initMenu()
     file_menu->addSeparator();
     file_menu->addAction(actions_["Delete Database Contents..."]);
     QMenu* tool_menu = main_menu_->addMenu(tr("Tools"));
-    //tool_menu->addAction(actions_["Run Web Host..."]);
+    spotify_menu_ = tool_menu->addMenu(tr("Spotify"));
+    spotify_menu_->addAction(actions_["Connect to Spotify"]);
+    spotify_menu_->addAction(actions_["Spotify Control Panel..."]);
     tool_menu->addAction(actions_["Run Socket Host..."]);
 
     main_menu_->addMenu(file_menu);
