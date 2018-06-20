@@ -20,6 +20,11 @@ Playlist--SettingsWidget {
     color: white;
 }
 
+SpotifyControlPanel {
+    background-color: #373738;
+    color: white;
+}
+
 Image--View {
     background-color: #373738;
     color: white;

@@ -5,7 +5,7 @@
 
 class QMouseEvent;
 namespace DB {
-    class CategoryRecord;
+    struct CategoryRecord;
     namespace Model {
         class CategoryTreeModel;
     }

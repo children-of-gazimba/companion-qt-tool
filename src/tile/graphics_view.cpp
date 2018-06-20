@@ -1,11 +1,13 @@
 #include "graphics_view.h"
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QJsonArray>
 #include <QMimeData>
 
 #include "playlist_tile.h"
 #include "nested_tile.h"
+#include "spotify_tile.h"
 #include "misc/json_mime_data_parser.h"
 
 namespace Tile {
@@ -106,6 +108,7 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
 
     QString pl_class = PlaylistTile::staticMetaObject.className();
     QString nested_class = NestedTile::staticMetaObject.className();
+    QString spotify_class = SpotifyTile::staticMetaObject.className();
 
     // tiles
     QJsonArray arr_tiles = sc_obj["tiles"].toArray();
@@ -138,6 +141,22 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
             NestedTile* tile = new NestedTile(this);
             tile->setPresetModel(preset_model_);
             tile->setFlag(QGraphicsItem::ItemIsMovable, true);
+            tile->init();
+            if(tile->setFromJsonObject(t_obj["data"].toObject())) {
+                scene()->addItem(tile);
+            }
+            else {
+                qDebug() << "FAILURE: Could not set Tile data from JSON.";
+                qDebug() << " > data:" << t_obj["data"];
+                qDebug() << " > Aborting.";
+                delete tile;
+                return false;
+            }
+        }
+        else if(t_obj["type"].toString().compare(spotify_class) == 0) {
+            SpotifyTile* tile = new SpotifyTile;
+            tile->setFlag(QGraphicsItem::ItemIsMovable, true);
+            tile->setPresetModel(preset_model_);
             tile->init();
             if(tile->setFromJsonObject(t_obj["data"].toObject())) {
                 scene()->addItem(tile);
@@ -318,6 +337,22 @@ void GraphicsView::createEmptyNestedTile(const QPoint &p)
     tile->setSmallSize();
 }
 
+void GraphicsView::createEmptySpotifyTile(const QPoint &p)
+{
+    SpotifyTile* tile = new SpotifyTile;
+    tile->setFlag(QGraphicsItem::ItemIsMovable, true);
+    tile->setPresetModel(preset_model_);
+    tile->init();
+    tile->setPos(p);
+    tile->setSize(0);
+    tile->setName("Empty Spotify");
+
+    // add to scene
+    scene()->addItem(tile);
+    tile->setSmallSize();
+}
+
+
 void GraphicsView::resizeEvent(QResizeEvent *e)
 {
     QGraphicsView::resizeEvent(e);
@@ -367,11 +402,16 @@ void GraphicsView::onEmptyNestedTile()
     createEmptyNestedTile(click_pos_);
 }
 
+void GraphicsView::onEmptySpotifyTile()
+{
+    createEmptySpotifyTile(click_pos_);
+}
+
 void GraphicsView::dragEnterEvent(QDragEnterEvent *event)
 {
     //qDebug() << "GraphicView: drag Enter Event ";
     GraphicsView *source = qobject_cast<GraphicsView*>(event->source());
-    if (event->source() && source != this) {
+    if (/*event->source() &&*/ source != this) {
         event->setDropAction(Qt::CopyAction);
         event->accept();
     }
@@ -381,7 +421,7 @@ void GraphicsView::dragMoveEvent(QDragMoveEvent *event)
 {
     //qDebug() << "GraphicView: drag Enter Move";
     GraphicsView *source = qobject_cast<GraphicsView*>(event->source());
-    if (event->source() && source != this) {
+    if (/*event->source() &&*/ source != this) {
         event->setDropAction(Qt::CopyAction);
         event->accept();
     }
@@ -401,8 +441,8 @@ void GraphicsView::dropEvent(QDropEvent *event)
             {
                 BaseTile* t = qobject_cast<BaseTile*>(selected_object);
                 if(t){
-                    t->receiveExternalData(event->mimeData());
                     event->accept();
+                    t->receiveExternalData(event->mimeData());
                     return;
                 }
             }
@@ -414,6 +454,7 @@ void GraphicsView::dropEvent(QDropEvent *event)
 
     QString pl_class = PlaylistTile::staticMetaObject.className();
     QString nested_class = NestedTile::staticMetaObject.className();
+    QString spotify_class = SpotifyTile::staticMetaObject.className();
 
     // validate parsing
     if(records.size() == 0 || records[0]->index != DB::SOUND_FILE) {
@@ -439,7 +480,6 @@ void GraphicsView::dropEvent(QDropEvent *event)
             return;
         }
         else if(doc.object().contains("type") && doc.object()["type"].toString().compare(pl_class) == 0) {
-            qDebug() << "received";
             PlaylistTile* tile = new PlaylistTile;
             tile->setPresetModel(preset_model_);
             tile->setSoundFileModel(sound_model_);
@@ -457,6 +497,48 @@ void GraphicsView::dropEvent(QDropEvent *event)
             event->setDropAction(Qt::CopyAction);
             event->accept();
             emit dropAccepted();
+            return;
+        }
+        // TODO: beautify
+        else if(doc.object().contains("type") && doc.object()["type"].toString().compare(spotify_class) == 0) {
+            SpotifyTile* tile = new SpotifyTile;
+            tile->setFlag(QGraphicsItem::ItemIsMovable, true);
+            tile->setPresetModel(preset_model_);
+            tile->setFromJsonObject(doc.object()["data"].toObject());
+            tile->init();
+            tile->setPos(p);
+            tile->setSize(0);
+
+            // add to scene
+            scene()->addItem(tile);
+            tile->setSmallSize();
+
+            // except event
+            event->setDropAction(Qt::CopyAction);
+            event->accept();
+            emit dropAccepted();
+            return;
+        }
+        // TODO: beautify
+        else if(event->mimeData()->text().contains("spotify")) {
+            SpotifyTile* tile = new SpotifyTile;
+            tile->setFlag(QGraphicsItem::ItemIsMovable, true);
+            tile->setPresetModel(preset_model_);
+            tile->init();
+            tile->setPos(p);
+            tile->setSize(0);
+            tile->setName("Empty Spotify");
+
+            // add to scene
+            scene()->addItem(tile);
+            tile->setSmallSize();
+
+            // except event
+            event->setDropAction(Qt::CopyAction);
+            event->accept();
+            emit dropAccepted();
+
+            tile->receiveExternalData(event->mimeData());
             return;
         }
         else {
@@ -555,8 +637,13 @@ void GraphicsView::initContextMenu()
     connect(empty_nested, SIGNAL(triggered()),
             this, SLOT(onEmptyNestedTile()));
 
+    QAction* empty_spotify = new QAction(tr("Spotify Tile"));
+    connect(empty_spotify, SIGNAL(triggered()),
+            this, SLOT(onEmptySpotifyTile()));
+
     create_empty->addAction(empty_playlist);
     create_empty->addAction(empty_nested);
+    create_empty->addAction(empty_spotify);
 
     context_menu_->addMenu(create_empty);
 }

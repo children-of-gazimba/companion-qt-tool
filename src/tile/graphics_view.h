@@ -115,6 +115,12 @@ public:
     */
     void createEmptyNestedTile(QPoint const& p);
 
+    /**
+     * @brief Creates an empty NestedTile
+     * @param p
+     */
+    void createEmptySpotifyTile(QPoint const& p);
+
 private:
     /**
      * Handle scene size when widget resizes.
@@ -132,6 +138,7 @@ signals:
 private slots:
     void onEmptyPlaylistTile();
     void onEmptyNestedTile();
+    void onEmptySpotifyTile();
 
 private:
     /**
