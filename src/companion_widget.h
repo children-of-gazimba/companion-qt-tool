@@ -15,7 +15,6 @@
 #include <QSplitter>
 #include <QScrollArea>
 
-
 #include "misc/drop_group_box.h"
 #include "resources/importer.h"
 #include "sound_file/master_view.h"
@@ -25,6 +24,7 @@
 #include "image/browser.h"
 #include "preset/preset_view.h"
 #include "spotify/spotify_control_panel.h"
+#include "new_web/socket_host_widget.h"
 
 class CompanionWidget : public QWidget
 {
@@ -50,6 +50,7 @@ private slots:
     void onSaveProject();
     void onOpenProject();
     void onStartSpotifyControlWidget();
+    void onStartSocketServer();
 
 private:
     void setProjectPath(QString const& path);
@@ -82,6 +83,7 @@ private:
     QSplitter* left_v_splitter_;
     QGroupBox* left_box_;
     QGroupBox* right_box_;
+    SocketHostWidget* socket_host_;
     Image::Browser* image_browser_;
     SpotifyControlPanel *spotify_authenticator_widget_;
     QTabWidget* left_tabwidget_;

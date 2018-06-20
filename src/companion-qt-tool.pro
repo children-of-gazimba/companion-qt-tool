@@ -18,6 +18,7 @@ QT       += core \
             networkauth  #\
             #webenginewidgets
 
+include(../sockets/src/companion-qt-sockets.pri)
 
 SOURCES += main.cpp \
     main_window.cpp \
@@ -68,7 +69,10 @@ SOURCES += main.cpp \
     tile/spotify_tile.cpp \
     spotify/spotify_control_panel.cpp \
     spotify/spotify_tile_configure_dialog.cpp \
-    resources/web_pixmap.cpp
+    resources/web_pixmap.cpp \
+    new_web/socket_host_widget.cpp \
+    new_web/companion_server.cpp \
+    new_web/companion_udp_discovery.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -119,7 +123,10 @@ HEADERS  += main_window.h \
     tile/spotify_tile.h \
     spotify/spotify_control_panel.h \
     spotify/spotify_tile_configure_dialog.h \
-    resources/web_pixmap.h
+    resources/web_pixmap.h \
+    new_web/socket_host_widget.h \
+    new_web/companion_server.h \
+    new_web/companion_udp_discovery.h
 
 RESOURCES += \
     _RES/resources.qrc

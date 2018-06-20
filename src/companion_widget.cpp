@@ -46,6 +46,8 @@ CompanionWidget::~CompanionWidget()
     if(spotify_authenticator_widget_) {
         spotify_authenticator_widget_->deleteLater();
     }
+    if(socket_host_)
+        socket_host_->deleteLater();
 }
 
 QMenu *CompanionWidget::getMenu()
@@ -175,6 +177,13 @@ void CompanionWidget::onStartSpotifyControlWidget()
     else {
         spotify_authenticator_widget_->show();
     }
+}
+
+void CompanionWidget::onStartSocketServer()
+{
+    if(socket_host_ == 0)
+        socket_host_ = new SocketHostWidget(graphics_view_);
+    socket_host_->show();
 }
 
 void CompanionWidget::setProjectPath(const QString &path)
@@ -314,6 +323,9 @@ void CompanionWidget::initActions()
         actions_["Spotify Control Panel..."]->setEnabled(true);
     });
 
+    actions_["Run Socket Host..."] = new QAction(tr("Run Socket Host..."), this);
+    actions_["Run Socket Host..."]->setToolTip(tr("Opens a local socket application to control current project."));
+
     connect(actions_["Import Resource Folder..."] , SIGNAL(triggered(bool)),
             sound_file_importer_, SLOT(startBrowseFolder(bool)));
     connect(actions_["Delete Database Contents..."], SIGNAL(triggered()),
@@ -328,11 +340,13 @@ void CompanionWidget::initActions()
             this, SLOT(onStartSpotifyControlWidget()));
     connect(actions_["Spotify Control Panel..."], SIGNAL(triggered()),
             this, SLOT(onStartSpotifyControlWidget()));
+    connect(actions_["Run Socket Host..."], SIGNAL(triggered()),
+            this, SLOT(onStartSocketServer()));
 }
 
 void CompanionWidget::initMenu()
 {
-    main_menu_ = new QMenu(tr("DsaMediaControlKit"));
+    main_menu_ = new QMenu(tr("Companion"));
 
     QMenu* file_menu = main_menu_->addMenu(tr("File"));
     file_menu->addAction(actions_["Save Project"]);
@@ -346,6 +360,7 @@ void CompanionWidget::initMenu()
     spotify_menu_ = tool_menu->addMenu(tr("Spotify"));
     spotify_menu_->addAction(actions_["Connect to Spotify"]);
     spotify_menu_->addAction(actions_["Spotify Control Panel..."]);
+    tool_menu->addAction(actions_["Run Socket Host..."]);
 
     main_menu_->addMenu(file_menu);
     main_menu_->addMenu(tool_menu);
