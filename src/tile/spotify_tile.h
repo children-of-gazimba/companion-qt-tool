@@ -46,8 +46,8 @@ public:
     /**
      * @brief creates Tile from WebLink
      * @param link
-     */
     void fromWebLink(const QString &link);
+    */
 
     /**
      * @brief set Playing state
@@ -70,9 +70,6 @@ protected slots:
     /** slot to open configuration */
     virtual void onConfigure();
 
-    /** slot to open contents view */
-    virtual void onContents();
-
     /**
      * connects to accessGranted of SpotifyHandler remote.
      * Calls onConfigure(). Disconnects as soon as executed once.
@@ -90,6 +87,12 @@ protected slots:
      * Calls stop(). Disconnects as soon as executed once.
     */
     void onAccessGrantedOnceStop();
+
+    /**
+     * connects to accessGranted of SpotifyHandler remote.
+     * Calls updatePlaylistInfo(). Disconnects as soon as executed once.
+    */
+    void onAccessGrantedOnceUpdateInfo();
 
     void onWebImageChanged();
 

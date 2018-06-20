@@ -20,6 +20,7 @@ public:
     explicit SpotifyTileConfigureDialog(QWidget *parent = nullptr);
     explicit SpotifyTileConfigureDialog(const SpotifyRemoteController::Settings &settings,
                                     QWidget *parent = nullptr);
+    virtual ~SpotifyTileConfigureDialog();
 
     const SpotifyRemoteController::Settings &getSettings() const;
     void setSettings(const SpotifyRemoteController::Settings & settings);
@@ -48,7 +49,6 @@ private:
     static const QUrl getImageUrl(const QJsonObject& info);
 
     QLineEdit *edit_uri_;
-
     QLabel* name_label_;
     QLabel* image_container_;
     QLabel* repeat_label_;
@@ -56,12 +56,9 @@ private:
     QRadioButton *radio_repeat_off;
     QRadioButton *radio_repeat_track_;
     QRadioButton *radio_repeat_context_;
-
     QCheckBox *shuffle_checkbox_;
-
     QPushButton *btn_submit_;
     QPushButton *btn_cancel_;
-
     SpotifyRemoteController::Settings settings_;
     WebPixmap web_pixmap_;
 };

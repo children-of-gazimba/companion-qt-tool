@@ -12,14 +12,15 @@
 
 SpotifyAuthenticator::SpotifyAuthenticator(QObject *parent)
     : QObject(parent)
+    , client_id_()
+    , client_secret_()
     , spotify_()
     , token_()
     , initialized_(false)
-{
-    // creates a handler on 'http://localhost:8080/cb'
-    // NOTE: The path “/cb” is mandatory in the current QOAuthHttpServerReplyHandler implementation.
-    // from: http://blog.qt.io/blog/2017/01/25/connecting-qt-application-google-services-using-oauth-2-0/
-}
+{}
+
+SpotifyAuthenticator::~SpotifyAuthenticator()
+{}
 
 void SpotifyAuthenticator::loadCredentials()
 {
@@ -42,7 +43,9 @@ void SpotifyAuthenticator::loadCredentials()
     QJsonParseError *error = new QJsonParseError;
     QJsonDocument document = QJsonDocument::fromJson(value.toUtf8(), error);
 
-    qDebug() << "Parsing Spotify credentials from:" << "'" << filepath << "'" << error->errorString();
+    qDebug() << "    > "  << "Parsing Spotify credentials";
+    qDebug() << "      > from" << filepath;
+    qDebug() << "      > status" << error->errorString();
 
     QJsonObject obj = document.object();
     client_id_ = obj["client_id"].toString();

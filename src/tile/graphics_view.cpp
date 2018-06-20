@@ -1,5 +1,6 @@
 #include "graphics_view.h"
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QJsonArray>
 #include <QMimeData>
@@ -426,8 +427,8 @@ void GraphicsView::dropEvent(QDropEvent *event)
             {
                 BaseTile* t = qobject_cast<BaseTile*>(selected_object);
                 if(t){
-                    t->receiveExternalData(event->mimeData());
                     event->accept();
+                    t->receiveExternalData(event->mimeData());
                     return;
                 }
             }

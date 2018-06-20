@@ -3,116 +3,112 @@
 
 #include <QObject>
 #include <QQueue>
-
 #include <QJsonDocument>
 
 #include "oauth2_request_handler.h"
 
 class SpotifyRemoteController : public QObject
 {
-        Q_OBJECT
-    public:
-        enum RepeatMode {Track, Context, Off};
+    Q_OBJECT
+public:
+    enum RepeatMode {RM_Track, RM_Context, RM_Off};
+    enum ResourceCategory {RC_Playlist, RC_Track};
 
-        struct Settings
+    struct Settings
+    {
+        Settings()
+            : mode(RC_Playlist)
+            , track_uri()
+            , playlist_uri()
+            , repeat_mode(RM_Context)
+            , shuffle_enabled(false)
+        {}
+
+        ResourceCategory mode;
+        QString track_uri;
+        QString playlist_uri;
+        RepeatMode repeat_mode;
+        bool shuffle_enabled;
+
+        void setFromWebLink(const QString& link)
         {
-            enum Category {Playlist, Track};
+            QStringList link_components = link.split("/");
 
-            Settings()
-                : mode(Playlist)
-                , track_uri()
-                , playlist_uri()
-                , repeat_mode(Context)
-                , shuffle_enabled(false)
-            {}
+            if(link_components[3] == "track") {
+                QString id = link_components.last().split("?")[0];
+                QString uri = QString("spotify:track:%1").arg(id);
 
-            Category mode;
-            QString track_uri;
-            QString playlist_uri;
-            RepeatMode repeat_mode;
-            bool shuffle_enabled;
+                mode = RC_Track;
+                playlist_uri = "";
+                track_uri = uri;
+            } else {
+                QString user_name = link_components[4];
+                QString id = link_components.last().split("?")[0];
+                QString uri = QString("spotify:user:%1:playlist:%2").arg(user_name).arg(id);
 
-            void setFromWebLink(const QString& link)
-            {
-                QStringList link_components = link.split("/");
-
-                if(link_components[3] == "track") {
-                    QString id = link_components.last().split("?")[0];
-                    QString uri = QString("spotify:track:%1").arg(id);
-
-                    mode = Track;
-                    playlist_uri = "";
-                    track_uri = uri;
-                } else {
-                    QString user_name = link_components[4];
-                    QString id = link_components.last().split("?")[0];
-                    QString uri = QString("spotify:user:%1:playlist:%2").arg(user_name).arg(id);
-
-                    mode = Playlist;
-                    playlist_uri = uri;
-                    track_uri = "";
-                }
+                mode = RC_Playlist;
+                playlist_uri = uri;
+                track_uri = "";
             }
+        }
 
-            void setFromURI(const QString& uri) {
-                if(uri.contains(":track:")) {
-                    mode = Track;
-                    playlist_uri = "";
-                    track_uri = uri;
-                }
-                else if(uri.contains(":playlist:")) {
-                    mode = Playlist;
-                    playlist_uri = uri;
-                    track_uri = "";
-                }
-                else {
-                    playlist_uri = "";
-                    track_uri = "";
-                }
+        void setFromURI(const QString& uri) {
+            if(uri.contains(":track:")) {
+                mode = RC_Track;
+                playlist_uri = "";
+                track_uri = uri;
             }
-        };
+            else if(uri.contains(":playlist:")) {
+                mode = RC_Playlist;
+                playlist_uri = uri;
+                track_uri = "";
+            }
+            else {
+                playlist_uri = "";
+                track_uri = "";
+            }
+        }
+    };
 
+    explicit SpotifyRemoteController(QObject *parent = nullptr);
+    virtual ~SpotifyRemoteController();
 
-        explicit SpotifyRemoteController(QObject *parent = nullptr);
+    void grantAccess();
 
-        void grantAccess();
+    QNetworkReply *play();
+    QNetworkReply *playUserPlaylist(const QString &user, const QString &playlist_id);
+    QNetworkReply *playUserPlaylist(const QString &spotify_uri);
+    QNetworkReply *playTrack(const QString &spotify_uri);
 
-        void play();
-        void playUserPlaylist(const QString &user, const QString &playlist_id);
-        void playUserPlaylist(const QString &spotify_uri);
-        void playTrack(const QString &spotify_uri);
+    QNetworkReply *pause();
+    QNetworkReply *next();
+    QNetworkReply *prev();
+    QNetworkReply *setRepeat(RepeatMode mode);
+    QNetworkReply *setShuffle(bool enable);
+    QNetworkReply *setVolume(int value);
 
-        void pause();
-        void next();
-        void prev();
-        void setRepeat(RepeatMode mode);
-        void setShuffle(bool enable);
-        void setVolume(int value);
+    QNetworkReply *getPlaylistInfo(const QString &user, const QString &playlist_id);
+    QNetworkReply *getPlaylistInfo(const QString &spotify_uri);
 
-        QNetworkReply *getPlaylistInfo(const QString &user, const QString &playlist_id);
-        QNetworkReply *getPlaylistInfo(const QString &spotify_uri);
+    QNetworkReply *getPlaylistTracks(const QString &user, const QString &playlist_id);
+    QNetworkReply *getPlaylistTracks(const QString &spotify_uri);
 
-        QNetworkReply *getPlaylistTracks(const QString &user, const QString &playlist_id);
-        QNetworkReply *getPlaylistTracks(const QString &spotify_uri);
+    QNetworkReply *getTrackInfo(const QString &track_id);
 
-        QNetworkReply *getTrackInfo(const QString &track_id);
+    bool isAccessGranted() const;
 
-        bool isAccessGranted() const;
+signals:
+    void accessGranted();
+    void authorizeWithBrowser(const QUrl &url);
 
-    signals:
-        void accessGranted();
-        void authorizeWithBrowser(const QUrl &url);
-//        void serverResponse(SpotifyResponse);
+public slots:
+    void onAccessGranted();
+    void onTokenChanged(const QString &token);
 
-    public slots:
-        void onAccessGranted();
-        void onTokenChanged(const QString &token);
-        void onResponse(QNetworkReply *reply);
-
-    private:
-        OAuth2RequestHandler *request_handler_;
-        SpotifyAuthenticator *authenticator_;
-        bool access_granted_;
+private:
+    OAuth2RequestHandler *request_handler_;
+    SpotifyAuthenticator *authenticator_;
+    bool access_granted_;
 };
 
 

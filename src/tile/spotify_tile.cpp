@@ -125,11 +125,18 @@ bool SpotifyTile::setFromJsonObject(const QJsonObject &obj)
 
     if(obj.contains("settings") && obj["settings"].isObject()) {
         QJsonObject settings(obj["settings"].toObject());
-        settings_.mode = (SpotifyRemoteController::Settings::Category) settings["mode"].toInt();
+        settings_.mode = (SpotifyRemoteController::ResourceCategory) settings["mode"].toInt();
         settings_.playlist_uri = settings["playlist_uri"].toString();
         settings_.track_uri = settings["track_uri"].toString();
         settings_.repeat_mode = (SpotifyRemoteController::RepeatMode) settings["repeat_mode"].toInt();
         settings_.shuffle_enabled = settings["shuffle_enabled"].toBool();
+        if(ensureAccessGranted()) {
+            updatePlaybackInfo();
+        }
+        else {
+            connect(&SpotifyHandler::instance()->remote, &SpotifyRemoteController::accessGranted,
+                    this, &SpotifyTile::onAccessGrantedOnceUpdateInfo);
+        }
     }
 
     return true;
@@ -140,7 +147,7 @@ const SpotifyRemoteController::Settings &SpotifyTile::getSettings() const
     return settings_;
 }
 
-void SpotifyTile::fromWebLink(const QString &link)
+/*void SpotifyTile::fromWebLink(const QString &link)
 {
     QStringList link_components = link.split("/");
 
@@ -164,7 +171,15 @@ void SpotifyTile::fromWebLink(const QString &link)
         settings_.shuffle_enabled = false;
         settings_.repeat_mode = SpotifyRemoteController::Off;
     }
-}
+
+    if(ensureAccessGranted()) {
+        updatePlaybackInfo();
+    }
+    else {
+        connect(&SpotifyHandler::instance()->remote, &SpotifyRemoteController::accessGranted,
+                this, &SpotifyTile::onAccessGrantedOnceUpdateInfo);
+    }
+}*/
 
 void SpotifyTile::setPlaying(bool playing)
 {
@@ -268,13 +283,6 @@ void SpotifyTile::onConfigure()
     updatePlaybackInfo();
 }
 
-void SpotifyTile::onContents()
-{
-    QMessageBox b;
-    b.setText("Configure show contents here");
-    b.exec();
-}
-
 void SpotifyTile::onAccessGrantedOnceConfigure()
 {
     disconnect(&SpotifyHandler::instance()->remote, &SpotifyRemoteController::accessGranted,
@@ -299,10 +307,16 @@ void SpotifyTile::onAccessGrantedOnceStop()
     stop();
 }
 
+void SpotifyTile::onAccessGrantedOnceUpdateInfo()
+{
+    disconnect(&SpotifyHandler::instance()->remote, &SpotifyRemoteController::accessGranted,
+               this, &SpotifyTile::onAccessGrantedOnceUpdateInfo);
+    emit acceptAllNotifcations();
+    updatePlaybackInfo();
+}
+
 void SpotifyTile::onWebImageChanged()
 {
-    qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
-    qDebug() << "  > " << "SETTING IMAGE BIATCH";
     prepareGeometryChange();
     background_pixmap_ = web_pixmap_.getPixmap();
 }
@@ -327,13 +341,7 @@ void SpotifyTile::createContextMenu()
     connect(configure_action, SIGNAL(triggered()),
             this, SLOT(onConfigure()));
 
-    QAction* contents_action = new QAction(tr("Contents..."),this);
-
-    connect(contents_action, SIGNAL(triggered()),
-            this, SLOT(onContents()));
-
     context_menu_->addAction(configure_action);
-    context_menu_->addAction(contents_action);
     context_menu_->addSeparator();
 
     BaseTile::createContextMenu();
@@ -364,10 +372,10 @@ bool SpotifyTile::ensureAccessGranted()
 void SpotifyTile::updatePlaybackInfo()
 {
     QNetworkReply *reply = nullptr;
-    if(settings_.mode == SpotifyRemoteController::Settings::Playlist) {
+    if(settings_.mode == SpotifyRemoteController::RC_Playlist) {
         reply = SpotifyHandler::instance()->playlistInfo(settings_.playlist_uri);
     }
-    else if(settings_.mode == SpotifyRemoteController::Settings::Track) {
+    else if(settings_.mode == SpotifyRemoteController::RC_Track) {
         QStringList track_uri_components = settings_.track_uri.split(":");
         reply = SpotifyHandler::instance()->trackInfo(track_uri_components.last());
     }
