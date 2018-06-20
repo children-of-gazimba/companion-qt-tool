@@ -34,13 +34,15 @@ public:
     ~GraphicsView();
 
     /**
-     * Parses all tiles in scene to JSON object.
+     * Serializes this graphics view and all layouts defined for it.
+     * If exclude layouts is set true, only the current view will be serialized.
     */
-    const QJsonObject toJsonObject() const;
+    const QJsonObject toJsonObject(bool exclude_layouts = false) const;
 
     /**
      * Creates all tiles in scene from JSON object.
      * Deletes existing scene.
+     * Clears all layouts and adds all read from JSON.
      * Returns success of parsing.
     */
     bool setFromJsonObject(const QJsonObject& obj);
@@ -116,7 +118,46 @@ public:
     void createEmptyNestedTile(QPoint const& p);
 
     /**
-     * @brief Creates an empty NestedTile
+     * returns true if this instance manages a layout with given name.
+    */
+    bool hasLayout(const QString& name) const;
+
+    /**
+     * Saves the current view as a layout with given name.
+    */
+    void storeAsLayout(QString const& name);
+
+    /**
+     * Saves given JsonObject as a layout.
+     * Function will NOT check if object is well-formed
+     * with respect to layout json formatting.
+    */
+    void storeAsLayout(QString const& name, const QJsonObject& layout);
+
+    /**
+     * Loads the layout specified by given name.
+     * Returns false if no layout exists with given name,
+     * or layout couldn't be parsed.
+    */
+    bool loadLayout(QString const& name);
+
+    /*
+     * Removes given layout from the map of layouts managed by this instance.
+    */
+    void removeLayout(QString const& name);
+
+    /**
+     * Removes all layouts managed by this instance.
+    */
+    void clearLayouts();
+
+    /**
+     * Returns the names for all layouts defined on this instance.
+    */
+    const QStringList getLayoutNames() const;
+
+    /*
+     * @brief Creates an empty SpotifyTile
      * @param p
      */
     void createEmptySpotifyTile(QPoint const& p);
@@ -134,6 +175,7 @@ private:
 
 signals:
     void dropAccepted();
+    void layoutAdded(const QString& name);
 
 private slots:
     void onEmptyPlaylistTile();
@@ -141,6 +183,14 @@ private slots:
     void onEmptySpotifyTile();
 
 private:
+    /**
+     * Helper function for loadLayout to ensure
+     * That contents and settings of tile are
+     * loaded for respective UUID.
+     * -> mobile app uses simpler tile description.
+    */
+    const QJsonObject sanitizeLayout(const QJsonObject&) const;
+
     /**
      * accept drags.
     */
@@ -177,6 +227,7 @@ private:
     QStack<QGraphicsScene*> scene_stack_;
     QMenu* context_menu_;
     QPoint click_pos_;
+    QMap<QString, QJsonObject> layouts_;
 };
 
 } // namespace Tile

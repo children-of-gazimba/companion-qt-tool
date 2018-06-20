@@ -17,6 +17,7 @@
 
 #define OFFSET 10
 #define TEXT_HEIGHT 25
+#define TEXT_POINT_SIZE 9
 
 namespace Tile {
 
@@ -94,8 +95,16 @@ void BaseTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
     }
 
     // draw name
+    QFont old_font = painter->font();
+    QFont font = old_font;
+    /* twice the size than the current font size */
+    if(font.pointSize() != TEXT_POINT_SIZE)
+        font.setPointSize(TEXT_POINT_SIZE);
+    /* set the modified font to the painter */
+    painter->setFont(font);
     painter->setPen(QColor(Qt::white));
     painter->drawText(getTextRect(), Qt::TextWrapAnywhere | Qt::AlignCenter, name_);
+    painter->setFont(old_font);
 }
 
 void BaseTile::setActivateKey(const QChar &c)
@@ -225,7 +234,6 @@ bool BaseTile::setFromJsonObject(const QJsonObject &obj)
     if(obj.contains("uuid") && obj["uuid"].isString()) {
         uuid_ = QUuid(obj["uuid"].toString());
     }
-
 
     return true;
 }
@@ -624,7 +632,10 @@ void BaseTile::onSaveAsPreset()
 
     QJsonDocument doc;
     QJsonObject obj;
-    obj["data"] = toJsonObject();
+    QJsonObject obj_data = toJsonObject();
+    if(obj_data.contains("uuid"))
+        obj_data.remove("uuid");
+    obj["data"] = obj_data;
     obj["type"] = metaObject()->className();
     doc.setObject(obj);
     preset_model_->addPresetRecord(name_, QString(doc.toJson()));

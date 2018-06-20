@@ -15,6 +15,9 @@ CompanionUdpDiscovery::CompanionUdpDiscovery(unsigned discovery_port, QString di
     , discovery_name_(discovery_name)
 {}
 
+CompanionUdpDiscovery::~CompanionUdpDiscovery()
+{}
+
 void CompanionUdpDiscovery::setDiscoveryPort(unsigned p)
 {
     discovery_port_ = p;
@@ -41,6 +44,5 @@ void CompanionUdpDiscovery::broadcast()
     o["port"] = QString::number(discovery_port_);
     o["name"] = discovery_name_;
     NetworkMessage msg("I serve Companion", o);
-    qDebug() << msg.toByteArray();
     socket_->writeDatagram(msg.toByteArray(), QHostAddress::Broadcast, port_);
 }
