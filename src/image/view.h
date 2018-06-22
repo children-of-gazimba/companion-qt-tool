@@ -8,7 +8,6 @@
 #include <QMenu>
 
 class ImageItem;
-class InteractiveImageItem;
 
 namespace Image {
 
@@ -21,10 +20,13 @@ public:
 
     void setItem(ImageItem*);
 
+    QGraphicsItem *getItem() const;
+
     QMenu* getMenuBarExtension();
 
 signals:
     void itemSet();
+    void interactiveEnabled(bool enabled = true);
 
 public slots:
     void clear();

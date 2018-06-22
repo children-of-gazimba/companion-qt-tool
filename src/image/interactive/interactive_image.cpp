@@ -7,7 +7,6 @@
 #include <QMenu>
 #include <QGraphicsScene>
 
-
 InteractiveImage::InteractiveImage(const QSize &size, QGraphicsItem* parent)
     : QGraphicsObject(parent)
     , result_image_(0)
@@ -101,6 +100,11 @@ QMenu *InteractiveImage::getMenuBarExtension()
     fog_menu->addAction(actions_["uncover"]);
     menu_bar_extension_->addMenu(fog_menu);
     return menu_bar_extension_;
+}
+
+const QList<InteractiveImageToken *> InteractiveImage::getTokens() const
+{
+   return token_paths_.keys();
 }
 
 void InteractiveImage::linkToken(InteractiveImageToken *it)

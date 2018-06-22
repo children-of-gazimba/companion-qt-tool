@@ -32,6 +32,11 @@ void View::setItem(ImageItem* it)
     setItem((QGraphicsItem*) it);
 }
 
+QGraphicsItem *View::getItem() const
+{
+    return item_;
+}
+
 QMenu *View::getMenuBarExtension()
 {
     auto it = qgraphicsitem_cast<InteractiveImage*>(item_);

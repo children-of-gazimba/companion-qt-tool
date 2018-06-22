@@ -21,7 +21,6 @@ List::List(QWidget *parent)
     , model_(0)
     , file_view_(0)
     , presentation_view_(0)
-    , master_view_(0)
     , open_button_(0)
     , line_edit_(0)
 {
@@ -33,8 +32,6 @@ List::~List()
 {
     if(presentation_view_)
         presentation_view_->deleteLater();
-    if(master_view_)
-        master_view_->deleteLater();
 }
 
 void List::openDirectory(const QString& dir_name)
@@ -55,6 +52,11 @@ void List::openDirectory(const QString& dir_name)
         ++i;
     }
     line_edit_->setText(dir_name);
+}
+
+View *List::getView() const
+{
+    return presentation_view_->getView();
 }
 
 void List::onOpen()
@@ -86,13 +88,6 @@ void List::onImageSelected(int row)
     else
         presentation_view_->show();
     presentation_view_->activateWindow();
-
-    master_view_->getView()->setItem(new ImageItem(path));
-    if(master_view_->isHidden())
-        master_view_->showNormal();
-    else
-        master_view_->show();
-    master_view_->activateWindow();
 }
 
 void List::initWidgets()
@@ -112,11 +107,6 @@ void List::initWidgets()
     presentation_view_->setWindowFlags(Qt::Window);
     presentation_view_->setWindowTitle(tr("Companion Stage"));
     presentation_view_->hide();
-
-    master_view_ = new ImageDisplayWidget;
-    master_view_->setWindowFlags(Qt::Window);
-    master_view_->setWindowTitle(tr("Master Stage Monitor"));
-    master_view_->hide();
 
     open_button_ = new QPushButton(tr("browse"), this);
     connect(open_button_, SIGNAL(clicked()),

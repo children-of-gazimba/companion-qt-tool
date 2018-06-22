@@ -20,6 +20,8 @@ public:
     void setImageDirTableModel(DB::Model::ImageDirTableModel*);
     DB::Model::ImageDirTableModel* getImageDirTableModel();
 
+    View *getView() const;
+
 signals:
 
 public slots:

@@ -30,6 +30,11 @@ DB::Model::ImageDirTableModel *Browser::getImageDirTableModel()
     return model_;
 }
 
+View *Browser::getView() const
+{
+    return list_view_->getView();
+}
+
 void Browser::onNewDirectory(const QString & name)
 {
     if(model_ != 0) {

@@ -19,6 +19,7 @@ QT       += core \
             #webenginewidgets
 
 include(../sockets/src/companion-qt-sockets.pri)
+include(../qtuio/src/companion-qtuio.pri)
 
 SOURCES += main.cpp \
     main_window.cpp \
@@ -76,7 +77,10 @@ SOURCES += main.cpp \
     image/image_item.cpp \
     image/interactive/interactive_image.cpp \
     image/interactive/interactive_image_token.cpp \
-    image/image_display_widget.cpp
+    image/image_display_widget.cpp \
+    tuio/tuio_handler.cpp \
+    tuio/tuio_control_panel.cpp \
+    tuio/tuio_graphics_view.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -134,7 +138,10 @@ HEADERS  += main_window.h \
     image/image_item.h \
     image/interactive/interactive_image.h \
     image/interactive/interactive_image_token.h \
-    image/image_display_widget.h
+    image/image_display_widget.h \
+    tuio/tuio_handler.h \
+    tuio/tuio_control_panel.h \
+    tuio/tuio_graphics_view.h
 
 RESOURCES += \
     _RES/resources.qrc

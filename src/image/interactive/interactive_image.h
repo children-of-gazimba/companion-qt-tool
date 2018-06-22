@@ -50,6 +50,12 @@ public:
     */
     QMenu* getMenuBarExtension();
 
+    /**
+     * @brief getTokens
+     * @return
+     */
+    const QList<InteractiveImageToken*> getTokens() const;
+
 signals:
 
 public slots:
