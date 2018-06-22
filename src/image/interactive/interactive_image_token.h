@@ -67,6 +67,11 @@ public:
     */
     const QPointF centerPos() const;
 
+    /**
+     * Sets the position of this item and emits the hasMoved signal
+    */
+    void setUncoverPos(const QPointF& pos);
+
 signals:
     void hasMoved();
 

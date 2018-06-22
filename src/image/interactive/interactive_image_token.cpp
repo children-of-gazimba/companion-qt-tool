@@ -99,6 +99,12 @@ const QPointF InteractiveImageToken::centerPos() const
     return mapToScene(boundingRect().center());
 }
 
+void InteractiveImageToken::setUncoverPos(const QPointF &pos)
+{
+    setPos(pos);
+    emit hasMoved();
+}
+
 void InteractiveImageToken::setState(InteractiveImageToken::State state)
 {
     if(state != state_) {

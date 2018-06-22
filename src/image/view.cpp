@@ -80,6 +80,7 @@ void View::onMakeInteractive()
     if(it) {
         QString path = it->getPath();
         setItem(new InteractiveImage(path, it->boundingRect().size().toSize()));
+        emit interactiveEnabled(true);
     }
 }
 

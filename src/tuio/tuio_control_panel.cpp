@@ -202,7 +202,12 @@ void TuioControlPanel::updateInteractiveImageTokens(const QMap<int, QTuioToken> 
     if(iit.size() == 0)
         return;
 
-    iit[0]->setX(image_view_->scene()->width() * (1 - token.x()));
-    iit[0]->setY(image_view_->scene()->height() * (1 - token.y()));
+    QPointF new_pos;
+    new_pos.setX(image_view_->scene()->width() * (1 - token.x()));
+    new_pos.setY(image_view_->scene()->height() * (1 - token.y()));
+    iit[0]->setUncoverPos(new_pos);
 
+    qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+    qDebug() << "  > " << "token set";
+    qDebug() << "  > " << iit[0]->pos();
 }
