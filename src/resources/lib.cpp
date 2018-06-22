@@ -45,6 +45,8 @@ void Lib::init()
         PX_SOUND_FILE_DRAG = new QPixmap(IMG_SOUND_FILE_DRAG_PATH);
     if(PX_FOLDER == 0)
         PX_FOLDER = new QPixmap(IMG_FOLDER_PATH);
+    if(PX_SPUNGIFY == 0)
+        PX_SPUNGIFY = new QPixmap(IMG_SPUNGIFY_PATH);
     if(PX_0_KEY == 0)
         PX_0_KEY = new QPixmap(IMG_KEY_0_PATH);
     if(PX_1_KEY == 0)
@@ -137,6 +139,8 @@ void Lib::cleanup()
         delete PX_SOUND_FILE_DRAG;
     if(PX_FOLDER != 0)
         delete PX_FOLDER;
+    if(PX_SPUNGIFY != 0)
+        delete PX_SPUNGIFY;
     if(PX_0_KEY != 0)
         delete PX_0_KEY;
     if(PX_1_KEY != 0)
@@ -218,6 +222,7 @@ void Lib::cleanup()
     PX_STOP = 0;
     PX_SOUND_FILE_DRAG = 0;
     PX_FOLDER = 0;
+    PX_SPUNGIFY = 0;
     PX_0_KEY = 0;
     PX_1_KEY = 0;
     PX_2_KEY = 0;
@@ -370,6 +375,7 @@ QString Lib::IMG_STOP_PATH = ":/images/icon_stop.png";
 QString Lib::IMG_CRACKED_STONE_PATH = ":/images/cracked_stone.jpg";
 QString Lib::IMG_CRACKED_STONE_INV_PATH = ":/images/cracked_stone_inv.jpg";
 QString Lib::IMG_FOLDER_PATH = ":/images/folder.png";
+QString Lib::IMG_SPUNGIFY_PATH = ":/images/spungify.png";
 
 // keys
 QString Lib::IMG_KEY_0_PATH = ":/keys/0_key.png";
@@ -417,6 +423,7 @@ QPixmap* Lib::PX_PAUSE = 0;
 QPixmap* Lib::PX_STOP = 0;
 QPixmap* Lib::PX_SOUND_FILE_DRAG = 0;
 QPixmap* Lib::PX_FOLDER = 0;
+QPixmap* Lib::PX_SPUNGIFY = 0;
 QPixmap* Lib::PX_0_KEY = 0;
 QPixmap* Lib::PX_1_KEY = 0;
 QPixmap* Lib::PX_2_KEY = 0;

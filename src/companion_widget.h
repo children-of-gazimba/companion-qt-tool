@@ -15,16 +15,15 @@
 #include <QSplitter>
 #include <QScrollArea>
 
-
 #include "misc/drop_group_box.h"
 #include "resources/importer.h"
 #include "sound_file/master_view.h"
 #include "db/handler.h"
 #include "category/tree_view.h"
 #include "tile/graphics_view.h"
-#include "web/host.h"
 #include "image/browser.h"
 #include "preset/preset_view.h"
+#include "spotify/spotify_control_panel.h"
 #include "new_web/socket_host_widget.h"
 
 class CompanionWidget : public QWidget
@@ -50,8 +49,11 @@ private slots:
     void onSaveProjectAs();
     void onSaveProject();
     void onOpenProject();
-    void onStartWebServer();
+    void onSaveViewAsLayout();
+    void onLoadLayout();
+    void onStartSpotifyControlWidget();
     void onStartSocketServer();
+    void onLayoutAdded(const QString& name);
 
 private:
     void setProjectPath(QString const& path);
@@ -84,10 +86,11 @@ private:
     QSplitter* left_v_splitter_;
     QGroupBox* left_box_;
     QGroupBox* right_box_;
-    Web::Host* web_host_;
     SocketHostWidget* socket_host_;
     Image::Browser* image_browser_;
+    SpotifyControlPanel *spotify_authenticator_widget_;
     QTabWidget* left_tabwidget_;
+    QMenu* spotify_menu_;
 
     // DB handler
     DB::Handler* db_handler_;
