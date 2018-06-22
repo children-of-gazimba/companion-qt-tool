@@ -29,7 +29,7 @@ TuioControlPanel::TuioControlPanel(QWidget *parent)
     setWindowTitle("Tuio Control Panel");
     setWindowFlags(Qt::Tool | Qt::WindowStaysOnBottomHint);
 
-    tuio_handler_ = new TuioHandler(this);
+    tuio_handler_ = new TuioHandler(QHostAddress::Any, 3333, this);
 
     initWidgets();
     initLayout();
@@ -166,7 +166,7 @@ void TuioControlPanel::initWidgets()
     view_->setRenderHints(QPainter::Antialiasing);
 
     host_name_ = new QLineEdit(this);
-    host_name_->setPlaceholderText("192.0.0.1:3333");
+    host_name_->setPlaceholderText("255.255.255.255:3333");
 
     host_submit_ = new QPushButton(tr("Submit"), this);
     connect(host_submit_, &QPushButton::clicked,
