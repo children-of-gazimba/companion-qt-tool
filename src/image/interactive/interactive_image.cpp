@@ -106,7 +106,7 @@ QMenu *InteractiveImage::getMenuBarExtension()
 void InteractiveImage::linkToken(InteractiveImageToken *it)
 {
     token_paths_[it] = QPainterPath(it->centerPos());
-    connect(it, InteractiveImageToken::hasMoved,
+    connect(it, &InteractiveImageToken::hasMoved,
             this, [=](){onHasMoved(it->getUuid());});
 }
 

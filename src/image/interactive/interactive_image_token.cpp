@@ -3,6 +3,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
 #include <QDebug>
+#include <cmath>
 
 #include "resources/lib.h"
 
