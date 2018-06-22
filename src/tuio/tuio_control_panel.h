@@ -5,6 +5,8 @@
 #include <QWidget>
 
 #include <QMap>
+#include <QPushButton>
+#include <QLineEdit>
 
 #include <QGraphicsEllipseItem>
 #include <QGraphicsRectItem>
@@ -31,6 +33,7 @@ class TuioControlPanel : public QWidget
 
     protected slots:
         void onImageInteractiveEnabled(bool enabled);
+        void onNewHostName();
 
     private:
         void initWidgets();
@@ -45,6 +48,8 @@ class TuioControlPanel : public QWidget
         Image::View *image_view_;
         bool image_interactive_;
 
+        QLineEdit* host_name_;
+        QPushButton* host_submit_;
         TuioGraphicsView *view_;
         TuioHandler *tuio_handler_;
 };

@@ -10,6 +10,7 @@
 #include <QtMath>
 #include <QBrush>
 #include <QMouseEvent>
+#include <QMessageBox>
 
 #include "image/image_item.h"
 #include "image/interactive/interactive_image.h"
@@ -20,6 +21,8 @@ TuioControlPanel::TuioControlPanel(QWidget *parent)
     , token_list_()
     , image_view_(0)
     , image_interactive_(false)
+    , host_name_(0)
+    , host_submit_(0)
     , view_(0)
     , tuio_handler_(0)
 {
@@ -129,16 +132,56 @@ void TuioControlPanel::onImageInteractiveEnabled(bool enabled)
     image_interactive_ = enabled;
 }
 
+void TuioControlPanel::onNewHostName()
+{
+    QList<QString> host_str(host_name_->text().split(":"));
+    if(host_str.size() != 2) {
+        QMessageBox b;
+        b.setText(tr("Invalid address for TUIO server"));
+        b.setInformativeText(tr("Address should be of format <xxx.xxx.xxx.xxx:port>"));
+        b.setStandardButtons(QMessageBox::Ok);
+        b.setDefaultButton(QMessageBox::Ok);
+        b.exec();
+        return;
+    }
+    QHostAddress addr(host_str[0]);
+    unsigned port = (unsigned) host_str[1].toInt();
+    tuio_handler_->deleteLater();
+    tuio_handler_ = new TuioHandler(addr, port, this);
+    connect(tuio_handler_, &TuioHandler::cursorEvent,
+            this, &TuioControlPanel::onCursorEvent);
+    connect(tuio_handler_, &TuioHandler::tokenEvent,
+            this, &TuioControlPanel::onTokenEvent);
+    QMessageBox b;
+    b.setText(tr("New TUIO host set"));
+    b.setInformativeText(addr.toString() + ":" + QString::number(port));
+    b.setStandardButtons(QMessageBox::Ok);
+    b.setDefaultButton(QMessageBox::Ok);
+    b.exec();
+}
+
 void TuioControlPanel::initWidgets()
 {
     view_ =  new TuioGraphicsView(this);
     view_->setRenderHints(QPainter::Antialiasing);
+
+    host_name_ = new QLineEdit(this);
+    host_name_->setPlaceholderText("192.0.0.1:3333");
+
+    host_submit_ = new QPushButton(tr("Submit"), this);
+    connect(host_submit_, &QPushButton::clicked,
+            this, &TuioControlPanel::onNewHostName);
 }
 
 void TuioControlPanel::initLayout()
 {
-    QHBoxLayout *root = new QHBoxLayout;
+    QHBoxLayout* top = new QHBoxLayout;
+    top->addWidget(host_name_, 100);
+    top->addWidget(host_submit_,-1);
+
+    QVBoxLayout *root = new QVBoxLayout;
     root->setContentsMargins(0,0,0,0);
+    root->addLayout(top);
     root->addWidget(view_);
 
     setLayout(root);

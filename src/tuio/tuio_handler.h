@@ -23,6 +23,7 @@ class TuioHandler : public QObject
         Q_OBJECT
     public:
         explicit TuioHandler(QObject *parent = nullptr);
+        explicit TuioHandler(const QHostAddress& ip, unsigned port, QObject *parent = nullptr);
 
     signals:
         void cursorEvent(QMap<int, QTuioCursor> active_cursors, QVector<QTuioCursor> dead_cursors);

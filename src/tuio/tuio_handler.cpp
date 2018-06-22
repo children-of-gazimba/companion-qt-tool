@@ -7,7 +7,8 @@
 #include "qoscbundle_p.h"
 #include "qoscmessage_p.h"
 
-TuioHandler::TuioHandler(QObject *parent) : QObject(parent)
+TuioHandler::TuioHandler(QObject *parent)
+    : QObject(parent)
 {
     // todo change this
     client_ = new UdpClient(3333, QHostAddress::LocalHost);
@@ -16,8 +17,20 @@ TuioHandler::TuioHandler(QObject *parent) : QObject(parent)
             this, &TuioHandler::processPackets);
 }
 
+TuioHandler::TuioHandler(const QHostAddress &ip, unsigned port, QObject *parent)
+    : QObject(parent)
+{
+    // todo change this
+    client_ = new UdpClient(port, ip);
+
+    connect(client_, &UdpClient::messageReceived,
+            this, &TuioHandler::processPackets);
+}
+
 void TuioHandler::processPackets(const QByteArray& datagram, const QHostAddress& sender, unsigned sender_port)
 {
+    Q_UNUSED(sender);
+    Q_UNUSED(sender_port);
     // "A typical TUIO bundle will contain an initial ALIVE message,
     // followed by an arbitrary number of SET messages that can fit into the
     // actual bundle capacity and a concluding FSEQ message. A minimal TUIO
