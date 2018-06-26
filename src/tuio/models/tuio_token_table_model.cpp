@@ -48,7 +48,24 @@ Qt::ItemFlags TuioTokenTableModel::flags(const QModelIndex &index) const
 {
     if(!isValidDataIndex(index) && !isValidHeaderIndex(index))
         return Qt::NoItemFlags;
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+}
+
+Qt::DropActions TuioTokenTableModel::supportedDragActions() const
+{
+    return Qt::CopyAction | Qt::MoveAction | Qt::LinkAction | Qt::IgnoreAction | Qt::TargetMoveAction;
+}
+
+Qt::DropActions TuioTokenTableModel::supportedDropActions() const
+{
+    return Qt::CopyAction | Qt::MoveAction | Qt::LinkAction | Qt::IgnoreAction | Qt::TargetMoveAction;
+}
+
+const QTuioToken TuioTokenTableModel::getToken(int id) const
+{
+    if(!hasToken(id))
+        return QTuioToken();
+    return tokens_[id];
 }
 
 int TuioTokenTableModel::getRow(int id) const
@@ -142,9 +159,9 @@ QVariant TuioTokenTableModel::horizontalHeaderData(int field) const
         case 4: return QVariant("VX");
         case 5: return QVariant("VY");
         case 6: return QVariant("Acceleration");
-        case 7: return QVariant("Angle");
-        case 8: return QVariant("Angular Velocity");
-        case 9: return QVariant("Angular Acceleration");
+        case 7: return QVariant(QString(QChar(0xb1, 0x03)));
+        case 8: return QVariant(QString(QChar(0xb1, 0x03)) + "-Velocity");
+        case 9: return QVariant(QString(QChar(0xb1, 0x03)) + "-Acceleration");
         default: return QVariant();
     }
 }
@@ -157,6 +174,7 @@ void TuioTokenTableModel::internalAddToken(const QTuioToken &t)
     beginInsertRows(QModelIndex(), row, row);
     tokens_[t.id()] = t;
     endInsertRows();
+    emit tokenChanged(t.id(), TOKEN_ADDED);
 }
 
 void TuioTokenTableModel::internalUpdateToken(const QTuioToken &t)
@@ -172,6 +190,7 @@ void TuioTokenTableModel::internalUpdateToken(const QTuioToken &t)
     tokens_[t.id()].setAngularAcceleration(t.angularAcceleration());
     int row = getRow(t.id());
     emit dataChanged(index(row, 0), index(row, columnCount()-1));
+    emit tokenChanged(t.id(), TOKEN_UPDATED);
 }
 
 void TuioTokenTableModel::internalRemoveToken(int id)
@@ -180,6 +199,7 @@ void TuioTokenTableModel::internalRemoveToken(int id)
     beginRemoveRows(QModelIndex(), row, row);
     tokens_.remove(id);
     endRemoveRows();
+    emit tokenChanged(id, TOKEN_REMOVED);
 }
 
 bool TuioTokenTableModel::isValidDataIndex(const QModelIndex &idx) const

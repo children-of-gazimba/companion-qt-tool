@@ -50,7 +50,17 @@ Qt::ItemFlags TuioCursorTableModel::flags(const QModelIndex &index) const
 {
     if(!isValidDataIndex(index) && !isValidHeaderIndex(index))
         return Qt::NoItemFlags;
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+}
+
+Qt::DropActions TuioCursorTableModel::supportedDragActions() const
+{
+    return Qt::CopyAction | Qt::MoveAction | Qt::LinkAction | Qt::IgnoreAction | Qt::TargetMoveAction;
+}
+
+Qt::DropActions TuioCursorTableModel::supportedDropActions() const
+{
+    return Qt::CopyAction | Qt::MoveAction | Qt::LinkAction | Qt::IgnoreAction | Qt::TargetMoveAction;
 }
 
 int TuioCursorTableModel::getRow(int id) const
@@ -63,6 +73,13 @@ int TuioCursorTableModel::getRow(int id) const
 int TuioCursorTableModel::getRow(const QTuioCursor &c) const
 {
     return getRow(c.id());
+}
+
+const QTuioCursor TuioCursorTableModel::getCursor(int id) const
+{
+    if(!hasCursor(id))
+        return QTuioCursor();
+    return cursors_[id];
 }
 
 bool TuioCursorTableModel::hasCursor(int id) const
@@ -153,6 +170,7 @@ void TuioCursorTableModel::internalAddCursor(const QTuioCursor &c)
     beginInsertRows(QModelIndex(), row, row);
     cursors_[c.id()] = c;
     endInsertRows();
+    emit cursorChanged(c.id(), CURSOR_ADDED);
 }
 
 void TuioCursorTableModel::internalUpdateCursor(const QTuioCursor &c)
@@ -165,6 +183,7 @@ void TuioCursorTableModel::internalUpdateCursor(const QTuioCursor &c)
     cursors_[c.id()].setState(c.state());
     int row = getRow(c.id());
     emit dataChanged(index(row, 0), index(row, columnCount()-1));
+    emit cursorChanged(c.id(), CURSOR_UPDATED);
 }
 
 void TuioCursorTableModel::internalRemoveCursor(int id)
@@ -173,6 +192,7 @@ void TuioCursorTableModel::internalRemoveCursor(int id)
     beginRemoveRows(QModelIndex(), row, row);
     cursors_.remove(id);
     endRemoveRows();
+    emit cursorChanged(id, CURSOR_REMOVED);
 }
 
 bool TuioCursorTableModel::isValidDataIndex(const QModelIndex &idx) const

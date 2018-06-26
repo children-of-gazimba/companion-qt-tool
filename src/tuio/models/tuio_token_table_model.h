@@ -18,6 +18,13 @@ class TuioTokenTableModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
+    enum TokenChange {
+        TOKEN_ADDED,
+        TOKEN_UPDATED,
+        TOKEN_REMOVED
+    };
+
+public:
     explicit TuioTokenTableModel(QObject *parent = nullptr);
 
     /**
@@ -49,6 +56,23 @@ public:
      * Returns the item flags for given model index.
     */
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+
+    /**
+     * Returns the drag actions flags for this model.
+    */
+    virtual Qt::DropActions supportedDragActions() const;
+
+    /**
+     * Returns the drop actions flags for this model.
+    */
+    virtual Qt::DropActions supportedDropActions() const;
+
+    /**
+     * Returns a copy to the token referenced by given id.
+     * Id of returned token will be -1 if given id
+     * does not reference a token managed by this model.
+    */
+    const QTuioToken getToken(int id) const;
 
     /**
      * Returns the row for token referenced by id,
@@ -106,6 +130,9 @@ public slots:
     */
     void onTokenEvent(const QMap<int, QTuioToken>& active_tokens,
                        const QVector<QTuioToken>& dead_tokens);
+
+signals:
+    void tokenChanged(int id, TuioTokenTableModel::TokenChange);
 
 protected:
     /**

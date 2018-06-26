@@ -1,6 +1,5 @@
 #include "tuio_control_panel.h"
 
-#include <QHostAddress>
 #include <QJsonDocument>
 
 #include <QHBoxLayout>
@@ -11,6 +10,9 @@
 #include <QBrush>
 #include <QMouseEvent>
 #include <QMessageBox>
+#include <QHeaderView>
+#include <QSplitter>
+#include <QGroupBox>
 
 #include "image/image_item.h"
 #include "image/interactive/interactive_image.h"
@@ -23,28 +25,31 @@ TuioControlPanel::TuioControlPanel(QWidget *parent)
     , image_interactive_(false)
     , host_name_(0)
     , host_submit_(0)
+    , host_label_(0)
     , view_(0)
     , tuio_handler_(0)
+    , cursor_table_(0)
+    , token_table_(0)
+    , tracking_token_id_(-1)
 {
     setWindowTitle("Tuio Control Panel");
-    setWindowFlags(Qt::Tool | Qt::WindowStaysOnBottomHint);
+    setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint);
 
-    tuio_handler_ = new TuioHandler(QHostAddress::Any, 3333, this);
-
+    initTuio(QHostAddress::Any, 3333);
     initWidgets();
     initLayout();
-
-    connect(tuio_handler_, &TuioHandler::cursorEvent,
-            this, &TuioControlPanel::onCursorEvent);
-    connect(tuio_handler_, &TuioHandler::tokenEvent,
-            this, &TuioControlPanel::onTokenEvent);
 }
 
 
 TuioControlPanel::~TuioControlPanel()
 {
-    for(auto m : marker_list_) {
+    for(auto m : marker_list_.values()) {
+        view_->scene()->removeItem(m);
         delete m;
+    }
+    for(auto t : token_list_.values()) {
+        view_->scene()->removeItem(t);
+        delete t;
     }
 }
 
@@ -58,68 +63,6 @@ void TuioControlPanel::setImageView(Image::View *view)
     image_view_ = view;
     connect(image_view_, &Image::View::interactiveEnabled,
             this, &TuioControlPanel::onImageInteractiveEnabled);
-}
-
-void TuioControlPanel::onCursorEvent(QMap<int, QTuioCursor> active_cursors, QVector<QTuioCursor> dead_cursors)
-{
-    // add cursor
-    for(auto id: active_cursors.keys())
-    {
-        QTuioCursor cursor = active_cursors[id];
-        if(!marker_list_.keys().contains(id)) {
-            auto marker = new QGraphicsEllipseItem(0,0,10,10);
-            marker->setX(view_->sceneRect().width() * (1-cursor.x()));
-            marker->setY(view_->sceneRect().height() * (1-cursor.y()));
-            marker_list_[id] = marker;
-            view_->scene()->addItem(marker);
-        } else {
-            marker_list_[id]->setX(view_->sceneRect().width() * (1-cursor.x()));
-            marker_list_[id]->setY(view_->sceneRect().height() * (1-cursor.y()));
-        }
-    }
-
-    // remove all dead cursors
-    for(QTuioCursor c: dead_cursors)
-    {
-        int id = c.id();
-        if(marker_list_.keys().contains(id)) {
-            view_->scene()->removeItem(marker_list_[id]);
-            delete marker_list_[id];
-            marker_list_.remove(id);
-        }
-    }
-}
-
-void TuioControlPanel::onTokenEvent(QMap<int, QTuioToken> active_token, QVector<QTuioToken> dead_token)
-{
-    for(int id: active_token.keys()) {
-        QTuioToken token = active_token[id];
-        if(!token_list_.keys().contains(id)) {
-            auto marker = new QGraphicsRectItem(0,0,10,10);
-            marker->setBrush(QBrush(Qt::red));
-            marker->setX(view_->sceneRect().width() * (1-token.x()));
-            marker->setY(view_->sceneRect().height()* (1-token.y()));
-            marker->setRotation(qRadiansToDegrees(token.angle()));
-            token_list_[id] = marker;
-            view_->scene()->addItem(marker);
-        } else {
-            token_list_[id]->setX(view_->sceneRect().width() * (1-token.x()));
-            token_list_[id]->setY(view_->sceneRect().height() * (1-token.y()));
-            token_list_[id]->setRotation(qRadiansToDegrees(token.angle()));
-        }
-    }
-
-    for(QTuioToken t: dead_token) {
-        int id = t.id();
-        if(token_list_.keys().contains(id)) {
-            view_->scene()->removeItem(token_list_[id]);
-            delete token_list_[id];
-            token_list_.remove(id);
-        }
-    }
-
-    if(image_interactive_)
-        updateInteractiveImageTokens(active_token);
 }
 
 void TuioControlPanel::onImageInteractiveEnabled(bool enabled)
@@ -139,20 +82,105 @@ void TuioControlPanel::onNewHostName()
         b.exec();
         return;
     }
+
     QHostAddress addr(host_str[0]);
     unsigned port = (unsigned) host_str[1].toInt();
-    tuio_handler_->deleteLater();
-    tuio_handler_ = new TuioHandler(addr, port, this);
-    connect(tuio_handler_, &TuioHandler::cursorEvent,
-            this, &TuioControlPanel::onCursorEvent);
-    connect(tuio_handler_, &TuioHandler::tokenEvent,
-            this, &TuioControlPanel::onTokenEvent);
+    initTuio(addr, port);
+
     QMessageBox b;
     b.setText(tr("New TUIO host set"));
     b.setInformativeText(addr.toString() + ":" + QString::number(port));
     b.setStandardButtons(QMessageBox::Ok);
     b.setDefaultButton(QMessageBox::Ok);
     b.exec();
+}
+
+void TuioControlPanel::onCursorChanged(int id, TuioCursorTableModel::CursorChange c)
+{
+    if(c == TuioCursorTableModel::CURSOR_ADDED || c == TuioCursorTableModel::CURSOR_UPDATED) {
+        // add or update cursor marker
+        QTuioCursor cursor = tuio_handler_->getCursorModel()->getCursor(id);
+        if(cursor.id() == -1)
+            return;
+        if(!marker_list_.contains(id)) {
+            auto marker = new QGraphicsEllipseItem(0,0,10,10);
+            marker->setX(view_->sceneRect().width() * (1-cursor.x()));
+            marker->setY(view_->sceneRect().height() * (1-cursor.y()));
+            marker_list_[id] = marker;
+            view_->scene()->addItem(marker);
+        } else {
+            marker_list_[id]->setX(view_->sceneRect().width() * (1-cursor.x()));
+            marker_list_[id]->setY(view_->sceneRect().height() * (1-cursor.y()));
+        }
+    }
+    else if(c == TuioCursorTableModel::CURSOR_REMOVED) {
+        // delete cursor marker
+        if(marker_list_.contains(id)) {
+            view_->scene()->removeItem(marker_list_[id]);
+            delete marker_list_[id];
+            marker_list_.remove(id);
+        }
+    }
+}
+
+void TuioControlPanel::onTokenChanged(int id, TuioTokenTableModel::TokenChange c)
+{
+    if(c == TuioTokenTableModel::TOKEN_ADDED || c == TuioTokenTableModel::TOKEN_UPDATED) {
+        // add or update token marker
+        QTuioToken token = tuio_handler_->getTokenModel()->getToken(id);
+        if(token.id() == -1)
+            return;
+        if(!token_list_.contains(id)) {
+            auto marker = new QGraphicsRectItem(0,0,10,10);
+            marker->setBrush(QBrush(Qt::red));
+            marker->setX(view_->sceneRect().width() * (1-token.x()));
+            marker->setY(view_->sceneRect().height()* (1-token.y()));
+            marker->setRotation(qRadiansToDegrees(token.angle()));
+            token_list_[id] = marker;
+            view_->scene()->addItem(marker);
+        } else {
+            token_list_[id]->setX(view_->sceneRect().width() * (1-token.x()));
+            token_list_[id]->setY(view_->sceneRect().height() * (1-token.y()));
+            token_list_[id]->setRotation(qRadiansToDegrees(token.angle()));
+        }
+        // TODO: improve
+        if(image_interactive_ && id == tracking_token_id_)
+            updateInteractiveImageToken(token);
+    }
+    else if(c == TuioTokenTableModel::TOKEN_REMOVED) {
+        // delete token marker
+        if(token_list_.contains(id)) {
+            view_->scene()->removeItem(token_list_[id]);
+            delete token_list_[id];
+            token_list_.remove(id);
+        }
+        if(id == tracking_token_id_)
+            tracking_token_id_ = -1;
+    }
+}
+
+void TuioControlPanel::onTokenSelected(const QModelIndex &idx)
+{
+    QAbstractTableModel* m = tuio_handler_->getTokenModel();
+    if(idx.row() < 0 || idx.row() > m->rowCount())
+        tracking_token_id_ = -1;
+    else
+        tracking_token_id_ = m->data(m->index(idx.row(), 0)).toInt();
+}
+
+void TuioControlPanel::initTuio(const QHostAddress &ip, unsigned port)
+{
+    if(tuio_handler_)
+        tuio_handler_->deleteLater();
+    tuio_handler_ = new TuioHandler(ip, port, this);
+    connect(tuio_handler_->getCursorModel(), &TuioCursorTableModel::cursorChanged,
+            this, &TuioControlPanel::onCursorChanged);
+    connect(tuio_handler_->getTokenModel(), &TuioTokenTableModel::tokenChanged,
+            this, &TuioControlPanel::onTokenChanged);
+    if(cursor_table_)
+        cursor_table_->setModel(tuio_handler_->getCursorModel());
+    if(token_table_)
+        token_table_->setModel(tuio_handler_->getTokenModel());
 }
 
 void TuioControlPanel::initWidgets()
@@ -166,28 +194,72 @@ void TuioControlPanel::initWidgets()
     host_submit_ = new QPushButton(tr("Submit"), this);
     connect(host_submit_, &QPushButton::clicked,
             this, &TuioControlPanel::onNewHostName);
+
+    host_label_ = new QLabel(tr("TUIO Host"), this);
+
+    cursor_table_ = new QTableView(this);
+    cursor_table_->setModel(tuio_handler_->getCursorModel());
+    cursor_table_->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+    cursor_table_->horizontalHeader()->setStretchLastSection(true);
+    cursor_table_->setDragEnabled(true);
+    cursor_table_->horizontalHeader()->setSectionsMovable(true);
+
+    token_table_ = new QTableView(this);
+    token_table_->setModel(tuio_handler_->getTokenModel());
+    token_table_->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+    token_table_->horizontalHeader()->setStretchLastSection(true);
+    token_table_->setDragEnabled(true);
+    token_table_->horizontalHeader()->setSectionsMovable(true);
+    connect(token_table_, &QTableView::clicked,
+            this, &TuioControlPanel::onTokenSelected);
 }
 
 void TuioControlPanel::initLayout()
 {
-    QHBoxLayout* top = new QHBoxLayout;
-    top->addWidget(host_name_, 100);
-    top->addWidget(host_submit_,-1);
+    QHBoxLayout* bottom = new QHBoxLayout;
+    bottom->addWidget(host_label_,-1);
+    bottom->addWidget(host_name_, 100);
+    bottom->addWidget(host_submit_,-1);
+    bottom->setContentsMargins(5, 5, 5, 5);
+    bottom->setSpacing(5);
+
+    QSplitter* top_splitter = new QSplitter(Qt::Horizontal, this);
+
+    QSplitter* monitor_splitter = new QSplitter(Qt::Vertical, this);
+    QGroupBox* token_box = new QGroupBox(tr("Token Monitor"), this);
+    token_box->setLayout(new QHBoxLayout);
+    token_box->layout()->addWidget(token_table_);
+    QGroupBox* cursor_box = new QGroupBox(tr("Cursor Monitor"), this);
+    cursor_box->setLayout(new QHBoxLayout);
+    cursor_box->layout()->addWidget(cursor_table_);
+    monitor_splitter->addWidget(token_box);
+    monitor_splitter->addWidget(cursor_box);
+
+    QGroupBox* box_left = new QGroupBox(this);
+    box_left->setLayout(new QHBoxLayout);
+    box_left->layout()->addWidget(monitor_splitter);
+
+    QGroupBox* box_right = new QGroupBox(this);
+    box_right->setLayout(new QHBoxLayout);
+    box_right->layout()->addWidget(view_);
+
+    top_splitter->addWidget(box_left);
+    top_splitter->addWidget(box_right);
+    top_splitter->setStretchFactor(0, 1);
+    top_splitter->setStretchFactor(0, 3);
+    top_splitter->setContentsMargins(5,0,5,0);
 
     QVBoxLayout *root = new QVBoxLayout;
     root->setContentsMargins(0,0,0,0);
-    root->addLayout(top);
-    root->addWidget(view_);
+    root->setSpacing(0);
+    root->addWidget(top_splitter);
+    root->addLayout(bottom,-1);
 
     setLayout(root);
 }
 
-void TuioControlPanel::updateInteractiveImageTokens(const QMap<int, QTuioToken> &active_token)
+void TuioControlPanel::updateInteractiveImageToken(const QTuioToken &token)
 {
-    if(active_token.size() == 0)
-        return;
-
-    QTuioToken token = active_token[active_token.keys()[0]];
     QGraphicsItem *it = image_view_->getItem();
     InteractiveImage* image_item = qgraphicsitem_cast<InteractiveImage*>(it);
     if(!image_item)
@@ -201,8 +273,4 @@ void TuioControlPanel::updateInteractiveImageTokens(const QMap<int, QTuioToken> 
     new_pos.setX(image_view_->scene()->width() * (1 - token.x()));
     new_pos.setY(image_view_->scene()->height() * (1 - token.y()));
     iit[0]->setUncoverPos(new_pos);
-
-    qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
-    qDebug() << "  > " << "token set";
-    qDebug() << "  > " << iit[0]->pos();
 }

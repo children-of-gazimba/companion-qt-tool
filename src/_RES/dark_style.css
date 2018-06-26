@@ -62,7 +62,19 @@ QGroupBox {
    border: 1px solid gray;
    background-color: #373738;
    color: white;
-   margin-top: 10px;
+   margin-top: 5px;
+}
+
+TuioControlPanel {
+   background-color: #373738;
+   color: white;
+}
+
+TuioControlPanel > QLineEdit {
+    background-color: #545556;
+    color: white;
+    selection-background-color: rgba(50, 152, 253, 80);
+    border: 1px solid gray;
 }
 
 QGroupBox::title {

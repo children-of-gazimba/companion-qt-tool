@@ -18,6 +18,13 @@ class TuioCursorTableModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
+    enum CursorChange {
+        CURSOR_ADDED,
+        CURSOR_UPDATED,
+        CURSOR_REMOVED
+    };
+
+public:
     explicit TuioCursorTableModel(QObject *parent = nullptr);
 
     /**
@@ -51,6 +58,16 @@ public:
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
     /**
+     * Returns the drag actions flags for this model.
+    */
+    virtual Qt::DropActions supportedDragActions() const;
+
+    /**
+     * Returns the drop actions flags for this model.
+    */
+    virtual Qt::DropActions supportedDropActions() const;
+
+    /**
      * Returns the row for cursor referenced by id,
      * or -1 if no cursor with given id is managed by this model.
     */
@@ -61,6 +78,13 @@ public:
      * or -1 if no cursor with given id is managed by this model.
     */
     int getRow(const QTuioCursor& c) const;
+
+    /**
+     * Returns a copy to the cursor referenced by given id.
+     * Id of returned cursor will be -1 if given id
+     * does not reference a cursor managed by this model.
+    */
+    const QTuioCursor getCursor(int id) const;
 
     /**
      * Returns true if a QTuioCursor with given id is maintained by this model.
@@ -97,6 +121,9 @@ public:
      * Returns true if removal successful, false otherwise.
     */
     bool removeCursor(int id);
+
+signals:
+    void cursorChanged(int id, TuioCursorTableModel::CursorChange change);
 
 public slots:
     /**
