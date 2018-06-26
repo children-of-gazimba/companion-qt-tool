@@ -6,13 +6,7 @@
 #include "qtuiotoken_p.h"
 #include "qoscbundle_p.h"
 #include "qoscmessage_p.h"
-/*
-        UdpClient *client_;
-        QMap<int, QTuioCursor> active_cursors_;
-        QVector<QTuioCursor> dead_cursors_;
-        QMap<int, QTuioToken> active_tokens_;
-        QVector<QTuioToken> dead_tokens_;
-*/
+
 TuioHandler::TuioHandler(QObject *parent)
     : QObject(parent)
     , client_(0)
@@ -23,7 +17,6 @@ TuioHandler::TuioHandler(QObject *parent)
     , cursor_model_(0)
     , token_model_(0)
 {
-    // todo change this
     client_ = new UdpClient(3333, QHostAddress::LocalHost);
 
     connect(client_, &UdpClient::messageReceived,
@@ -42,7 +35,6 @@ TuioHandler::TuioHandler(const QHostAddress &ip, unsigned port, QObject *parent)
     , cursor_model_(0)
     , token_model_(0)
 {
-    // todo change this
     client_ = new UdpClient(port, ip);
 
     connect(client_, &UdpClient::messageReceived,
