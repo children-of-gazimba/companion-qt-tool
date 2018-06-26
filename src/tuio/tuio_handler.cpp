@@ -1,30 +1,67 @@
 #include "tuio_handler.h"
 
+#include <QHeaderView>
 #include <QHostAddress>
 
 #include "qtuiocursor_p.h"
 #include "qtuiotoken_p.h"
 #include "qoscbundle_p.h"
 #include "qoscmessage_p.h"
-
+/*
+        UdpClient *client_;
+        QMap<int, QTuioCursor> active_cursors_;
+        QVector<QTuioCursor> dead_cursors_;
+        QMap<int, QTuioToken> active_tokens_;
+        QVector<QTuioToken> dead_tokens_;
+*/
 TuioHandler::TuioHandler(QObject *parent)
     : QObject(parent)
+    , client_(0)
+    , active_cursors_()
+    , dead_cursors_()
+    , active_tokens_()
+    , dead_tokens_()
+    , cursor_model_(0)
+    , cursor_debug_view_(0)
+    , token_model_(0)
+    , token_debug_view_(0)
 {
     // todo change this
     client_ = new UdpClient(3333, QHostAddress::LocalHost);
 
     connect(client_, &UdpClient::messageReceived,
             this, &TuioHandler::processPackets);
+
+    initModels();
 }
 
 TuioHandler::TuioHandler(const QHostAddress &ip, unsigned port, QObject *parent)
     : QObject(parent)
+    , client_(0)
+    , active_cursors_()
+    , dead_cursors_()
+    , active_tokens_()
+    , dead_tokens_()
+    , cursor_model_(0)
+    , cursor_debug_view_(0)
+    , token_model_(0)
+    , token_debug_view_(0)
 {
     // todo change this
     client_ = new UdpClient(port, ip);
 
     connect(client_, &UdpClient::messageReceived,
             this, &TuioHandler::processPackets);
+
+    initModels();
+}
+
+TuioHandler::~TuioHandler()
+{
+    if(cursor_debug_view_)
+        cursor_debug_view_->deleteLater();
+    if(token_debug_view_)
+        token_debug_view_->deleteLater();
 }
 
 void TuioHandler::processPackets(const QByteArray& datagram, const QHostAddress& sender, unsigned sender_port)
@@ -342,4 +379,27 @@ void TuioHandler::process2DObjFseq(const QOscMessage &message)
 
     emit tokenEvent(active_tokens_, dead_tokens_);
     dead_tokens_.clear();
+}
+
+void TuioHandler::initModels()
+{
+    token_model_ = new TuioTokenTableModel(this);
+    connect(this, &TuioHandler::tokenEvent,
+            token_model_, &TuioTokenTableModel::onTokenEvent);
+    token_debug_view_ = new QTableView;
+    token_debug_view_->setMinimumSize(600, 337);
+    token_debug_view_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    token_debug_view_->setWindowTitle(tr("QTuioToken Debug View"));
+    token_debug_view_->setModel(token_model_);
+    token_debug_view_->show();
+
+    cursor_model_ = new TuioCursorTableModel(this);
+    connect(this, &TuioHandler::cursorEvent,
+            cursor_model_, &TuioCursorTableModel::onCursorEvent);
+    cursor_debug_view_ = new QTableView;
+    cursor_debug_view_->setMinimumSize(600, 337);
+    cursor_debug_view_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    cursor_debug_view_->setWindowTitle(tr("QTuioCursor Debug View"));
+    cursor_debug_view_->setModel(cursor_model_);
+    cursor_debug_view_->show();
 }

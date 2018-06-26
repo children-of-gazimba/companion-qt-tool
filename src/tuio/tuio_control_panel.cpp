@@ -92,12 +92,7 @@ void TuioControlPanel::onCursorEvent(QMap<int, QTuioCursor> active_cursors, QVec
 
 void TuioControlPanel::onTokenEvent(QMap<int, QTuioToken> active_token, QVector<QTuioToken> dead_token)
 {
-
-    qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
-    qDebug() << "  >" << "foo";
-
     for(int id: active_token.keys()) {
-
         QTuioToken token = active_token[id];
         if(!token_list_.keys().contains(id)) {
             auto marker = new QGraphicsRectItem(0,0,10,10);
