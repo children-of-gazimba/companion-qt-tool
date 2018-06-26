@@ -80,7 +80,9 @@ SOURCES += main.cpp \
     image/image_display_widget.cpp \
     tuio/tuio_handler.cpp \
     tuio/tuio_control_panel.cpp \
-    tuio/tuio_graphics_view.cpp
+    tuio/tuio_graphics_view.cpp \
+    tuio/models/tuio_cursor_table_model.cpp \
+    tuio/models/tuio_token_table_model.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -141,7 +143,9 @@ HEADERS  += main_window.h \
     image/image_display_widget.h \
     tuio/tuio_handler.h \
     tuio/tuio_control_panel.h \
-    tuio/tuio_graphics_view.h
+    tuio/tuio_graphics_view.h \
+    tuio/models/tuio_cursor_table_model.h \
+    tuio/models/tuio_token_table_model.h
 
 RESOURCES += \
     _RES/resources.qrc

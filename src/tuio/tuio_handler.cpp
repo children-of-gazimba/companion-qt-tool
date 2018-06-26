@@ -9,22 +9,51 @@
 
 TuioHandler::TuioHandler(QObject *parent)
     : QObject(parent)
+    , client_(0)
+    , active_cursors_()
+    , dead_cursors_()
+    , active_tokens_()
+    , dead_tokens_()
+    , cursor_model_(0)
+    , token_model_(0)
 {
-    // todo change this
     client_ = new UdpClient(3333, QHostAddress::LocalHost);
 
     connect(client_, &UdpClient::messageReceived,
             this, &TuioHandler::processPackets);
+
+    initModels();
 }
 
 TuioHandler::TuioHandler(const QHostAddress &ip, unsigned port, QObject *parent)
     : QObject(parent)
+    , client_(0)
+    , active_cursors_()
+    , dead_cursors_()
+    , active_tokens_()
+    , dead_tokens_()
+    , cursor_model_(0)
+    , token_model_(0)
 {
-    // todo change this
     client_ = new UdpClient(port, ip);
 
     connect(client_, &UdpClient::messageReceived,
             this, &TuioHandler::processPackets);
+
+    initModels();
+}
+
+TuioHandler::~TuioHandler()
+{}
+
+TuioCursorTableModel *TuioHandler::getCursorModel() const
+{
+    return cursor_model_;
+}
+
+TuioTokenTableModel *TuioHandler::getTokenModel() const
+{
+    return token_model_;
 }
 
 void TuioHandler::processPackets(const QByteArray& datagram, const QHostAddress& sender, unsigned sender_port)
@@ -342,4 +371,15 @@ void TuioHandler::process2DObjFseq(const QOscMessage &message)
 
     emit tokenEvent(active_tokens_, dead_tokens_);
     dead_tokens_.clear();
+}
+
+void TuioHandler::initModels()
+{
+    token_model_ = new TuioTokenTableModel(this);
+    connect(this, &TuioHandler::tokenEvent,
+            token_model_, &TuioTokenTableModel::onTokenEvent);
+
+    cursor_model_ = new TuioCursorTableModel(this);
+    connect(this, &TuioHandler::cursorEvent,
+            cursor_model_, &TuioCursorTableModel::onCursorEvent);
 }

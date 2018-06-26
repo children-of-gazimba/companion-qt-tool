@@ -21,11 +21,12 @@ InteractiveImage::InteractiveImage(const QSize &size, QGraphicsItem* parent)
     , actions_()
     , all_uncovered_(true)
     , menu_bar_extension_(0)
+    , need_calc_(false)
 {
     result_image_ = new QImage(result_size_, QImage::Format_ARGB32_Premultiplied);
     src_image_ = new QImage;
     loadImage();
-    calcResultImage();
+    scheduleCalcResultImage();
     initContextMenu();
 }
 
@@ -43,11 +44,12 @@ InteractiveImage::InteractiveImage(const QString& path, const QSize &size, QGrap
     , actions_()
     , all_uncovered_(true)
     , menu_bar_extension_(0)
+    , need_calc_(false)
 {
     result_image_ = new QImage(result_size_, QImage::Format_ARGB32_Premultiplied);
     src_image_ = new QImage;
     loadFileIntoImage(path, src_image_);
-    calcResultImage();
+    scheduleCalcResultImage();
     initContextMenu();
 }
 
@@ -70,7 +72,8 @@ void InteractiveImage::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 {
     Q_UNUSED(option);
     Q_UNUSED(widget);
-
+    if(need_calc_)
+        calcResultImage();
     painter->fillRect(boundingRect(), Qt::black);
     painter->drawPixmap(boundingRect().toRect(), QPixmap::fromImage(*result_image_));
 }
@@ -87,7 +90,7 @@ void InteractiveImage::addToken(InteractiveImageToken *it)
 {
     scene()->addItem(it);
     linkToken(it);
-    calcResultImage();
+    scheduleCalcResultImage();
 }
 
 QMenu *InteractiveImage::getMenuBarExtension()
@@ -127,7 +130,7 @@ void InteractiveImage::onHasMoved(const QUuid &uuid)
     InteractiveImageToken* it = getToken(uuid);
     if(it) {
         token_paths_[it].lineTo(it->centerPos());
-        calcResultImage();
+        scheduleCalcResultImage();
     }
 }
 
@@ -164,6 +167,12 @@ void InteractiveImage::clearAllPaths()
     }
 }
 
+void InteractiveImage::scheduleCalcResultImage()
+{
+    prepareGeometryChange();
+    need_calc_ = true;
+}
+
 void InteractiveImage::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     QGraphicsObject::mousePressEvent(event);
@@ -188,7 +197,7 @@ void InteractiveImage::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
     if(drawing_) {
         paths_.back().lineTo(event->pos());
-        calcResultImage();
+        scheduleCalcResultImage();
     }
 }
 
@@ -206,7 +215,8 @@ void InteractiveImage::contextMenuEvent(QGraphicsSceneContextMenuEvent *e)
 
 void InteractiveImage::calcResultImage()
 {
-    prepareGeometryChange();
+    if(!need_calc_)
+        return;
     QPainter p(result_image_);
     p.setCompositionMode(QPainter::CompositionMode_Source);
     p.fillRect(result_image_->rect(), Qt::transparent);
@@ -235,6 +245,7 @@ void InteractiveImage::calcResultImage()
     p.drawImage(0, 0, *src_image_);
     p.setCompositionMode(QPainter::CompositionMode_DestinationOver);
     p.end();
+    need_calc_ = false;
 }
 
 const QPoint InteractiveImage::imagePos(const QImage& img) const
@@ -264,7 +275,7 @@ void InteractiveImage::setAllUncovered(bool state)
 {
     all_uncovered_ = state;
     actions_["uncover"]->setEnabled(!all_uncovered_);
-    calcResultImage();
+    scheduleCalcResultImage();
 }
 
 void InteractiveImage::initContextMenu()

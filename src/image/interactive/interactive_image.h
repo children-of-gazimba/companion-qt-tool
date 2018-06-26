@@ -71,6 +71,7 @@ protected slots:
 protected:    
     void linkToken(InteractiveImageToken* it);
     void clearAllPaths();
+    void scheduleCalcResultImage();
     void calcResultImage();
     const QPoint imagePos(const QImage& img) const;
     void loadFileIntoImage(const QString& file, QImage* img);
@@ -96,6 +97,7 @@ protected:
     QMap<QString, QAction*> actions_;
     bool all_uncovered_;
     QMenu* menu_bar_extension_;
+    bool need_calc_;
 };
 
 #endif // INTERACTIVE_IMAGE_H
