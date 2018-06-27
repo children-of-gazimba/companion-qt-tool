@@ -46,8 +46,8 @@ private:
     void updateInteractiveImageToken(const QTuioToken& active_token);
 
 private:
-    QMap<int, QGraphicsEllipseItem*> marker_list_;
-    QMap<int, QGraphicsRectItem*> token_list_;
+    QMap<int, QGraphicsItem*> marker_list_;
+    QMap<int, QGraphicsItem*> token_list_;
 
     Image::View *image_view_;
     bool image_interactive_;

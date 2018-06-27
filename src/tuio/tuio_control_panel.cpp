@@ -16,6 +16,8 @@
 
 #include "image/image_item.h"
 #include "image/interactive/interactive_image.h"
+#include "tuio_token_item.h"
+#include "tuio_cursor_item.h"
 
 TuioControlPanel::TuioControlPanel(QWidget *parent)
     : QWidget(parent)
@@ -104,7 +106,7 @@ void TuioControlPanel::onCursorChanged(int id, TuioCursorTableModel::CursorChang
         if(cursor.id() == -1)
             return;
         if(!marker_list_.contains(id)) {
-            auto marker = new QGraphicsEllipseItem(0,0,10,10);
+            auto marker = new TuioCursorItem(cursor.id());
             marker->setX(view_->sceneRect().width() * (1-cursor.x()));
             marker->setY(view_->sceneRect().height() * (1-cursor.y()));
             marker_list_[id] = marker;
@@ -132,8 +134,8 @@ void TuioControlPanel::onTokenChanged(int id, TuioTokenTableModel::TokenChange c
         if(token.id() == -1)
             return;
         if(!token_list_.contains(id)) {
-            auto marker = new QGraphicsRectItem(0,0,10,10);
-            marker->setBrush(QBrush(Qt::red));
+            auto marker = new TuioTokenItem(token.id(), token.classId());
+            //marker->setBrush(QBrush(Qt::red));
             marker->setX(view_->sceneRect().width() * (1-token.x()));
             marker->setY(view_->sceneRect().height()* (1-token.y()));
             marker->setRotation(qRadiansToDegrees(token.angle()));
