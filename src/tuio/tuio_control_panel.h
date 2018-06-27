@@ -14,7 +14,7 @@
 
 #include "tuio_graphics_view.h"
 #include "udp_client.h"
-#include "tuio_handler.h"
+#include "tuio_model_handler.h"
 
 #include "image/view.h"
 
@@ -33,13 +33,16 @@ protected slots:
     void onNewHostName();
     void onCursorChanged(int id, TuioCursorTableModel::CursorChange c);
     void onTokenChanged(int id, TuioTokenTableModel::TokenChange c);
-    void onTokenSelected(const QModelIndex&);
+    void onTokenFieldSelected(const QModelIndex&);
 
 private:
+    void setTrackingTokenID(int);
+    void setTrackingTokenClassID(int);
+    void resetTokenTracking();
+    bool isTrackingToken(const QTuioToken&) const;
     void initTuio(const QHostAddress& ip, unsigned port);
     void initWidgets();
     void initLayout();
-
     void updateInteractiveImageToken(const QTuioToken& active_token);
 
 private:
@@ -53,10 +56,11 @@ private:
     QPushButton* host_submit_;
     QLabel* host_label_;
     TuioGraphicsView *view_;
-    TuioHandler *tuio_handler_;
+    TuioModelHandler *tuio_handler_;
     QTableView* cursor_table_;
     QTableView* token_table_;
     int tracking_token_id_;
+    int tracking_token_class_id_;
 };
 
 #endif // TUIO_CONTROL_PANEL_H

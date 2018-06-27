@@ -46,9 +46,18 @@ QVariant TuioTokenTableModel::headerData(int section, Qt::Orientation orientatio
 
 Qt::ItemFlags TuioTokenTableModel::flags(const QModelIndex &index) const
 {
-    if(!isValidDataIndex(index) && !isValidHeaderIndex(index))
+    bool is_data_idx = isValidDataIndex(index);
+    bool is_header_idx = isValidHeaderIndex(index);
+    if(!is_data_idx && !is_header_idx)
         return Qt::NoItemFlags;
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+    else if(is_data_idx) {
+        if(index.column() == 0 || index.column() == 1)
+            return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+    }
+    else if(is_header_idx) {
+        return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+    }
+    return Qt::ItemIsEnabled;
 }
 
 Qt::DropActions TuioTokenTableModel::supportedDragActions() const

@@ -31,6 +31,7 @@ TuioControlPanel::TuioControlPanel(QWidget *parent)
     , cursor_table_(0)
     , token_table_(0)
     , tracking_token_id_(-1)
+    , tracking_token_class_id_(-1)
 {
     setWindowTitle("Tuio Control Panel");
     setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint);
@@ -144,7 +145,7 @@ void TuioControlPanel::onTokenChanged(int id, TuioTokenTableModel::TokenChange c
             token_list_[id]->setRotation(qRadiansToDegrees(token.angle()));
         }
         // TODO: improve
-        if(image_interactive_ && id == tracking_token_id_)
+        if(image_interactive_ && isTrackingToken(token))
             updateInteractiveImageToken(token);
     }
     else if(c == TuioTokenTableModel::TOKEN_REMOVED) {
@@ -159,20 +160,52 @@ void TuioControlPanel::onTokenChanged(int id, TuioTokenTableModel::TokenChange c
     }
 }
 
-void TuioControlPanel::onTokenSelected(const QModelIndex &idx)
+void TuioControlPanel::onTokenFieldSelected(const QModelIndex &idx)
 {
     QAbstractTableModel* m = tuio_handler_->getTokenModel();
-    if(idx.row() < 0 || idx.row() > m->rowCount())
-        tracking_token_id_ = -1;
-    else
-        tracking_token_id_ = m->data(m->index(idx.row(), 0)).toInt();
+    if(idx.row() < 0 || idx.row() > m->rowCount()) {
+        resetTokenTracking();
+    }
+    else {
+        int id_value = m->data(idx).toInt();
+        switch(idx.column()) {
+            case 0: setTrackingTokenID(id_value); break;
+            case 1: setTrackingTokenClassID(id_value); break;
+            default: resetTokenTracking(); break;
+        }
+    }
+}
+
+void TuioControlPanel::setTrackingTokenID(int id)
+{
+    tracking_token_class_id_ = -1;
+    tracking_token_id_ = id;
+}
+
+void TuioControlPanel::setTrackingTokenClassID(int id)
+{
+    tracking_token_class_id_ = id;
+    tracking_token_id_ = -1;
+}
+
+void TuioControlPanel::resetTokenTracking()
+{
+    tracking_token_id_ = -1;
+    tracking_token_class_id_ = -1;
+}
+
+bool TuioControlPanel::isTrackingToken(const QTuioToken &t) const
+{
+    if(t.id() == -1)
+        return false;
+    return t.id() == tracking_token_id_ || t.classId() == tracking_token_class_id_;
 }
 
 void TuioControlPanel::initTuio(const QHostAddress &ip, unsigned port)
 {
     if(tuio_handler_)
         tuio_handler_->deleteLater();
-    tuio_handler_ = new TuioHandler(ip, port, this);
+    tuio_handler_ = new TuioModelHandler(ip, port, this);
     connect(tuio_handler_->getCursorModel(), &TuioCursorTableModel::cursorChanged,
             this, &TuioControlPanel::onCursorChanged);
     connect(tuio_handler_->getTokenModel(), &TuioTokenTableModel::tokenChanged,
@@ -211,7 +244,7 @@ void TuioControlPanel::initWidgets()
     token_table_->setDragEnabled(true);
     token_table_->horizontalHeader()->setSectionsMovable(true);
     connect(token_table_, &QTableView::clicked,
-            this, &TuioControlPanel::onTokenSelected);
+            this, &TuioControlPanel::onTokenFieldSelected);
 }
 
 void TuioControlPanel::initLayout()
