@@ -310,13 +310,7 @@ void TuioControlPanel::updateInteractiveImageToken(const QTuioToken &token)
     }
 
     if(!tracker_->isLinked(iit[0])) {
-        qDebug() << "  > link established" << tracker_->link(iit[0], Tracker::REL_POSITION);
-        qDebug() << "  > link established" << tracker_->link(iit[0], Tracker::ROTATION);
+        tracker_->link(iit[0], Tracker::REL_POSITION);
+        tracker_->link(iit[0], Tracker::ROTATION);
     }
-    /*
-    QPointF new_pos;
-    new_pos.setX(image_view_->scene()->width() * (1 - token.x()));
-    new_pos.setY(image_view_->scene()->height() * (1 - token.y()));
-    iit[0]->setUncoverPos(new_pos);
-    */
 }

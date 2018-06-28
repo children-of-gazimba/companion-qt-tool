@@ -74,18 +74,11 @@ void InteractiveImageToken::paint(QPainter *painter, const QStyleOptionGraphicsI
 
 bool InteractiveImageToken::updateLinkFromTracker(Tracker *tracker, int target_prop)
 {
-    qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
-    qDebug() << "  > target prop" << target_prop;
-
     if(!Trackable::updateLinkFromTracker(tracker, target_prop))
         return false;
 
-    qDebug() << "  > " << "link for update valid";
-
     if(!scene())
         return false;
-
-    qDebug() << "  > " << "scene exists";
 
     QPointF uncover_pos;
     switch(target_prop) {
@@ -106,8 +99,6 @@ bool InteractiveImageToken::updateLinkFromTracker(Tracker *tracker, int target_p
             break;
         default:break;
     }
-
-    qDebug() << "  > " << uncover_pos;
 
     if(!uncover_pos.isNull())
         setUncoverPos(uncover_pos);
