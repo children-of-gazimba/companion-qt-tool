@@ -12,7 +12,7 @@
 InteractiveImageToken::InteractiveImageToken(QGraphicsItem *parent)
     : QGraphicsObject(parent)
     , Trackable()
-    , bounding_rect_(0, 0, 100, 100)
+    , bounding_rect_(-50, -50, 100, 100)
     , state_(IDLE)
     , uuid_(QUuid::createUuid())
     , uncover_radius_(0.0f)
@@ -24,7 +24,7 @@ InteractiveImageToken::InteractiveImageToken(QGraphicsItem *parent)
 InteractiveImageToken::InteractiveImageToken(const QSizeF &s, QGraphicsItem *parent)
     : QGraphicsObject(parent)
     , Trackable()
-    , bounding_rect_(0, 0, s.width(), s.height())
+    , bounding_rect_(-s.width()/2.0, -s.height()/2.0, s.width(), s.height())
     , state_(IDLE)
     , uuid_(QUuid::createUuid())
     , uncover_radius_(0.0f)
@@ -74,11 +74,18 @@ void InteractiveImageToken::paint(QPainter *painter, const QStyleOptionGraphicsI
 
 bool InteractiveImageToken::updateLinkFromTracker(Tracker *tracker, int target_prop)
 {
+    qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+    qDebug() << "  > target prop" << target_prop;
+
     if(!Trackable::updateLinkFromTracker(tracker, target_prop))
         return false;
 
+    qDebug() << "  > " << "link for update valid";
+
     if(!scene())
         return false;
+
+    qDebug() << "  > " << "scene exists";
 
     QPointF uncover_pos;
     switch(target_prop) {
@@ -100,6 +107,8 @@ bool InteractiveImageToken::updateLinkFromTracker(Tracker *tracker, int target_p
         default:break;
     }
 
+    qDebug() << "  > " << uncover_pos;
+
     if(!uncover_pos.isNull())
         setUncoverPos(uncover_pos);
 
@@ -117,7 +126,7 @@ bool InteractiveImageToken::updateGrabFromTracker(Tracker *tracker, int target_p
 
 const QRectF InteractiveImageToken::uncoverBoundingRect() const
 {
-    return QRectF(0, 0, uncover_radius_, uncover_radius_);
+    return QRectF(-uncover_radius_/2.0, -uncover_radius_/2.0, uncover_radius_, uncover_radius_);
 }
 
 const QUuid &InteractiveImageToken::getUuid() const

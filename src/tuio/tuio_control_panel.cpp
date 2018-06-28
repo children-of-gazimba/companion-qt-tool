@@ -24,7 +24,6 @@ TuioControlPanel::TuioControlPanel(QWidget *parent)
     , marker_list_()
     , token_list_()
     , image_view_(0)
-    , image_interactive_(false)
     , host_name_(0)
     , host_submit_(0)
     , host_label_(0)
@@ -61,19 +60,7 @@ TuioControlPanel::~TuioControlPanel()
 
 void TuioControlPanel::setImageView(Image::View *view)
 {
-    if(image_view_) {
-        disconnect(image_view_, &Image::View::interactiveEnabled,
-                   this, &TuioControlPanel::onImageInteractiveEnabled);
-    }
-
     image_view_ = view;
-    connect(image_view_, &Image::View::interactiveEnabled,
-            this, &TuioControlPanel::onImageInteractiveEnabled);
-}
-
-void TuioControlPanel::onImageInteractiveEnabled(bool enabled)
-{
-    image_interactive_ = enabled;
 }
 
 void TuioControlPanel::onNewHostName()
@@ -150,7 +137,7 @@ void TuioControlPanel::onTokenChanged(int id, TuioTokenTableModel::TokenChange c
             token_list_[id]->setRotation(qRadiansToDegrees(token.angle()));
         }
         // TODO: improve
-        if(image_interactive_ && isTrackingToken(token))
+        if(isTrackingToken(token))
             updateInteractiveImageToken(token);
     }
     else if(c == TuioTokenTableModel::TOKEN_REMOVED) {
@@ -298,23 +285,34 @@ void TuioControlPanel::initLayout()
 
 void TuioControlPanel::updateInteractiveImageToken(const QTuioToken &token)
 {
+    if(!image_view_->isImageInteractive())
+        image_view_->onMakeInteractive();
     QGraphicsItem *it = image_view_->getItem();
     InteractiveImage* image_item = qgraphicsitem_cast<InteractiveImage*>(it);
-    if(!image_item)
+    if(!image_item) {
         return;
+    }
+
+    tracker_->setRelativePosition(QPointF((1 - token.x()), (1 - token.y())));
+    tracker_->setRotation(qRadiansToDegrees(token.angle()));
 
     QList<InteractiveImageToken*> iit = image_item->getTokens();
-    if(iit.size() == 0)
-        return;
+    if(iit.size() == 0) {
+        InteractiveImageToken* img_token = new InteractiveImageToken(QSize(50,50));
+        img_token->setUncoverRadius(100);
+        img_token->setPos(
+            tracker_->getRelativePosition().x() * image_view_->scene()->width(),
+            tracker_->getRelativePosition().y() * image_view_->scene()->height()
+        );
+        img_token->setRotation(tracker_->getRotation());
+        image_item->addToken(img_token);
+        iit = image_item->getTokens();
+    }
 
-    tracker_->beginModify();
-    tracker_->setPosition(QPointF((1 - token.x()), (1 - token.y())));
-    tracker_->setRotation(token.angle());
-    tracker_->endModify();
-
-    if(!tracker_->isLinked(iit[0]))
-        tracker_->link(iit[0], Tracker::ALL);
-
+    if(!tracker_->isLinked(iit[0])) {
+        qDebug() << "  > link established" << tracker_->link(iit[0], Tracker::REL_POSITION);
+        qDebug() << "  > link established" << tracker_->link(iit[0], Tracker::ROTATION);
+    }
     /*
     QPointF new_pos;
     new_pos.setX(image_view_->scene()->width() * (1 - token.x()));

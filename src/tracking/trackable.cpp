@@ -48,14 +48,14 @@ bool Trackable::registerManipulate(Tracker *tracker, const QString &key)
 
 bool Trackable::updateGrabFromTracker(Tracker *tracker, int target_prop)
 {
-    if(!hasGrab(target_prop) || grabs_[target_prop] != tracker)
+    if(!hasGrab(target_prop) || (grabs_[target_prop] != tracker))
         return false;
     return true;
 }
 
 bool Trackable::updateLinkFromTracker(Tracker *tracker, int target_prop)
 {
-    if(!hasLink(target_prop) || links_[target_prop] != tracker)
+    if(!hasLink(target_prop) || (links_[target_prop] != tracker))
         return false;
     return true;
 }

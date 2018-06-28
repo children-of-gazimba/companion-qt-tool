@@ -232,8 +232,6 @@ void InteractiveImage::calcResultImage()
             p.setBrush(Qt::black);
             p.setPen(Qt::NoPen);
             QRectF uncover_area(it->mapRectToScene(it->uncoverBoundingRect()));
-            uncover_area.setX(uncover_area.x()-uncover_area.width()/2.0f);
-            uncover_area.setY(uncover_area.y()-uncover_area.height()/2.0f);
             p.drawEllipse(uncover_area);
         }
         p.setBrush(Qt::black);

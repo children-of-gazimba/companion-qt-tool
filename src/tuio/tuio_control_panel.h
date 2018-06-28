@@ -30,7 +30,6 @@ public:
     void setImageView(Image::View *view);
 
 protected slots:
-    void onImageInteractiveEnabled(bool enabled);
     void onNewHostName();
     void onCursorChanged(int id, TuioCursorTableModel::CursorChange c);
     void onTokenChanged(int id, TuioTokenTableModel::TokenChange c);
@@ -51,7 +50,6 @@ private:
     QMap<int, QGraphicsItem*> token_list_;
 
     Image::View *image_view_;
-    bool image_interactive_;
 
     QLineEdit* host_name_;
     QPushButton* host_submit_;
