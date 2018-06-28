@@ -17,7 +17,7 @@ TuioCursorItem::~TuioCursorItem()
 
 QRectF TuioCursorItem::boundingRect() const
 {
-    return QRectF(0,0,35,35);
+    return QRectF(-17.5,-17.5,35,35);
 }
 
 void TuioCursorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

@@ -19,7 +19,7 @@ TuioTokenItem::~TuioTokenItem()
 
 QRectF TuioTokenItem::boundingRect() const
 {
-    return QRectF(0,0,50,50);
+    return QRectF(-25,-25,50,50);
 }
 
 void TuioTokenItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
