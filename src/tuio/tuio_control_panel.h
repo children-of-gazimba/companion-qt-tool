@@ -17,6 +17,7 @@
 #include "tuio_model_handler.h"
 
 #include "image/view.h"
+#include "tracking/tracker.h"
 
 
 class TuioControlPanel : public QWidget
@@ -61,6 +62,7 @@ private:
     QTableView* token_table_;
     int tracking_token_id_;
     int tracking_token_class_id_;
+    Tracker* tracker_;
 };
 
 #endif // TUIO_CONTROL_PANEL_H

@@ -4,7 +4,9 @@
 #include <QGraphicsObject>
 #include <QUuid>
 
-class InteractiveImageToken : public QGraphicsObject
+#include "tracking/trackable.h"
+
+class InteractiveImageToken : public QGraphicsObject, public Trackable
 {
     Q_OBJECT
 
@@ -31,6 +33,16 @@ public:
      * See BC.
     */
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+
+    /**
+     * See BC.
+    */
+    virtual bool updateLinkFromTracker(Tracker *tracker, int target_prop);
+
+    /**
+     * See BC.
+    */
+    virtual bool updateGrabFromTracker(Tracker *tracker, int target_prop);
 
     /*
     * Returns a boundingRect for the current uncover area.

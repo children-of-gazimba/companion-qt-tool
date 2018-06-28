@@ -34,6 +34,7 @@ TuioControlPanel::TuioControlPanel(QWidget *parent)
     , token_table_(0)
     , tracking_token_id_(-1)
     , tracking_token_class_id_(-1)
+    , tracker_(new Tracker)
 {
     setWindowTitle("Tuio Control Panel");
     setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint);
@@ -54,6 +55,8 @@ TuioControlPanel::~TuioControlPanel()
         view_->scene()->removeItem(t);
         delete t;
     }
+    if(tracker_)
+        delete tracker_;
 }
 
 void TuioControlPanel::setImageView(Image::View *view)
@@ -304,8 +307,18 @@ void TuioControlPanel::updateInteractiveImageToken(const QTuioToken &token)
     if(iit.size() == 0)
         return;
 
+    tracker_->beginModify();
+    tracker_->setPosition(QPointF((1 - token.x()), (1 - token.y())));
+    tracker_->setRotation(token.angle());
+    tracker_->endModify();
+
+    if(!tracker_->isLinked(iit[0]))
+        tracker_->link(iit[0], Tracker::ALL);
+
+    /*
     QPointF new_pos;
     new_pos.setX(image_view_->scene()->width() * (1 - token.x()));
     new_pos.setY(image_view_->scene()->height() * (1 - token.y()));
     iit[0]->setUncoverPos(new_pos);
+    */
 }

@@ -84,7 +84,9 @@ SOURCES += main.cpp \
     tuio/models/tuio_token_table_model.cpp \
     tuio/tuio_model_handler.cpp \
     tuio/tuio_token_item.cpp \
-    tuio/tuio_cursor_item.cpp
+    tuio/tuio_cursor_item.cpp \
+    tracking/tracker.cpp \
+    tracking/trackable.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -149,7 +151,9 @@ HEADERS  += main_window.h \
     tuio/models/tuio_token_table_model.h \
     tuio/tuio_model_handler.h \
     tuio/tuio_token_item.h \
-    tuio/tuio_cursor_item.h
+    tuio/tuio_cursor_item.h \
+    tracking/tracker.h \
+    tracking/trackable.h
 
 RESOURCES += \
     _RES/resources.qrc
