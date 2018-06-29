@@ -127,6 +127,11 @@ void Tracker::endModify()
     updateTargets();
 }
 
+const QString &Tracker::getName() const
+{
+    return name_;
+}
+
 const QPointF &Tracker::getPosition() const
 {
     return position_;
@@ -140,6 +145,11 @@ const QPointF &Tracker::getRelativePosition() const
 qreal Tracker::getRotation() const
 {
     return rotation_;
+}
+
+void Tracker::setName(const QString &n)
+{
+    name_ = n;
 }
 
 void Tracker::setPosition(const QPointF &p)

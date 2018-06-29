@@ -50,6 +50,16 @@ public:
     */
     virtual const QRectF uncoverBoundingRect() const;
 
+    /**
+     * Gets the name for this instance.
+    */
+    const QString& getName() const;
+
+    /**
+     * Sets the name for this instance.
+    */
+    void setName(const QString& n);
+
     /*
     * Returns the uuid of this instance.
     */
@@ -100,6 +110,7 @@ protected:
     State state_;
     QUuid uuid_;
     float uncover_radius_;
+    QString name_;
 };
 
 #endif // INTERACTIVE_IMAGE_TOKEN_H

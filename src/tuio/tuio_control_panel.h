@@ -11,10 +11,13 @@
 #include <QTableView>
 #include <QLabel>
 #include <QHostAddress>
+#include <QMenuBar>
+#include <QSplitter>
 
 #include "tuio_graphics_view.h"
 #include "udp_client.h"
 #include "tuio_model_handler.h"
+#include "register_token_dialog.h"
 
 #include "image/view.h"
 #include "tracking/tracker.h"
@@ -34,20 +37,25 @@ protected slots:
     void onCursorChanged(int id, TuioCursorTableModel::CursorChange c);
     void onTokenChanged(int id, TuioTokenTableModel::TokenChange c);
     void onTokenFieldSelected(const QModelIndex&);
+    void onRegisterCursorTracker();
+    void onRegisterTokenTracker();
+    void onSceneSelectionChanged();
+    void onTrackerAdded(const TuioTokenTracker&);
 
 private:
-    void setTrackingTokenID(int);
-    void setTrackingTokenClassID(int);
-    void resetTokenTracking();
     bool isTrackingToken(const QTuioToken&) const;
-    void initTuio(const QHostAddress& ip, unsigned port);
-    void initWidgets();
-    void initLayout();
     void updateInteractiveImageToken(const QTuioToken& active_token);
 
 private:
+    void initTuio(const QHostAddress& ip, unsigned port);
+    void initWidgets();
+    void initActions();
+    void initLayout();
+
     QMap<int, QGraphicsItem*> marker_list_;
     QMap<int, QGraphicsItem*> token_list_;
+
+    RegisterTokenDialog* token_registry_;
 
     Image::View *image_view_;
 
@@ -58,9 +66,9 @@ private:
     TuioModelHandler *tuio_handler_;
     QTableView* cursor_table_;
     QTableView* token_table_;
-    int tracking_token_id_;
-    int tracking_token_class_id_;
-    Tracker* tracker_;
+    QMenuBar* menu_bar_;
+    QSplitter* main_splitter_;
+    QMap<QString, TuioTokenTracker*> token_tracker_;
 };
 
 #endif // TUIO_CONTROL_PANEL_H

@@ -20,6 +20,11 @@ Playlist--SettingsWidget {
     color: white;
 }
 
+RegisterTokenDialog {
+    background-color: #373738;
+    color: white;
+}
+
 SpotifyControlPanel {
     background-color: #373738;
     color: white;

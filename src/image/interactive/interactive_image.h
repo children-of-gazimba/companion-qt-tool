@@ -4,6 +4,7 @@
 #include <QGraphicsObject>
 #include <QImage>
 #include <QMap>
+#include <QSet>
 
 #include "interactive_image_token.h"
 
@@ -56,15 +57,21 @@ public:
      */
     const QList<InteractiveImageToken*> getTokens() const;
 
+    const QSet<QString>& getTrackerNames() const;
+
+    bool addTrackerName(const QString& n);
+
+    bool removeTrackerName(const QString& n);
+
 signals:
 
 public slots:
     void loadImage();
 
 protected slots:
-
     void onHasMoved(const QUuid&);
     void onCreateToken();
+    void onCreateToken(const QString&);
     void onUncoverAll();
     void onCoverAll();
 
@@ -98,6 +105,7 @@ protected:
     bool all_uncovered_;
     QMenu* menu_bar_extension_;
     bool need_calc_;
+    QSet<QString> tracker_names_;
 };
 
 #endif // INTERACTIVE_IMAGE_H

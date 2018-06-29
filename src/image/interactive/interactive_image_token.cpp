@@ -16,6 +16,7 @@ InteractiveImageToken::InteractiveImageToken(QGraphicsItem *parent)
     , state_(IDLE)
     , uuid_(QUuid::createUuid())
     , uncover_radius_(0.0f)
+    , name_("")
 {
     uncover_radius_ = sqrt(100*100 + 100*100);
     setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -28,6 +29,7 @@ InteractiveImageToken::InteractiveImageToken(const QSizeF &s, QGraphicsItem *par
     , state_(IDLE)
     , uuid_(QUuid::createUuid())
     , uncover_radius_(0.0f)
+    , name_("")
 {
     uncover_radius_ = sqrt(s.width()*s.width() + s.height()*s.height());
     setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -118,6 +120,16 @@ bool InteractiveImageToken::updateGrabFromTracker(Tracker *tracker, int target_p
 const QRectF InteractiveImageToken::uncoverBoundingRect() const
 {
     return QRectF(-uncover_radius_/2.0, -uncover_radius_/2.0, uncover_radius_, uncover_radius_);
+}
+
+const QString &InteractiveImageToken::getName() const
+{
+    return name_;
+}
+
+void InteractiveImageToken::setName(const QString &n)
+{
+    name_ = n;
 }
 
 const QUuid &InteractiveImageToken::getUuid() const

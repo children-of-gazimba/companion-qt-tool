@@ -36,13 +36,15 @@ public:
     void beginModify();
     void endModify();
 
+    const QString& getName() const;
     const QPointF& getPosition() const;
     const QPointF& getRelativePosition() const;
     qreal getRotation() const;
 
-    void setPosition(const QPointF&);
-    void setRelativePosition(const QPointF&);
-    void setRotation(qreal);
+    virtual void setName(const QString&);
+    virtual void setPosition(const QPointF&);
+    virtual void setRelativePosition(const QPointF&);
+    virtual void setRotation(qreal);
 
     bool isLinked(Trackable* target, int target_prop = -1) const;
     bool isGrabbed(Trackable* target, int target_prop = -1) const;
@@ -67,6 +69,8 @@ protected:
     virtual void rotationUpdatedEvent();
 
     void updateTargets(int target_property = -1);
+
+    QString name_;
 
     QPointF position_;
     QPointF relative_position_;
