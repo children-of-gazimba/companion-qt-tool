@@ -22,6 +22,7 @@ InteractiveImage::InteractiveImage(const QSize &size, QGraphicsItem* parent)
     , all_uncovered_(true)
     , menu_bar_extension_(0)
     , need_calc_(false)
+    , tracker_names_()
 {
     result_image_ = new QImage(result_size_, QImage::Format_ARGB32_Premultiplied);
     src_image_ = new QImage;
@@ -45,6 +46,7 @@ InteractiveImage::InteractiveImage(const QString& path, const QSize &size, QGrap
     , all_uncovered_(true)
     , menu_bar_extension_(0)
     , need_calc_(false)
+    , tracker_names_()
 {
     result_image_ = new QImage(result_size_, QImage::Format_ARGB32_Premultiplied);
     src_image_ = new QImage;
@@ -107,7 +109,35 @@ QMenu *InteractiveImage::getMenuBarExtension()
 
 const QList<InteractiveImageToken *> InteractiveImage::getTokens() const
 {
-   return token_paths_.keys();
+    return token_paths_.keys();
+}
+
+const QSet<QString> &InteractiveImage::getTrackerNames() const
+{
+    return tracker_names_;
+}
+
+bool InteractiveImage::addTrackerName(const QString &n)
+{
+    if(tracker_names_.contains(n) || actions_.contains(n))
+        return false;
+    tracker_names_.insert(n);
+    actions_[n] = new QAction("Create '" + n + "' Token", this);
+    context_menu_->addAction(actions_[n]);
+    connect(actions_[n], &QAction::triggered,
+            this, [=](){onCreateToken(n);});
+    return true;
+}
+
+bool InteractiveImage::removeTrackerName(const QString &n)
+{
+    if(!tracker_names_.contains(n))
+        return false;
+    tracker_names_.remove(n);
+    context_menu_->removeAction(actions_[n]);
+    actions_[n]->deleteLater();
+    actions_.remove(n);
+    return true;
 }
 
 void InteractiveImage::linkToken(InteractiveImageToken *it)
@@ -145,6 +175,21 @@ void InteractiveImage::onCreateToken()
     spawn_pos.setX(spawn_pos.x()-it->boundingRect().width()/2.0f);
     spawn_pos.setY(spawn_pos.y()-it->boundingRect().height()/2.0f);
     it->setPos(spawn_pos);
+    addToken(it);
+}
+
+void InteractiveImage::onCreateToken(const QString &n)
+{
+    if(!scene())
+        return;
+
+    InteractiveImageToken* it = new InteractiveImageToken(QSizeF(50,50));
+    it->setUncoverRadius(100);
+    QPointF spawn_pos(it->mapFromScene(click_pos_));
+    spawn_pos.setX(spawn_pos.x()-it->boundingRect().width()/2.0f);
+    spawn_pos.setY(spawn_pos.y()-it->boundingRect().height()/2.0f);
+    it->setPos(spawn_pos);
+    it->setName(n);
     addToken(it);
 }
 
@@ -232,8 +277,6 @@ void InteractiveImage::calcResultImage()
             p.setBrush(Qt::black);
             p.setPen(Qt::NoPen);
             QRectF uncover_area(it->mapRectToScene(it->uncoverBoundingRect()));
-            uncover_area.setX(uncover_area.x()-uncover_area.width()/2.0f);
-            uncover_area.setY(uncover_area.y()-uncover_area.height()/2.0f);
             p.drawEllipse(uncover_area);
         }
         p.setBrush(Qt::black);
@@ -299,4 +342,5 @@ void InteractiveImage::initContextMenu()
     context_menu_->addSeparator();
     context_menu_->addAction(actions_["cover"]);
     context_menu_->addAction(actions_["uncover"]);
+    context_menu_->addSeparator();
 }

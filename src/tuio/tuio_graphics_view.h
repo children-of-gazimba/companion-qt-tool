@@ -9,12 +9,14 @@ class TuioGraphicsView : public QGraphicsView
     public:
         explicit TuioGraphicsView(QWidget *parent = nullptr);
 
+        void addItem(QGraphicsItem*);
     signals:
 
     public slots:
 
     protected:
         virtual void resizeEvent(QResizeEvent* e);
+        QSize default_size_;
 };
 
 #endif // TUIO_GRAPHICS_VIEW_H

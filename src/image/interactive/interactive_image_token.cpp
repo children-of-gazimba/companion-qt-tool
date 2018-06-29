@@ -4,15 +4,19 @@
 #include <QPainter>
 #include <QDebug>
 #include <cmath>
+#include <QGraphicsScene>
 
 #include "resources/lib.h"
+#include "tracking/tracker.h"
 
 InteractiveImageToken::InteractiveImageToken(QGraphicsItem *parent)
     : QGraphicsObject(parent)
-    , bounding_rect_(0, 0, 100, 100)
+    , Trackable()
+    , bounding_rect_(-50, -50, 100, 100)
     , state_(IDLE)
     , uuid_(QUuid::createUuid())
     , uncover_radius_(0.0f)
+    , name_("")
 {
     uncover_radius_ = sqrt(100*100 + 100*100);
     setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -20,10 +24,12 @@ InteractiveImageToken::InteractiveImageToken(QGraphicsItem *parent)
 
 InteractiveImageToken::InteractiveImageToken(const QSizeF &s, QGraphicsItem *parent)
     : QGraphicsObject(parent)
-    , bounding_rect_(0, 0, s.width(), s.height())
+    , Trackable()
+    , bounding_rect_(-s.width()/2.0, -s.height()/2.0, s.width(), s.height())
     , state_(IDLE)
     , uuid_(QUuid::createUuid())
     , uncover_radius_(0.0f)
+    , name_("")
 {
     uncover_radius_ = sqrt(s.width()*s.width() + s.height()*s.height());
     setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -68,9 +74,62 @@ void InteractiveImageToken::paint(QPainter *painter, const QStyleOptionGraphicsI
     painter->drawPixmap(bounding_rect_.toRect(), *Resources::Lib::PX_COMPANION);
 }
 
+bool InteractiveImageToken::updateLinkFromTracker(Tracker *tracker, int target_prop)
+{
+    if(!Trackable::updateLinkFromTracker(tracker, target_prop))
+        return false;
+
+    if(!scene())
+        return false;
+
+    QPointF uncover_pos;
+    switch(target_prop) {
+        case Tracker::ALL:
+            uncover_pos.setX(tracker->getRelativePosition().x() * scene()->width());
+            uncover_pos.setY(tracker->getRelativePosition().y() * scene()->height());
+            setRotation(tracker->getRotation());
+            break;
+        case Tracker::POSITION:
+            setUncoverPos(tracker->getPosition());
+            break;
+        case Tracker::REL_POSITION:
+            uncover_pos.setX(tracker->getRelativePosition().x() * scene()->width());
+            uncover_pos.setY(tracker->getRelativePosition().y() * scene()->height());
+            break;
+        case Tracker::ROTATION:
+            setRotation(tracker->getRotation());
+            break;
+        default:break;
+    }
+
+    if(!uncover_pos.isNull())
+        setUncoverPos(uncover_pos);
+
+    return true;
+}
+
+bool InteractiveImageToken::updateGrabFromTracker(Tracker *tracker, int target_prop)
+{
+    if(!Trackable::updateGrabFromTracker(tracker, target_prop))
+        return false;
+    qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+    qDebug() << "  > " << "TODO implement grab";
+    return true;
+}
+
 const QRectF InteractiveImageToken::uncoverBoundingRect() const
 {
-    return QRectF(0, 0, uncover_radius_, uncover_radius_);
+    return QRectF(-uncover_radius_/2.0, -uncover_radius_/2.0, uncover_radius_, uncover_radius_);
+}
+
+const QString &InteractiveImageToken::getName() const
+{
+    return name_;
+}
+
+void InteractiveImageToken::setName(const QString &n)
+{
+    name_ = n;
 }
 
 const QUuid &InteractiveImageToken::getUuid() const

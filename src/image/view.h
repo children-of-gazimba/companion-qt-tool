@@ -19,8 +19,9 @@ public:
     virtual  ~View();
 
     void setItem(ImageItem*);
-
     QGraphicsItem *getItem() const;
+
+    bool isImageInteractive() const;
 
     QMenu* getMenuBarExtension();
 
@@ -31,8 +32,6 @@ signals:
 public slots:
     void clear();
     void scaleContentsToViewport();
-
-private slots:
     void onMakeInteractive();
 
 private:

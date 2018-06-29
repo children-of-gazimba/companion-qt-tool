@@ -37,6 +37,11 @@ QGraphicsItem *View::getItem() const
     return item_;
 }
 
+bool View::isImageInteractive() const
+{
+    return qgraphicsitem_cast<InteractiveImage*>(item_) ? true : false;
+}
+
 QMenu *View::getMenuBarExtension()
 {
     auto it = qgraphicsitem_cast<InteractiveImage*>(item_);

@@ -27,6 +27,7 @@ void TuioCursorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
 
     QRectF b_rect(boundingRect());
     painter->setPen(QColor(55,55,56));
+    painter->setBrush(QColor(55,55,56));
     painter->drawEllipse(b_rect.center(), b_rect.width()/2.0, b_rect.height()/2.0);
     painter->setPen(QColor(Qt::white));
     painter->drawText(b_rect, Qt::TextWrapAnywhere | Qt::AlignCenter, "id " + QString::number(id_));
