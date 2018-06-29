@@ -74,6 +74,8 @@ protected slots:
     void onCreateToken(const QString&);
     void onUncoverAll();
     void onCoverAll();
+    void onTrackerAdded(QString const&);
+    void onTrackerRemoved(QString const&);
 
 protected:    
     void linkToken(InteractiveImageToken* it);

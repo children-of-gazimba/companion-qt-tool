@@ -18,9 +18,13 @@ public:
         ROTATION = 4
     };
 
+    enum { TrackerType = 1 };
+    virtual int trackerType() const { return TrackerType; }
+
 public:
     Tracker();
     virtual ~Tracker();
+
 
     virtual bool link(Trackable* target, int target_prop = ALL);
     virtual bool grab(Trackable* target, int target_prop = ALL);
@@ -41,6 +45,7 @@ public:
     const QPointF& getRelativePosition() const;
     qreal getRotation() const;
 
+    virtual void set(const Tracker* other);
     virtual void setName(const QString&);
     virtual void setPosition(const QPointF&);
     virtual void setRelativePosition(const QPointF&);

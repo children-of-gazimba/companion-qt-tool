@@ -18,6 +18,18 @@ TuioTokenTracker::TuioTokenTracker(int class_id, int id)
     , flip_y_(false)
 {}
 
+void TuioTokenTracker::set(const Tracker *other)
+{
+    if(other->trackerType() == TuioTokenTracker::TrackerType) {
+        auto other_token = static_cast<const TuioTokenTracker*>(other);
+        id_ = other_token->getId();
+        class_id_ = other_token->getClassId();
+        flip_x_ = other_token->getXFlipped();
+        flip_y_ = other_token->getYFlipped();
+    }
+    Tracker::set(other);
+}
+
 void TuioTokenTracker::setRelativePosition(const QPointF &p)
 {
     QPointF rel_p(p);
@@ -43,18 +55,6 @@ bool TuioTokenTracker::set(const QTuioToken &t)
     setRelativePosition(QPointF(t.x(), t.y()));
     setRotation(qRadiansToDegrees(t.angle()));
     return true;
-}
-
-void TuioTokenTracker::copy(const TuioTokenTracker &t)
-{
-    id_ = t.id_;
-    class_id_ = t.class_id_;
-    name_ = t.name_;
-    flip_x_ = t.flip_x_;
-    flip_y_ = t.flip_y_;
-    rotation_ = t.rotation_;
-    relative_position_ = t.relative_position_;
-    updateTargets();
 }
 
 int TuioTokenTracker::getId() const

@@ -104,6 +104,7 @@ void List::initWidgets()
             this, SLOT(onImageSelected(const QModelIndex&)));
 
     presentation_view_ = new ImageDisplayWidget;
+    presentation_view_->setMinimumSize(640, 480);
     presentation_view_->setWindowFlags(Qt::Window);
     presentation_view_->setWindowTitle(tr("Companion Stage"));
     presentation_view_->hide();

@@ -54,24 +54,27 @@ void InteractiveImageToken::paint(QPainter *painter, const QStyleOptionGraphicsI
 {
     Q_UNUSED(option);
     Q_UNUSED(widget);
-    painter->setRenderHint(QPainter::SmoothPixmapTransform);
+    //painter->setRenderHint(QPainter::SmoothPixmapTransform);
 
-    setOpacity(0.3f);
+    setOpacity(0.8f);
     if(state_ == IDLE) {
-        painter->setBrush(Qt::red);
+        //painter->setBrush(Qt::red);
     }
     else if(state_ == SELECTED) {
-        setOpacity(0.6f);
-        painter->setBrush(Qt::blue);
+        setOpacity(1.0f);
+        //painter->setBrush(Qt::blue);
     }
     else if(state_ == MOVE) {
-        setOpacity(0.9f);
-        painter->setBrush(Qt::green);
+        setOpacity(1.0f);
+        //painter->setBrush(Qt::green);
     }
-    painter->setPen(Qt::NoPen);
+    QPen p(Qt::white);
+    p.setWidth(4);
+    painter->setPen(p);
+    painter->setBrush(QColor(55,55,56));
     painter->drawEllipse(bounding_rect_);
-    setOpacity(0.6f);
-    painter->drawPixmap(bounding_rect_.toRect(), *Resources::Lib::PX_COMPANION);
+    /*setOpacity(0.6f);
+    painter->drawPixmap(bounding_rect_.toRect(), *Resources::Lib::PX_COMPANION);*/
 }
 
 bool InteractiveImageToken::updateLinkFromTracker(Tracker *tracker, int target_prop)

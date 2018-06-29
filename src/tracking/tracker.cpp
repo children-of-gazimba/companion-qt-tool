@@ -147,6 +147,14 @@ qreal Tracker::getRotation() const
     return rotation_;
 }
 
+void Tracker::set(const Tracker *other)
+{
+    setName(other->getName());
+    setPosition(other->getPosition());
+    setRelativePosition(other->getRelativePosition());
+    setRotation(other->getRotation());
+}
+
 void Tracker::setName(const QString &n)
 {
     name_ = n;

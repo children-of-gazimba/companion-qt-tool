@@ -17,13 +17,14 @@
 #include "image/interactive/interactive_image.h"
 #include "tuio_token_item.h"
 #include "tuio_cursor_item.h"
+#include "resources/lib.h"
+#include "tracking/tracker.h"
 
 TuioControlPanel::TuioControlPanel(QWidget *parent)
     : QWidget(parent)
     , marker_list_()
     , token_list_()
     , token_registry_(0)
-    , image_view_(0)
     , host_name_(0)
     , host_submit_(0)
     , host_label_(0)
@@ -56,15 +57,6 @@ TuioControlPanel::~TuioControlPanel()
     }
     if(token_registry_)
         token_registry_->deleteLater();
-    foreach(auto tracker, token_tracker_) {
-        // TODO remove actions from image_view
-        delete tracker;
-    }
-}
-
-void TuioControlPanel::setImageView(Image::View *view)
-{
-    image_view_ = view;
 }
 
 void TuioControlPanel::onNewHostName()
@@ -143,9 +135,7 @@ void TuioControlPanel::onTokenChanged(int id, TuioTokenTableModel::TokenChange c
             token_list_[id]->setY(view_->sceneRect().height() * token.y());
             token_list_[id]->setRotation(qRadiansToDegrees(token.angle()));
         }
-        // TODO: improve
-        if(isTrackingToken(token))
-            updateInteractiveImageToken(token);
+        updateTrackedData(token);
     }
     else if(c == TuioTokenTableModel::TOKEN_REMOVED) {
         // delete token marker
@@ -216,51 +206,20 @@ void TuioControlPanel::onSceneSelectionChanged()
 
 void TuioControlPanel::onTrackerAdded(const TuioTokenTracker &tracker)
 {
-    if(token_tracker_.contains(tracker.getName()))
-        return;
-    token_tracker_[tracker.getName()] = new TuioTokenTracker;
-    token_tracker_[tracker.getName()]->copy(tracker);
-    InteractiveImage* image_item = qgraphicsitem_cast<InteractiveImage*>(image_view_->getItem());
-    if(!image_item) {
-        return;
-    }
-    image_item->addTrackerName(tracker.getName());
+    Tracker* new_tracker = new TuioTokenTracker;
+    new_tracker->set(&tracker);
+    Resources::Lib::TRACKER_MODEL->addTracker(new_tracker);
 }
 
-bool TuioControlPanel::isTrackingToken(const QTuioToken &t) const
+void TuioControlPanel::updateTrackedData(const QTuioToken &token)
 {
-    foreach(auto tracker, token_tracker_.values()) {
-        if(tracker->isCompatible(t))
-            return true;
-    }
-    return false;
-}
-
-void TuioControlPanel::updateInteractiveImageToken(const QTuioToken &token)
-{
-    if(!image_view_->isImageInteractive())
-        image_view_->onMakeInteractive();
-
-    QGraphicsItem *it = image_view_->getItem();
-    InteractiveImage* image_item = qgraphicsitem_cast<InteractiveImage*>(it);
-    QList<InteractiveImageToken*> interactive_tokens;
-    if(image_item) {
-        interactive_tokens = image_item->getTokens();
-        // TODO: move some place else
-        if(image_item->getTrackerNames().size() != token_tracker_.size()) {
-            foreach(auto n, token_tracker_.keys())
-                image_item->addTrackerName(n);
-        }
-    }
-
-    // TODO: move some place else
-    foreach(auto tracker, token_tracker_.values()) {
-        if(tracker->isCompatible(token))
-            tracker->set(token);
-        foreach(auto iit, interactive_tokens) {
-            if(!tracker->isLinked(iit) && iit->getName().compare(tracker->getName()) == 0) {
-                tracker->link(iit, Tracker::REL_POSITION);
-                tracker->link(iit, Tracker::ROTATION);
+    TuioTokenTracker temp_tracker;
+    foreach(auto tracker, Resources::Lib::TRACKER_MODEL->getTrackers()) {
+        if(tracker->trackerType() == TuioTokenTracker::TrackerType) {
+            temp_tracker.set(tracker);
+            if(temp_tracker.isCompatible(token)) {
+                temp_tracker.set(token);
+                Resources::Lib::TRACKER_MODEL->updateTracker(&temp_tracker);
             }
         }
     }
@@ -379,8 +338,6 @@ void TuioControlPanel::initLayout()
 
     main_splitter_->addWidget(box_left);
     main_splitter_->addWidget(box_right);
-    //top_splitter->setStretchFactor(0, 1);
-    //top_splitter->setStretchFactor(0, 3);
     main_splitter_->setSizes(QList<int>() << 0 << 100);
     main_splitter_->setContentsMargins(5,0,5,0);
 

@@ -261,8 +261,6 @@ void CompanionWidget::onStartTuioControlPanel()
 {
     if(tuio_control_panel_ == 0) {
         tuio_control_panel_ = new TuioControlPanel;
-        tuio_control_panel_->setImageView(image_browser_->getView());
-//        connect(imagevi)
     }
     if(tuio_control_panel_->isVisible()) {
         tuio_control_panel_->raise();

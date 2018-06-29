@@ -29,6 +29,8 @@ void Lib::init()
 #else
     DARK_STYLE = loadFileToString(":/styles/dark_style.css");
 #endif
+    if(!TRACKER_MODEL)
+        TRACKER_MODEL = new TrackerTableModel;
     if(PX_COMPANION == 0)
         PX_COMPANION = new QPixmap(IMG_COMPANION);
     if(PX_CRACKED_STONE == 0)
@@ -123,6 +125,8 @@ void Lib::init()
 
 void Lib::cleanup()
 {
+    if(TRACKER_MODEL)
+        TRACKER_MODEL->deleteLater();
     if(PX_COMPANION != 0)
         delete PX_COMPANION;
     if(PX_CRACKED_STONE != 0)
@@ -214,6 +218,7 @@ void Lib::cleanup()
     if(PX_Z_KEY != 0)
         delete PX_Z_KEY;
 
+    TRACKER_MODEL = nullptr;
     PX_COMPANION = 0;
     PX_CRACKED_STONE = 0;
     PX_CRACKED_STONE_INV = 0;
@@ -355,6 +360,11 @@ QPixmap *Lib::getKeyPixmap(const QChar &k)
             return 0;
     }
 }
+
+/**
+ * Global models
+*/
+TrackerTableModel* Lib::TRACKER_MODEL = nullptr;
 
 /*
 * DATABASE

@@ -8,14 +8,19 @@
 class TuioTokenTracker : public Tracker
 {
 public:
+    enum { TrackerType = Tracker::TrackerType + 1 };
+    virtual int trackerType() const { return TrackerType; }
+
+public:
     TuioTokenTracker();
     TuioTokenTracker(int class_id, int id = -1);
+
+    virtual void set(const Tracker* other);
 
     virtual void setRelativePosition(QPointF const&);
     virtual const QList<int> supportedTargetProperties() const;
 
     bool set(QTuioToken const&);
-    void copy(const TuioTokenTracker&);
 
     int getId() const;
     int getClassId() const;
