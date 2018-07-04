@@ -27,17 +27,16 @@ void TuioTokenTracker::set(const Tracker *other)
         flip_x_ = other_token->getXFlipped();
         flip_y_ = other_token->getYFlipped();
     }
-    Tracker::set(other);
+    setName(other->getName());
+    setRotation(other->getRotation());
+    setPosition(other->getPosition());
+    // need to flip here, because setRelativePosition flips again
+    setRelativePosition(flip(other->getRelativePosition()));
 }
 
 void TuioTokenTracker::setRelativePosition(const QPointF &p)
 {
-    QPointF rel_p(p);
-    if(flip_x_)
-        rel_p.setX(1-p.x());
-    if(flip_y_)
-        rel_p.setY(1-p.y());
-    Tracker::setRelativePosition(rel_p);
+    Tracker::setRelativePosition(flip(p));
 }
 
 const QList<int> TuioTokenTracker::supportedTargetProperties() const
@@ -105,4 +104,14 @@ bool TuioTokenTracker::isValid() const
 bool TuioTokenTracker::isCompatible(const QTuioToken &t)
 {
     return t.id() == id_ || t.classId() == class_id_;
+}
+
+const QPointF TuioTokenTracker::flip(const QPointF &p) const
+{
+    QPointF new_p(p);
+    if(flip_x_)
+        new_p.setX(1-new_p.x());
+    if(flip_y_)
+        new_p.setY(1-new_p.y());
+    return new_p;
 }

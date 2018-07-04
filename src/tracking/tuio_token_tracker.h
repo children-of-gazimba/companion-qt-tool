@@ -34,6 +34,8 @@ public:
     bool isCompatible(QTuioToken const&);
 
 protected:
+    QPointF const flip(const QPointF&) const;
+
     int id_;
     int class_id_;
     bool flip_x_;
