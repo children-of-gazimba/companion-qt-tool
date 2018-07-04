@@ -17,6 +17,9 @@ InteractiveImageToken::InteractiveImageToken(QGraphicsItem *parent)
     , uuid_(QUuid::createUuid())
     , uncover_radius_(0.0f)
     , name_("")
+    , grabbed_rotation_(0.0f)
+    , grabbed_position_()
+    , grabbed_relative_position_()
 {
     uncover_radius_ = sqrt(100*100 + 100*100);
     setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -30,6 +33,9 @@ InteractiveImageToken::InteractiveImageToken(const QSizeF &s, QGraphicsItem *par
     , uuid_(QUuid::createUuid())
     , uncover_radius_(0.0f)
     , name_("")
+    , grabbed_rotation_(0.0f)
+    , grabbed_position_()
+    , grabbed_relative_position_()
 {
     uncover_radius_ = sqrt(s.width()*s.width() + s.height()*s.height());
     setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -115,8 +121,59 @@ bool InteractiveImageToken::updateGrabFromTracker(Tracker *tracker, int target_p
 {
     if(!Trackable::updateGrabFromTracker(tracker, target_prop))
         return false;
-    qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
-    qDebug() << "  > " << "TODO implement grab";
+    if(!ensureGrabbable(tracker, target_prop))
+        return false;
+
+    QPointF uncover_diff(
+        (tracker->getRelativePosition().x() - grabbed_relative_position_.x()) * scene()->width(),
+        (tracker->getRelativePosition().y() - grabbed_relative_position_.y()) * scene()->height()
+    );
+
+    QPointF uncover_pos(
+        pos().x() + uncover_diff.x(),
+        pos().y() + uncover_diff.y()
+    );
+
+    grabbed_relative_position_ = tracker->getRelativePosition();
+
+    float new_rotation = tracker->getRotation() - grabbed_rotation_;
+
+    switch(target_prop) {
+        case Tracker::ALL:
+            setUncoverPos(uncover_pos);
+            setRotation(new_rotation);
+            break;
+        case Tracker::REL_POSITION:
+            setUncoverPos(uncover_pos);
+            break;
+        case Tracker::ROTATION:
+            setRotation(new_rotation);
+            break;
+        default:break;
+    }
+
+    return true;
+}
+
+bool InteractiveImageToken::registerGrab(Tracker *tracker, int target_prop)
+{
+    if(!prepareRegistration(target_prop))
+        return false;
+    switch(target_prop) {
+        case Tracker::ROTATION:
+            grabbed_rotation_ = rotation();
+            break;
+        case Tracker::POSITION:
+            grabbed_position_ = pos();
+            break;
+        case Tracker::REL_POSITION:
+            grabbed_relative_position_ = tracker->getRelativePosition();
+            break;
+        default:
+            break;
+    }
+    grabs_[target_prop] = tracker;
+    updateGrabFromTracker(tracker, target_prop);
     return true;
 }
 
@@ -165,6 +222,14 @@ void InteractiveImageToken::setUncoverPos(const QPointF &pos)
 {
     setPos(pos);
     emit hasMoved();
+}
+
+bool InteractiveImageToken::ensureGrabbable(Tracker *tracker, int target_prop)
+{
+    Q_UNUSED(tracker);
+    Q_UNUSED(target_prop);
+    // TODO: extend with interatcion range
+    return true;
 }
 
 void InteractiveImageToken::setState(InteractiveImageToken::State state)

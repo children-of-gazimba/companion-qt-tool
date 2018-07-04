@@ -89,7 +89,11 @@ SOURCES += main.cpp \
     tracking/trackable.cpp \
     tuio/register_token_dialog.cpp \
     tracking/tuio_token_tracker.cpp \
-    tracking/models/tracker_table_model.cpp
+    tracking/models/tracker_table_model.cpp \
+    misc/widget_list_view.cpp \
+    misc/container.cpp \
+    image/interactive/interactive_image_token_widget.cpp \
+    tracking/tracker_picker.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -159,7 +163,11 @@ HEADERS  += main_window.h \
     tracking/trackable.h \
     tuio/register_token_dialog.h \
     tracking/tuio_token_tracker.h \
-    tracking/models/tracker_table_model.h
+    tracking/models/tracker_table_model.h \
+    misc/widget_list_view.h \
+    misc/container.h \
+    image/interactive/interactive_image_token_widget.h \
+    tracking/tracker_picker.h
 
 RESOURCES += \
     _RES/resources.qrc

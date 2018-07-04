@@ -8,6 +8,7 @@ Trackable::Trackable()
     , manipulations_()
     , allow_forced_tracker_change_(true)
     , avoid_remove_cycles_(false)
+    , trackable_name_("")
 {}
 
 Trackable::~Trackable()
@@ -29,7 +30,7 @@ bool Trackable::registerGrab(Tracker *tracker, int target_prop)
     if(!prepareRegistration(target_prop))
         return false;
     grabs_[target_prop] = tracker;
-    updateLinkFromTracker(tracker, target_prop);
+    updateGrabFromTracker(tracker, target_prop);
     return true;
 }
 
@@ -220,6 +221,16 @@ bool Trackable::hasManipulate(const QString &key)
         return hasGrab();
     }
     return manipulations_.contains(key) && manipulations_[key];
+}
+
+void Trackable::setTrackableName(const QString &name)
+{
+    trackable_name_ = name;
+}
+
+const QString &Trackable::getTrackableName() const
+{
+    return trackable_name_;
 }
 
 bool Trackable::ensureNotManipulated(int target_prop)

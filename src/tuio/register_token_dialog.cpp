@@ -72,9 +72,9 @@ void RegisterTokenDialog::initWidgets()
 {
     l_text_ = new QLabel(tr("Put a new Token onto the tracked area, or select one from the control panel."
                             "\nConfigure and choose a unique name for the tracker, then click submit."), this);
+
     rb_track_id_ = new QRadioButton(tr("id [-1]"), this);
     rb_track_class_id_ = new QRadioButton(tr("class id [-1]"), this);
-    rb_track_class_id_->setChecked(true);
     cb_flip_x_ = new QCheckBox(tr("flip X"), this);
     cb_flip_x_->setChecked(false);
     cb_flip_y_ = new QCheckBox(tr("flip Y"), this);
@@ -94,10 +94,11 @@ void RegisterTokenDialog::initWidgets()
 
 void RegisterTokenDialog::initLayout()
 {
-    QGroupBox* radio_group = new QGroupBox(tr("Tracked ID"), this);
-    radio_group->setLayout(new QVBoxLayout);
-    radio_group->layout()->addWidget(rb_track_id_);
-    radio_group->layout()->addWidget(rb_track_class_id_);
+    QGroupBox* radio_prop_group = new QGroupBox(tr("Tracked ID"), this);
+    radio_prop_group->setLayout(new QVBoxLayout);
+    radio_prop_group->layout()->addWidget(rb_track_id_);
+    radio_prop_group->layout()->addWidget(rb_track_class_id_);
+    rb_track_class_id_->setChecked(true);
 
     QGroupBox* check_group = new QGroupBox(tr("Modify Tracked Position"), this);
     check_group->setLayout(new QVBoxLayout);
@@ -105,7 +106,7 @@ void RegisterTokenDialog::initLayout()
     check_group->layout()->addWidget(cb_flip_y_);
 
     QHBoxLayout* mid = new QHBoxLayout;
-    mid->addWidget(radio_group);
+    mid->addWidget(radio_prop_group);
     mid->addWidget(check_group);
     mid->setContentsMargins(0,0,0,0);
 

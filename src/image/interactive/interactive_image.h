@@ -64,6 +64,7 @@ public:
     bool removeTrackerName(const QString& n);
 
 signals:
+    void tokenAdded(InteractiveImageToken* it);
 
 public slots:
     void loadImage();

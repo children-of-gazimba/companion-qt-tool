@@ -19,6 +19,9 @@ public:
         MOVE
     };
 
+    enum { Type = UserType + 79 };
+    virtual int type() const { return Type; }
+
 public:
     explicit InteractiveImageToken(QGraphicsItem *parent = nullptr);
     explicit InteractiveImageToken(const QSizeF& s, QGraphicsItem *parent = nullptr);
@@ -43,6 +46,11 @@ public:
      * See BC.
     */
     virtual bool updateGrabFromTracker(Tracker *tracker, int target_prop);
+
+    /**
+     * See BC.
+    */
+    virtual bool registerGrab(Tracker* tracker, int target_prop);
 
     /*
     * Returns a boundingRect for the current uncover area.
@@ -100,6 +108,8 @@ signals:
 public slots:
 
 protected:
+    bool ensureGrabbable(Tracker* tracker, int target_prop);
+
     void setState(State);
 
     virtual void mousePressEvent(QGraphicsSceneMouseEvent* e);
@@ -111,6 +121,9 @@ protected:
     QUuid uuid_;
     float uncover_radius_;
     QString name_;
+    float grabbed_rotation_;
+    QPointF grabbed_position_;
+    QPointF grabbed_relative_position_;
 };
 
 #endif // INTERACTIVE_IMAGE_TOKEN_H

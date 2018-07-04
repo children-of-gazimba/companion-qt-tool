@@ -33,8 +33,8 @@ InteractiveImage::InteractiveImage(const QSize &size, QGraphicsItem* parent)
     initContextMenu();
     connect(Resources::Lib::TRACKER_MODEL, &TrackerTableModel::trackerAdded,
             this, &InteractiveImage::onTrackerAdded);
-    connect(Resources::Lib::TRACKER_MODEL, &TrackerTableModel::trackerAdded,
-            this, &InteractiveImage::onTrackerAdded);
+    connect(Resources::Lib::TRACKER_MODEL, &TrackerTableModel::trackerRemoved,
+            this, &InteractiveImage::onTrackerRemoved);
     foreach(auto tracker, Resources::Lib::TRACKER_MODEL->getTrackers())
         addTrackerName(tracker->getName());
 }
@@ -63,8 +63,8 @@ InteractiveImage::InteractiveImage(const QString& path, const QSize &size, QGrap
     initContextMenu();
     connect(Resources::Lib::TRACKER_MODEL, &TrackerTableModel::trackerAdded,
             this, &InteractiveImage::onTrackerAdded);
-    connect(Resources::Lib::TRACKER_MODEL, &TrackerTableModel::trackerAdded,
-            this, &InteractiveImage::onTrackerAdded);
+    connect(Resources::Lib::TRACKER_MODEL, &TrackerTableModel::trackerRemoved,
+            this, &InteractiveImage::onTrackerRemoved);
     foreach(auto tracker, Resources::Lib::TRACKER_MODEL->getTrackers())
         addTrackerName(tracker->getName());
 }
@@ -107,6 +107,7 @@ void InteractiveImage::addToken(InteractiveImageToken *it)
     scene()->addItem(it);
     linkToken(it);
     scheduleCalcResultImage();
+    emit tokenAdded(it);
 }
 
 QMenu *InteractiveImage::getMenuBarExtension()
@@ -203,13 +204,17 @@ void InteractiveImage::onCreateToken(const QString &n)
     spawn_pos.setX(spawn_pos.x()-it->boundingRect().width()/2.0f);
     spawn_pos.setY(spawn_pos.y()-it->boundingRect().height()/2.0f);
     it->setPos(spawn_pos);
-    it->setName(n);
     addToken(it);
 
-    foreach(auto tracker, Resources::Lib::TRACKER_MODEL->getTrackers()) {
-        if(it->getName().compare(tracker->getName()) == 0) {
-            tracker->link(it, Tracker::REL_POSITION);
-            tracker->link(it, Tracker::ROTATION);
+    it->setTrackableName(n);
+    it->setName(n);
+
+    if(n.size() > 0) {
+        foreach(auto tracker, Resources::Lib::TRACKER_MODEL->getTrackers()) {
+            if(it->getTrackableName().compare(tracker->getName()) == 0) {
+                tracker->link(it, Tracker::REL_POSITION);
+                tracker->link(it, Tracker::ROTATION);
+            }
         }
     }
 }
@@ -231,7 +236,7 @@ void InteractiveImage::onTrackerAdded(const QString &n)
     if(t) {
         foreach(auto it, scene()->items()) {
             auto token = qgraphicsitem_cast<InteractiveImageToken*>(it);
-            if(token && token->getName().compare(n) == 0) {
+            if(token && token->getTrackableName().size() > 0 && token->getTrackableName().compare(n) == 0) {
                 t->link(token, Tracker::REL_POSITION);
                 t->link(token, Tracker::ROTATION);
             }

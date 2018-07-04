@@ -31,6 +31,9 @@ public:
     bool hasGrab(int prop = -1);
     bool hasManipulate(const QString& key = "");
 
+    virtual void setTrackableName(const QString& name);
+    const QString& getTrackableName() const;
+
 protected:
     bool ensureNotManipulated(int target_prop);
     bool prepareRegistration(int target_prop);
@@ -41,6 +44,7 @@ protected:
     QMap<QString,Tracker*> manipulations_;
     bool allow_forced_tracker_change_;
     bool avoid_remove_cycles_;
+    QString trackable_name_;
 };
 
 #endif // TRACKABLE_H
