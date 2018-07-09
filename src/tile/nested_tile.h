@@ -34,11 +34,6 @@ public:
      */
     QString const getClassName() const;
 
-    /**
-     * @brief see BC
-     */
-    const QPixmap getOverlayPixmap() const;
-
     void clearTiles();
 
 public slots:
