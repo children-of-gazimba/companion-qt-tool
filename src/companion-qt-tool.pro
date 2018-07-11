@@ -93,7 +93,8 @@ SOURCES += main.cpp \
     misc/widget_list_view.cpp \
     misc/container.cpp \
     image/interactive/interactive_image_token_widget.cpp \
-    tracking/tracker_picker.cpp
+    tracking/tracker_picker.cpp \
+    image/interactive/interactive_image_shape.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -167,7 +168,8 @@ HEADERS  += main_window.h \
     misc/widget_list_view.h \
     misc/container.h \
     image/interactive/interactive_image_token_widget.h \
-    tracking/tracker_picker.h
+    tracking/tracker_picker.h \
+    image/interactive/interactive_image_shape.h
 
 RESOURCES += \
     _RES/resources.qrc

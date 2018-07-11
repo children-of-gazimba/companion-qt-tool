@@ -9,10 +9,13 @@
 #include "resources/lib.h"
 #include "tracking/tracker.h"
 
+#define TEXT_HEIGHT 50.0f
+#define TEXT_WIDTH 500.0f
+
 InteractiveImageToken::InteractiveImageToken(QGraphicsItem *parent)
     : QGraphicsObject(parent)
     , Trackable()
-    , bounding_rect_(-50, -50, 100, 100)
+    , marker_rect_(-50, -50, 100, 100)
     , state_(IDLE)
     , uuid_(QUuid::createUuid())
     , uncover_radius_(0.0f)
@@ -28,7 +31,7 @@ InteractiveImageToken::InteractiveImageToken(QGraphicsItem *parent)
 InteractiveImageToken::InteractiveImageToken(const QSizeF &s, QGraphicsItem *parent)
     : QGraphicsObject(parent)
     , Trackable()
-    , bounding_rect_(-s.width()/2.0, -s.height()/2.0, s.width(), s.height())
+    , marker_rect_(-s.width()/2.0, -s.height()/2.0, s.width(), s.height())
     , state_(IDLE)
     , uuid_(QUuid::createUuid())
     , uncover_radius_(0.0f)
@@ -43,7 +46,7 @@ InteractiveImageToken::InteractiveImageToken(const QSizeF &s, QGraphicsItem *par
 
 InteractiveImageToken::InteractiveImageToken(const InteractiveImageToken &it, QGraphicsItem *parent)
     : QGraphicsObject(parent)
-    , bounding_rect_(it.boundingRect())
+    , marker_rect_(it.boundingRect())
     , state_(IDLE)
     , uuid_(it.getUuid())
     , uncover_radius_(it.getUncoverRadius())
@@ -53,7 +56,27 @@ InteractiveImageToken::InteractiveImageToken(const InteractiveImageToken &it, QG
 
 QRectF InteractiveImageToken::boundingRect() const
 {
-    return bounding_rect_;
+    return QRectF (
+        qMin(-TEXT_WIDTH/2.0f, (float) marker_rect_.x()),
+        marker_rect_.y(),
+        qMax(TEXT_WIDTH, (float) marker_rect_.width()),
+        marker_rect_.height() + TEXT_HEIGHT
+    );
+}
+
+QRectF InteractiveImageToken::markerRect() const
+{
+    return marker_rect_;
+}
+
+QRectF InteractiveImageToken::textRect() const
+{
+    return QRectF(
+        -TEXT_WIDTH/2.0f,
+        marker_rect_.bottom(),
+        TEXT_WIDTH,
+        TEXT_HEIGHT
+    );
 }
 
 void InteractiveImageToken::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -78,7 +101,14 @@ void InteractiveImageToken::paint(QPainter *painter, const QStyleOptionGraphicsI
     p.setWidth(4);
     painter->setPen(p);
     painter->setBrush(QColor(55,55,56));
-    painter->drawEllipse(bounding_rect_);
+    painter->drawEllipse(markerRect());
+    QFont f = painter->font();
+    f.setPixelSize(TEXT_HEIGHT);
+    f.setWeight((int)(f.weight()*1.5f));
+    p.setColor(QColor(Qt::white));
+    painter->setPen(p);
+    painter->setFont(f);
+    painter->drawText(textRect(), getName(), QTextOption(Qt::AlignCenter));
     /*setOpacity(0.6f);
     painter->drawPixmap(bounding_rect_.toRect(), *Resources::Lib::PX_COMPANION);*/
 }
@@ -189,6 +219,7 @@ const QString &InteractiveImageToken::getName() const
 
 void InteractiveImageToken::setName(const QString &n)
 {
+    prepareGeometryChange();
     name_ = n;
 }
 
@@ -210,12 +241,12 @@ void InteractiveImageToken::setUncoverRadius(float r)
 void InteractiveImageToken::setSize(const QSizeF &s)
 {
     prepareGeometryChange();
-    bounding_rect_.setSize(s);
+    marker_rect_.setSize(s);
 }
 
 const QPointF InteractiveImageToken::centerPos() const
 {
-    return mapToScene(boundingRect().center());
+    return mapToScene(markerRect().center());
 }
 
 void InteractiveImageToken::setUncoverPos(const QPointF &pos)

@@ -84,7 +84,8 @@ void View::onMakeInteractive()
     auto it = qgraphicsitem_cast<ImageItem*>(item_);
     if(it) {
         QString path = it->getPath();
-        setItem(new InteractiveImage(path, it->boundingRect().size().toSize()));
+        auto interactive_img = new InteractiveImage(path, it->boundingRect().size().toSize());
+        setItem(interactive_img);
         emit interactiveEnabled(true);
     }
 }

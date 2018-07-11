@@ -32,6 +32,12 @@ public:
     */
     virtual QRectF boundingRect() const;
 
+    /***/
+    virtual QRectF markerRect() const;
+
+    /***/
+    virtual QRectF textRect() const;
+
     /**
      * See BC.
     */
@@ -116,7 +122,7 @@ protected:
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* e);
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* e);
 
-    QRectF bounding_rect_;
+    QRectF marker_rect_;
     State state_;
     QUuid uuid_;
     float uncover_radius_;
