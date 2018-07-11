@@ -29,6 +29,11 @@ TuioTokenTableModel *TuioModelHandler::getTokenModel() const
     return token_model_;
 }
 
+TuioBlobTableModel *TuioModelHandler::getBlobModel() const
+{
+    return blob_model_;
+}
+
 void TuioModelHandler::initModels()
 {
     token_model_ = new TuioTokenTableModel(this);
@@ -38,4 +43,8 @@ void TuioModelHandler::initModels()
     cursor_model_ = new TuioCursorTableModel(this);
     connect(this, &TuioModelHandler::cursorEvent,
             cursor_model_, &TuioCursorTableModel::onCursorEvent);
+
+    blob_model_ = new TuioBlobTableModel(this);
+    connect(this, &TuioModelHandler::blobEvent,
+            blob_model_, &TuioBlobTableModel::onBlobEvent);
 }
