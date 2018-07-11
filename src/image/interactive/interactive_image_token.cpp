@@ -70,8 +70,8 @@ void InteractiveImageToken::paint(QPainter *painter, const QStyleOptionGraphicsI
     }
     painter->setPen(Qt::NoPen);
     painter->drawEllipse(bounding_rect_);
-    setOpacity(0.6f);
-    painter->drawPixmap(bounding_rect_.toRect(), *Resources::Lib::PX_COMPANION);
+//    setOpacity(0.6f);
+//    painter->drawPixmap(bounding_rect_.toRect(), *Resources::Lib::PX_COMPANION);
 }
 
 bool InteractiveImageToken::updateLinkFromTracker(Tracker *tracker, int target_prop)
