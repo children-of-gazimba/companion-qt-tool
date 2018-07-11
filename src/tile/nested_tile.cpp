@@ -31,12 +31,19 @@ void NestedTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     QRectF p_rect(getPaintRect());
     if(p_rect.width() > 0 && p_rect.height() > 0) {
         painter->drawPixmap(
-            (int) p_rect.x(),
-            (int)p_rect.y(),
-            (int)p_rect.width(),
-            (int)p_rect.height(),
-            getPlayStatePixmap()
-        );
+                    (int) p_rect.x(),
+                    (int) p_rect.y(),
+                    (int) p_rect.width(),
+                    (int) p_rect.height(),
+                    *Resources::Lib::PX_FOLDER
+                    );
+        painter->drawPixmap(
+                    (int) p_rect.x(),
+                    (int) p_rect.y(),
+                    (int) p_rect.width(),
+                    (int) p_rect.height(),
+                    getPlayStatePixmap()
+                    );
     }
 }
 
@@ -163,14 +170,6 @@ const QString NestedTile::getClassName() const
     return "NestedTile";
 }
 
-const QPixmap NestedTile::getOverlayPixmap() const
-{
-    if (overlay_pixmap_ != 0)
-        return *overlay_pixmap_;
-
-    return *Resources::Lib::PX_FOLDER;
-}
-
 void NestedTile::clearTiles()
 {
     foreach(QGraphicsItem* it, scene_->items()) {
@@ -204,10 +203,10 @@ void NestedTile::onConfigure()
 {
     bool ok;
     QString text = QInputDialog::getText(
-        0, tr("Set Name"),
-        tr("Name:"), QLineEdit::Normal,
-        name_, &ok
-    );
+                0, tr("Set Name"),
+                tr("Name:"), QLineEdit::Normal,
+                name_, &ok
+                );
     if (ok && !text.isEmpty())
         name_ = text;
 }
