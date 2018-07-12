@@ -25,7 +25,6 @@ public:
     Tracker();
     virtual ~Tracker();
 
-
     virtual bool link(Trackable* target, int target_prop = ALL);
     virtual bool grab(Trackable* target, int target_prop = ALL);
     virtual bool manipulate(Trackable* target, QString const& key);
@@ -60,6 +59,9 @@ public:
     const QSet<Trackable *> manipulationTargets() const;
     virtual const QSet<Trackable*> targets() const;
 
+    bool getCleanByModelEnabled() const;
+    void setCleanByModelEnabled(bool state);
+
 protected:
     bool internalLink(Trackable* target, int target_prop);
     bool internalGrab(Trackable* target, int target_prop);
@@ -85,6 +87,7 @@ protected:
     QMap<int, QSet<Trackable*>> grabs_;
     QMap<QString, QSet<Trackable*>> manipulations_;
     bool bulk_update_;
+    bool cleaned_by_model_;
 };
 
 #endif // TRACKER_H

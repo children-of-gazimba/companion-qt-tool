@@ -4,18 +4,29 @@
 #include <QGraphicsScene>
 #include <QDebug>
 
+#include "resources/lib.h"
+
 InteractiveImageShape::InteractiveImageShape(const QPainterPath& path, QGraphicsItem* parent)
     : QGraphicsObject(parent)
+    , ActivationTracker()
     , path_(path)
-{}
+    , is_uncover_shape_(true)
+{
+    setCleanByModelEnabled(false);
+}
 
 InteractiveImageShape::~InteractiveImageShape()
 {
-    if(scene()) {
-        qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+    if(scene())
         scene()->removeItem(this);
-        qDebug() << "  > " << scene();
-    }
+    if(Resources::Lib::TRACKER_MODEL->hasTracker(this))
+        Resources::Lib::TRACKER_MODEL->removeTracker(this);
+}
+
+void InteractiveImageShape::setName(const QString &n)
+{
+    prepareGeometryChange();
+    ActivationTracker::setName(n);
 }
 
 QRectF InteractiveImageShape::boundingRect() const
@@ -37,6 +48,13 @@ void InteractiveImageShape::paint(QPainter *painter, const QStyleOptionGraphicsI
         painter->fillPath(path_, QColor(QColor(55,155,56)));
     else
         painter->fillPath(path_, QColor(QColor(55,55,56)));
+    if(getName().size() > 0) {
+        QFont f = painter->font();
+        f.setPixelSize(30);
+        painter->setFont(f);
+        p.setColor(QColor(Qt::white));
+        painter->drawText(boundingRect(), getName(), QTextOption(Qt::AlignLeft | Qt::AlignTop));
+    }
 }
 
 QPainterPath InteractiveImageShape::shape() const
@@ -48,4 +66,14 @@ void InteractiveImageShape::setPath(const QPainterPath &p)
 {
     prepareGeometryChange();
     path_ = p;
+}
+
+void InteractiveImageShape::setUncoverEnabled(bool enabled)
+{
+    is_uncover_shape_ = enabled;
+}
+
+bool InteractiveImageShape::getUncoverEnabled() const
+{
+    return is_uncover_shape_;
 }

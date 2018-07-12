@@ -58,11 +58,8 @@ InteractiveImageToken::InteractiveImageToken(const InteractiveImageToken &it, QG
 
 InteractiveImageToken::~InteractiveImageToken()
 {
-    if(scene()) {
-        qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+    if(scene())
         scene()->removeItem(this);
-        qDebug() << "  > " << scene();
-    }
 }
 
 QRectF InteractiveImageToken::boundingRect() const

@@ -5,7 +5,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QLabel>
-#include <QRadioButton>
+#include <QCheckBox>
 
 #include "interactive_image_shape.h"
 #include "tracking/tracker_picker.h"
@@ -28,6 +28,7 @@ signals:
 public slots:
     void onSave();
     void onDelete();
+    void onTrackerAddButtonClicked();
 
 private slots:
     void onCollapseTriggered();
@@ -45,13 +46,11 @@ private:
     QLabel* title_label_;
     QLabel* name_label_;
     QLineEdit* name_edit_;
-    QLabel* tracker_label_;
-    TrackerPicker* tracker_picker_;
     QPushButton* delete_button_;
     QPushButton* save_button_;
     QPushButton* collapse_button_;
-    QRadioButton* link_select_;
-    QRadioButton* grab_select_;
+    QPushButton* tracker_add_button_;
+    QCheckBox* uncover_box_;
 
     QList<QWidget*> collapsible_widgets_;
 };

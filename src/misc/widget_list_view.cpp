@@ -44,9 +44,6 @@ const QList<QWidget *> WidgetListView::getWidgets() const
 
 void WidgetListView::onItemDestroyed(QObject* o)
 {
-    qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
-    qDebug() << "  > " << o;
-    qDebug() << "  > " << o->metaObject()->className();
     QWidget* w = qobject_cast<QWidget*>(o);
     if(w)
         scroll_layout_->removeWidget(w);

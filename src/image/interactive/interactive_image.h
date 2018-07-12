@@ -107,6 +107,7 @@ protected:
     void setAllUncovered(bool state);
     void finalizeShapeDraw();
     void unveilShapes(InteractiveImageToken* it);
+    void evaluateShapeTrackers();
 
     static const QRectF orderedRect(const QPointF& p1, const QPointF& p2);
 

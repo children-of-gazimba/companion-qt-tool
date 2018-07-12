@@ -13,13 +13,11 @@ InteractiveImageShapeWidget::InteractiveImageShapeWidget(QWidget *parent)
     , title_label_(0)
     , name_label_(0)
     , name_edit_(0)
-    , tracker_label_(0)
-    , tracker_picker_(0)
     , delete_button_(0)
     , save_button_(0)
     , collapse_button_(0)
-    , link_select_(0)
-    , grab_select_(0)
+    , tracker_add_button_(0)
+    , uncover_box_(0)
     , collapsible_widgets_()
 {
     initWidgets();
@@ -33,13 +31,11 @@ InteractiveImageShapeWidget::InteractiveImageShapeWidget(InteractiveImageShape *
     , title_label_(0)
     , name_label_(0)
     , name_edit_(0)
-    , tracker_label_(0)
-    , tracker_picker_(0)
     , delete_button_(0)
     , save_button_(0)
     , collapse_button_(0)
-    , link_select_(0)
-    , grab_select_(0)
+    , tracker_add_button_(0)
+    , uncover_box_(0)
     , collapsible_widgets_()
 {
     initWidgets();
@@ -72,33 +68,10 @@ InteractiveImageShape *InteractiveImageShapeWidget::getShape() const
 
 void InteractiveImageShapeWidget::onSave()
 {
-    /*if(shape_->getName().compare(name_edit_->text()) != 0)
+    if(shape_->getName().compare(name_edit_->text()) != 0)
         shape_->setName(name_edit_->text());
-
-    shape_->setTrackableName(tracker_picker_->currentText());
-    if(shape_->getTrackableName().size() == 0) {
-        shape_->removeManipulate();
-    }
-    else {
-        foreach(auto tracker, Resources::Lib::TRACKER_MODEL->getTrackers()) {
-            if(shape_->getTrackableName().compare(tracker->getName()) == 0) {
-                if(link_select_->isChecked()) {
-                    qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
-                    qDebug() << "  > " << "linking";
-                    tracker->link(shape_, Tracker::REL_POSITION);
-                    tracker->link(shape_, Tracker::ROTATION);
-                }
-                else if(grab_select_->isChecked()) {
-                    qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
-                    qDebug() << "  > " << "grabbing";
-                    tracker->grab(shape_, Tracker::REL_POSITION);
-                    tracker->grab(shape_, Tracker::ROTATION);
-                }
-            }
-        }
-    }
-    */
-
+    if(uncover_box_->isChecked() != shape_->getUncoverEnabled())
+        shape_->setUncoverEnabled(uncover_box_->isChecked());
     title_label_->setText(name_edit_->text());
     save_button_->setEnabled(false);
     updateUI();
@@ -114,6 +87,54 @@ void InteractiveImageShapeWidget::onDelete()
     b.setWindowTitle(tr("Delete Shape"));
     if(b.exec() == QMessageBox::Yes) {
         shape_->deleteLater();
+    }
+}
+
+void InteractiveImageShapeWidget::onTrackerAddButtonClicked()
+{
+    if(save_button_->isEnabled()) {
+        QMessageBox b;
+        b.setText(tr("You have unsaved changes for this shape."));
+        b.setInformativeText(tr("To avoid unexpected behavior, please save them before proceeding"));
+        b.setStandardButtons(QMessageBox::Ok);
+        b.exec();
+        return;
+    }
+
+    if(tracker_add_button_->text().startsWith("add", Qt::CaseInsensitive)) {
+        if(shape_->getName().size() == 0) {
+            QMessageBox b;
+            b.setText(tr("Cannot add tracker."));
+            b.setInformativeText(tr("Please assign a name for your shape before adding a tracker from it."));
+            b.setStandardButtons(QMessageBox::Ok);
+            b.exec();
+            return;
+        }
+        if(Resources::Lib::TRACKER_MODEL->hasTracker(shape_) ||
+           Resources::Lib::TRACKER_MODEL->hasTracker(shape_->getName()))
+        {
+            QMessageBox b;
+            b.setText(tr("This tracker already exists."));
+            b.setInformativeText(tr("You might have added this tracker under a different name, "
+                                    "or a tracker with a similar name already exists"));
+            b.setStandardButtons(QMessageBox::Ok);
+            b.setDefaultButton(QMessageBox::Ok);
+            b.exec();
+            return;
+        }
+        Resources::Lib::TRACKER_MODEL->addTracker(shape_);
+        tracker_add_button_->setText("remove activation tracker");
+    }
+    else {
+        QMessageBox b;
+        b.setText(tr("You are about to delete '")+shape_->getName()+tr("' as a tracker."));
+        b.setInformativeText(tr("Do you wish to proceed?"));
+        b.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        b.setDefaultButton(QMessageBox::No);
+        if(b.exec() != QMessageBox::Yes)
+            return;
+        Resources::Lib::TRACKER_MODEL->removeTracker(shape_);
+        tracker_add_button_->setText("add activation tracker");
     }
 }
 
@@ -143,9 +164,6 @@ void InteractiveImageShapeWidget::showCollapsibleWidgets()
 
 void InteractiveImageShapeWidget::contentsModifiedEvent()
 {
-    bool tracking_enabled = tracker_picker_->currentText().size() > 0;
-    link_select_->setEnabled(tracking_enabled);
-    grab_select_->setEnabled(tracking_enabled);
     if(save_button_->isEnabled())
         return;
     save_button_->setEnabled(true);
@@ -155,23 +173,30 @@ void InteractiveImageShapeWidget::contentsModifiedEvent()
 void InteractiveImageShapeWidget::updateUI()
 {
     if(shape_) {
-        /*if(shape_->getName().size() > 0)
+        if(shape_->getName().size() > 0) {
             title_label_->setText(shape_->getName());
-        else
-            title_label_->setText(tr("UNNAMED TOKEN"));
+        }
+        else {
+            title_label_->setText(tr("UNNAMED SHAPE"));
+        }
         name_edit_->setText(shape_->getName());
-        tracker_picker_->setCurrentTracker(shape_->getTrackableName());*/
+        uncover_box_->setChecked(shape_->getUncoverEnabled());
+        if(!Resources::Lib::TRACKER_MODEL->hasTracker(shape_))
+            tracker_add_button_->setText("add activation tracker");
+        else
+            tracker_add_button_->setText("remove activation tracker");
     }
     else {
-        title_label_->setText(tr("UNNAMED TOKEN"));
+        title_label_->setText(tr("UNNAMED SHAPE"));
         name_edit_->setText("");
-        tracker_picker_->setCurrentIndex(0);
+        uncover_box_->setChecked(false);
+        tracker_add_button_->setText("add activation tracker");
     }
 }
 
 void InteractiveImageShapeWidget::initWidgets()
 {
-    title_label_ = new QLabel(tr("Unnamed Shape"), this);
+    title_label_ = new QLabel(tr("UNNAMED SHAPE"), this);
     QFont f(title_label_->font());
     f.setPointSize(f.pointSize()*1.5);
     title_label_->setFont(f);
@@ -181,12 +206,6 @@ void InteractiveImageShapeWidget::initWidgets()
     name_edit_->setPlaceholderText(tr("<name here>"));
     connect(name_edit_, &QLineEdit::textChanged,
             this, [=](){contentsModifiedEvent();});
-
-    tracker_label_ = new QLabel(tr("Tracking Source"), this);
-
-    tracker_picker_ = new TrackerPicker(this);
-    connect(tracker_picker_, &TrackerPicker::currentTextChanged,
-            this, [=](const QString&){contentsModifiedEvent();});
 
     delete_button_ = new QPushButton(tr("delete"), this);
     connect(delete_button_, &QPushButton::clicked,
@@ -201,22 +220,18 @@ void InteractiveImageShapeWidget::initWidgets()
     connect(collapse_button_, &QPushButton::clicked,
             this, &InteractiveImageShapeWidget::onCollapseTriggered);
 
-    link_select_ = new QRadioButton(tr("link"), this);
-    connect(link_select_, &QRadioButton::clicked,
+    uncover_box_ = new QCheckBox(tr("is fog uncover shape"), this);
+    connect(uncover_box_, &QCheckBox::clicked,
             this, [=](){contentsModifiedEvent();});
-    link_select_->setEnabled(false);
 
-    grab_select_ = new QRadioButton(tr("grab"), this);
-    connect(grab_select_, &QRadioButton::clicked,
-            this, [=](){contentsModifiedEvent();});
-    grab_select_->setEnabled(false);
+    tracker_add_button_ = new QPushButton(tr("add activation tracker"), this);
+    connect(tracker_add_button_, &QPushButton::clicked,
+            this, &InteractiveImageShapeWidget::onTrackerAddButtonClicked);
 
     collapsible_widgets_.append(name_label_);
     collapsible_widgets_.append(name_edit_);
-    collapsible_widgets_.append(tracker_picker_);
-    collapsible_widgets_.append(tracker_label_);
-    collapsible_widgets_.append(link_select_);
-    collapsible_widgets_.append(grab_select_);
+    collapsible_widgets_.append(uncover_box_);
+    collapsible_widgets_.append(tracker_add_button_);
 }
 
 void InteractiveImageShapeWidget::initLayout()
@@ -232,8 +247,6 @@ void InteractiveImageShapeWidget::initLayout()
     layout->addWidget(collapse_button_,-1);
 
     setLayout(layout);
-    /*setMinimumHeight(120);
-    setMaximumHeight(minimumHeight());*/
     QSizePolicy p(sizePolicy());
     p.setVerticalPolicy(QSizePolicy::Fixed);
     setSizePolicy(p);
@@ -248,24 +261,8 @@ void InteractiveImageShapeWidget::initLayout()
     name_layout->addWidget(name_label_,1);
     name_layout->addWidget(name_edit_,3);
 
-    QHBoxLayout* tracking_src_layout = new QHBoxLayout;
-    tracking_src_layout->addWidget(tracker_label_,1);
-    tracking_src_layout->addWidget(tracker_picker_,3);
-
-    QGroupBox* tracking_box = new QGroupBox(tr("Tracking"), this);
-    collapsible_widgets_.append(tracking_box);
-
-    QVBoxLayout* tracking_box_layout = new QVBoxLayout;
-    tracking_box->setLayout(tracking_box_layout);
-    QHBoxLayout* tracking_mani_layout = new QHBoxLayout;
-    tracking_mani_layout->addWidget(link_select_);
-    tracking_mani_layout->addWidget(grab_select_);
-    link_select_->setChecked(true);
-
-    tracking_box_layout->addLayout(tracking_src_layout);
-    tracking_box_layout->addLayout(tracking_mani_layout);
-
     group_layout->addLayout(header_layout, -1);
     group_layout->addLayout(name_layout);
-    group_layout->addWidget(tracking_box);
+    group_layout->addWidget(uncover_box_);
+    group_layout->addWidget(tracker_add_button_,-1);
 }

@@ -153,6 +153,7 @@ void InteractiveImage::addToken(InteractiveImageToken *it)
     scheduleCalcResultImage();
     connect(it, &InteractiveImageToken::destroyed,
             this, &InteractiveImage::onTokenDeleted);
+    evaluateShapeTrackers();
     emit tokenAdded(it);
 }
 
@@ -286,6 +287,7 @@ void InteractiveImage::onHasMoved(const QUuid &uuid)
         token_paths_[it].lineTo(it->centerPos());
         if(!all_uncovered_)
             scheduleCalcResultImage();
+        evaluateShapeTrackers();
     }
 }
 
@@ -610,11 +612,29 @@ void InteractiveImage::unveilShapes(InteractiveImageToken *it)
     QSet<InteractiveImageShape*> unrevealed(shapes_.toSet());
     unrevealed.subtract(uncovered_shapes_);
     foreach(auto sh, unrevealed) {
+        if(!sh->getUncoverEnabled())
+            continue;
         if(sh->shape().contains(it->pos())) {
             paths_.append(sh->shape());
             uncovered_shapes_.insert(sh);
             sh->hide();
         }
+    }
+}
+
+void InteractiveImage::evaluateShapeTrackers()
+{
+    foreach(auto sh, shapes_) {
+        if(!Resources::Lib::TRACKER_MODEL->hasTracker(sh))
+            continue;
+        bool active = false;
+        foreach(auto it, token_paths_.keys()) {
+            if(sh->contains(it->pos())) {
+                active = true;
+                break;
+            }
+        }
+        sh->setActiveState(active);
     }
 }
 

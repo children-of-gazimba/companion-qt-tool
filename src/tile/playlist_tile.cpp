@@ -428,7 +428,6 @@ const QPixmap PlaylistTile::getPlayStatePixmap() const
 
 void PlaylistTile::setIsPlaying(bool state)
 {
-    is_activated_ = state;
     is_playing_ = state;
 }
 

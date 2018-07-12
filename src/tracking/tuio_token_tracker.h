@@ -8,12 +8,13 @@
 class TuioTokenTracker : public Tracker
 {
 public:
-    enum { TrackerType = Tracker::TrackerType + 1 };
+    enum { TrackerType = Tracker::TrackerType + 2 };
     virtual int trackerType() const { return TrackerType; }
 
 public:
     TuioTokenTracker();
     TuioTokenTracker(int class_id, int id = -1);
+    virtual ~TuioTokenTracker();
 
     virtual void set(const Tracker* other);
 
