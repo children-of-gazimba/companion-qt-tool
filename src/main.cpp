@@ -18,7 +18,8 @@ int main(int argc, char *argv[])
     a.setStyleSheet(Resources::Lib::DARK_STYLE);
 
     MainWindow w;
-    w.showMaximized();
+//    w.showMaximized();
+    w.show();
 
     int ret_code = a.exec();
 

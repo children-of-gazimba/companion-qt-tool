@@ -4,6 +4,7 @@
 #include "qtuiohandler.h"
 #include "models/tuio_cursor_table_model.h"
 #include "models/tuio_token_table_model.h"
+#include "models/tuio_blob_table_model.h"
 
 class TuioModelHandler : public QTuioHandler
 {
@@ -15,6 +16,7 @@ public:
 
     TuioCursorTableModel* getCursorModel() const;
     TuioTokenTableModel* getTokenModel() const;
+    TuioBlobTableModel* getBlobModel() const;
 
 signals:
 
@@ -25,6 +27,7 @@ protected:
 
     TuioCursorTableModel* cursor_model_;
     TuioTokenTableModel* token_model_;
+    TuioBlobTableModel* blob_model_;
 };
 
 #endif // TUIO_MODEL_HANDLER_H

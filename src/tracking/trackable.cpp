@@ -2,6 +2,8 @@
 
 #include "tracker.h"
 
+#include <QDebug>
+
 Trackable::Trackable()
     : links_()
     , grabs_()
@@ -231,6 +233,16 @@ void Trackable::setTrackableName(const QString &name)
 const QString &Trackable::getTrackableName() const
 {
     return trackable_name_;
+}
+
+bool Trackable::getForcedTrackerChangeEnabled() const
+{
+    return allow_forced_tracker_change_;
+}
+
+void Trackable::setForcedTrackerChangeEnabled(bool val)
+{
+    allow_forced_tracker_change_ = val;
 }
 
 bool Trackable::ensureNotManipulated(int target_prop)

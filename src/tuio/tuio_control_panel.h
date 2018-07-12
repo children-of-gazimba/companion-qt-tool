@@ -29,9 +29,14 @@ protected slots:
     void onNewHostName();
     void onCursorChanged(int id, TuioCursorTableModel::CursorChange c);
     void onTokenChanged(int id, TuioTokenTableModel::TokenChange c);
+    void onBlobChanged(int id, TuioBlobTableModel::BlobChange c);
+
     void onTokenFieldSelected(const QModelIndex&);
+
     void onRegisterCursorTracker();
     void onRegisterTokenTracker();
+    void onRegisterBlobTracker();
+
     void onSceneSelectionChanged();
     void onTrackerAdded(const TuioTokenTracker&);
 
@@ -46,6 +51,7 @@ private:
 
     QMap<int, QGraphicsItem*> marker_list_;
     QMap<int, QGraphicsItem*> token_list_;
+    QMap<int, QGraphicsItem*> blob_list_;
 
     RegisterTokenDialog* token_registry_;
 
@@ -56,6 +62,7 @@ private:
     TuioModelHandler *tuio_handler_;
     QTableView* cursor_table_;
     QTableView* token_table_;
+    QTableView* blob_table_;
     QMenuBar* menu_bar_;
     QSplitter* main_splitter_;
 };

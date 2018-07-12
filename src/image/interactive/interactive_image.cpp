@@ -270,6 +270,8 @@ void InteractiveImage::linkToken(InteractiveImageToken *it)
     token_paths_[it] = QPainterPath(it->centerPos());
     connect(it, &InteractiveImageToken::hasMoved,
             this, [=](){onHasMoved(it->getUuid());});
+    connect(it, &InteractiveImageToken::uncoverRadiusChanged,
+            this, &InteractiveImage::onUncoverRadiusChanged);
 }
 
 void InteractiveImage::loadImage()
@@ -388,6 +390,12 @@ void InteractiveImage::onTrackerAdded(const QString &n)
 void InteractiveImage::onTrackerRemoved(const QString &n)
 {
     removeTrackerName(n);
+}
+
+void InteractiveImage::onUncoverRadiusChanged()
+{
+    if(!all_uncovered_)
+        scheduleCalcResultImage();
 }
 
 void InteractiveImage::onTokenDeleted(QObject* o)

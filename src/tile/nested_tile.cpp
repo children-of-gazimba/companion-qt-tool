@@ -203,10 +203,10 @@ void NestedTile::onConfigure()
 {
     bool ok;
     QString text = QInputDialog::getText(
-        0, tr("Set Name"),
-        tr("Name:"), QLineEdit::Normal,
-        name_, &ok
-    );
+                0, tr("Set Name"),
+                tr("Name:"), QLineEdit::Normal,
+                name_, &ok
+                );
     if (ok && !text.isEmpty())
         name_ = text;
 }

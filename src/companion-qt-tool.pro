@@ -89,6 +89,8 @@ SOURCES += main.cpp \
     tracking/trackable.cpp \
     tuio/register_token_dialog.cpp \
     tracking/tuio_token_tracker.cpp \
+    tuio/models/tuio_blob_table_model.cpp \
+    tuio/tuio_blob_item.cpp \
     tracking/models/tracker_table_model.cpp \
     misc/widget_list_view.cpp \
     misc/container.cpp \
@@ -167,6 +169,8 @@ HEADERS  += main_window.h \
     tracking/trackable.h \
     tuio/register_token_dialog.h \
     tracking/tuio_token_tracker.h \
+    tuio/models/tuio_blob_table_model.h \
+    tuio/tuio_blob_item.h \
     tracking/models/tracker_table_model.h \
     misc/widget_list_view.h \
     misc/container.h \

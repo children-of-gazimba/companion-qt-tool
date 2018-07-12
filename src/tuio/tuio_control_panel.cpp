@@ -12,11 +12,13 @@
 #include <QMessageBox>
 #include <QHeaderView>
 #include <QGroupBox>
+#include <QPointF>
 
 #include "image/image_item.h"
 #include "image/interactive/interactive_image.h"
 #include "tuio_token_item.h"
 #include "tuio_cursor_item.h"
+#include "tuio_blob_item.h"
 #include "resources/lib.h"
 #include "tracking/tracker.h"
 
@@ -24,6 +26,7 @@ TuioControlPanel::TuioControlPanel(QWidget *parent)
     : QWidget(parent)
     , marker_list_()
     , token_list_()
+    , blob_list_()
     , token_registry_(0)
     , host_name_(0)
     , host_submit_(0)
@@ -32,6 +35,7 @@ TuioControlPanel::TuioControlPanel(QWidget *parent)
     , tuio_handler_(0)
     , cursor_table_(0)
     , token_table_(0)
+    , blob_table_(0)
     , menu_bar_(0)
     , main_splitter_(0)
 {
@@ -54,6 +58,9 @@ TuioControlPanel::~TuioControlPanel()
     for(auto t : token_list_.values()) {
         view_->scene()->removeItem(t);
         delete t;
+    }
+    for(auto b: blob_list_.values()) {
+        view_->scene()->removeItem(b);
     }
     if(token_registry_)
         token_registry_->deleteLater();
@@ -147,6 +154,45 @@ void TuioControlPanel::onTokenChanged(int id, TuioTokenTableModel::TokenChange c
     }
 }
 
+void TuioControlPanel::onBlobChanged(int id, TuioBlobTableModel::BlobChange c)
+{
+    if(c == TuioBlobTableModel::BLOB_ADDED || c == TuioBlobTableModel::BLOB_UPDATED) {
+        // add or update cursor marker
+        QTuioBlob blob = tuio_handler_->getBlobModel()->getBlob(id);
+        if(blob.id() == -1)
+            return;
+        if(!blob_list_.contains(id)) {
+            auto marker = new TuioBlobItem(blob.id());
+            float center_x = view_->sceneRect().width() * blob.x();
+            float center_y = view_->sceneRect().height() * blob.y();
+
+            marker->setX(center_x);
+            marker->setY(center_y);
+
+            float width = view_->sceneRect().width() * blob.width();
+            float height = view_->sceneRect().height() * blob.height();
+            marker->setBoundingRect(QSize(width, height));
+
+            marker->setRotation(qRadiansToDegrees(blob.angle()));
+
+            blob_list_[id] = marker;
+            view_->addItem(marker);
+        } else {
+            blob_list_[id]->setX(view_->sceneRect().width() * blob.x());
+            blob_list_[id]->setY(view_->sceneRect().height() * blob.y());
+        }
+    }
+    else if(c == TuioBlobTableModel::BLOB_REMOVED) {
+        // delete cursor marker
+        if(blob_list_.contains(id)) {
+            view_->scene()->removeItem(blob_list_[id]);
+            delete blob_list_[id];
+            blob_list_.remove(id);
+        }
+    }
+
+}
+
 void TuioControlPanel::onTokenFieldSelected(const QModelIndex &idx)
 {
     Q_UNUSED(idx)
@@ -185,6 +231,15 @@ void TuioControlPanel::onRegisterTokenTracker()
     else {
         token_registry_->show();
     }
+}
+
+void TuioControlPanel::onRegisterBlobTracker()
+{
+    QMessageBox b;
+    b.setText(QString(Q_FUNC_INFO) + " @ line " + QString::number(__LINE__));
+    b.setInformativeText("TODO register blob tracker");
+    b.setModal(false);
+    b.exec();
 }
 
 void TuioControlPanel::onSceneSelectionChanged()
@@ -234,10 +289,24 @@ void TuioControlPanel::initTuio(const QHostAddress &ip, unsigned port)
             this, &TuioControlPanel::onCursorChanged);
     connect(tuio_handler_->getTokenModel(), &TuioTokenTableModel::tokenChanged,
             this, &TuioControlPanel::onTokenChanged);
+    connect(tuio_handler_->getBlobModel(), &TuioBlobTableModel::blobChanged,
+            this, &TuioControlPanel::onBlobChanged);
     if(cursor_table_)
         cursor_table_->setModel(tuio_handler_->getCursorModel());
     if(token_table_)
         token_table_->setModel(tuio_handler_->getTokenModel());
+    if(blob_table_)
+    {
+        qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
+        qDebug() << "  >" << "blob model";
+        qDebug() << "  >" << tuio_handler_->getBlobModel();
+        qDebug() << "  >" << "blob talbe";
+        qDebug() << "  >" << blob_table_;
+
+
+        blob_table_->setModel(tuio_handler_->getBlobModel());
+    }
+
 }
 
 void TuioControlPanel::initWidgets()
@@ -274,6 +343,13 @@ void TuioControlPanel::initWidgets()
     token_table_->horizontalHeader()->setSectionsMovable(true);
     connect(token_table_, &QTableView::clicked,
             this, &TuioControlPanel::onTokenFieldSelected);
+
+    blob_table_ = new QTableView(this);
+    blob_table_->setModel(tuio_handler_->getBlobModel());
+    blob_table_->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+    blob_table_->horizontalHeader()->setStretchLastSection(true);
+    blob_table_->setDragEnabled(true);
+    blob_table_->horizontalHeader()->setSectionsMovable(true);
 }
 
 void TuioControlPanel::initActions()
@@ -302,11 +378,21 @@ void TuioControlPanel::initActions()
     connect(register_token, &QAction::triggered,
             this, &TuioControlPanel::onRegisterTokenTracker);
 
-    menu_bar_->addActions(QList<QAction*>()
-        << show_data_view
-        << register_cursor
-        << register_token
-    );
+    QAction* register_blob = new QAction(tr("New Blob Tracker..."), this);
+    register_blob->setShortcut(QKeySequence("Alt+B"));
+    connect(register_blob, &QAction::triggered,
+            this, &TuioControlPanel::onRegisterBlobTracker);
+
+
+    QMenu* menu = new QMenu(tr("Add"), this);
+    menu->addActions(QList<QAction*>()
+                            << show_data_view
+                            << register_cursor
+                            << register_token
+                            << register_blob
+                            );
+    menu_bar_->addMenu(menu);
+
 }
 
 void TuioControlPanel::initLayout()
@@ -325,8 +411,12 @@ void TuioControlPanel::initLayout()
     QGroupBox* cursor_box = new QGroupBox(tr("Cursors"), this);
     cursor_box->setLayout(new QHBoxLayout);
     cursor_box->layout()->addWidget(cursor_table_);
+    QGroupBox* blob_box = new QGroupBox(tr("Blobs"), this);
+    blob_box->setLayout(new QHBoxLayout);
+    blob_box->layout()->addWidget(blob_table_);
     monitor_splitter->addWidget(token_box);
     monitor_splitter->addWidget(cursor_box);
+    monitor_splitter->addWidget(blob_box);
 
     QGroupBox* box_left = new QGroupBox(this);
     box_left->setLayout(new QHBoxLayout);

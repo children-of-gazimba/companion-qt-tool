@@ -94,6 +94,7 @@ protected slots:
     void onCoverAll();
     void onTrackerAdded(QString const&);
     void onTrackerRemoved(QString const&);
+    void onUncoverRadiusChanged();
     void onTokenDeleted(QObject*);
     void onShapeDeleted(QObject*);
 

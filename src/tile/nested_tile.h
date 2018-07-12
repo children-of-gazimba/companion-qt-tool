@@ -36,6 +36,7 @@ public:
 
     void clearTiles();
 
+
 public slots:
     /* See BC */
     virtual void onActivate();

@@ -5,6 +5,9 @@
 #include <QDebug>
 #include <cmath>
 #include <QGraphicsScene>
+#include <QVector2D>
+#include <QPen>
+#include <QPainterPath>
 
 #include "resources/lib.h"
 #include "tracking/tracker.h"
@@ -16,15 +19,26 @@ InteractiveImageToken::InteractiveImageToken(QGraphicsItem *parent)
     : QGraphicsObject(parent)
     , Trackable()
     , marker_rect_(-50, -50, 100, 100)
+    , grab_rect_(-50, -50, 100, 100)
+    , uncover_rect_()
     , state_(IDLE)
     , uuid_(QUuid::createUuid())
     , uncover_radius_(0.0f)
+    , uncover_indicator_radius(0.0f)
     , name_("")
+    , color_(55,55,56)
+    , show_grab_indicator_(false)
+    , grab_radius_(0.0f)
     , grabbed_rotation_(0.0f)
+    , token_grabbed_(false)
     , grabbed_position_()
     , grabbed_relative_position_()
 {
-    uncover_radius_ = sqrt(100*100 + 100*100);
+    uncover_radius_ = sqrt(300*300 + 300*300);
+    uncover_indicator_radius = uncover_radius_;
+    grab_radius_ = sqrt(300*300 + 300*300);
+    uncover_rect_ = QRectF(-uncover_radius_, -uncover_radius_, uncover_radius_ * 2, uncover_radius_ * 2);
+
     setFlag(QGraphicsItem::ItemIsMovable, true);
     setZValue(1);
 }
@@ -33,15 +47,25 @@ InteractiveImageToken::InteractiveImageToken(const QSizeF &s, QGraphicsItem *par
     : QGraphicsObject(parent)
     , Trackable()
     , marker_rect_(-s.width()/2.0, -s.height()/2.0, s.width(), s.height())
+    , grab_rect_(-s.width()/2.0, -s.height()/2.0, s.width(), s.height())
+    , uncover_rect_()
     , state_(IDLE)
     , uuid_(QUuid::createUuid())
     , uncover_radius_(0.0f)
+    , uncover_indicator_radius(0.0f)
     , name_("")
+    , color_(55,55,56)
+    , show_grab_indicator_(false)
     , grabbed_rotation_(0.0f)
+    , token_grabbed_(false)
     , grabbed_position_()
     , grabbed_relative_position_()
 {
     uncover_radius_ = sqrt(s.width()*s.width() + s.height()*s.height());
+    uncover_indicator_radius = uncover_radius_;
+    uncover_rect_ = QRectF(-uncover_radius_, -uncover_radius_, uncover_radius_ * 2, uncover_radius_ * 2);
+    grab_radius_ = sqrt(s.width()*s.width() + s.height()*s.height());
+
     setFlag(QGraphicsItem::ItemIsMovable, true);
     setZValue(1);
 }
@@ -64,12 +88,7 @@ InteractiveImageToken::~InteractiveImageToken()
 
 QRectF InteractiveImageToken::boundingRect() const
 {
-    return QRectF (
-        qMin(-TEXT_WIDTH/2.0f, (float) marker_rect_.x()),
-        marker_rect_.y(),
-        qMax(TEXT_WIDTH, (float) marker_rect_.width()),
-        marker_rect_.height() + TEXT_HEIGHT
-    );
+    return calculateBoundingRect();
 }
 
 QRectF InteractiveImageToken::markerRect() const
@@ -80,11 +99,16 @@ QRectF InteractiveImageToken::markerRect() const
 QRectF InteractiveImageToken::textRect() const
 {
     return QRectF(
-        -TEXT_WIDTH/2.0f,
-        marker_rect_.bottom(),
-        TEXT_WIDTH,
-        TEXT_HEIGHT
-    );
+                -TEXT_WIDTH/2.0f,
+                marker_rect_.bottom(),
+                TEXT_WIDTH,
+                TEXT_HEIGHT
+                );
+}
+
+QRectF InteractiveImageToken::grabRect() const
+{
+    return grab_rect_;
 }
 
 void InteractiveImageToken::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -108,8 +132,22 @@ void InteractiveImageToken::paint(QPainter *painter, const QStyleOptionGraphicsI
     QPen p(Qt::white);
     p.setWidth(4);
     painter->setPen(p);
-    painter->setBrush(QColor(55,55,56));
+    painter->setBrush(color_);
     painter->drawEllipse(markerRect());
+    if(show_grab_indicator_) {
+        p.setWidth(3);
+        p.setColor(Qt::white);
+        painter->setPen(p);
+        painter->setOpacity(0.3);
+        painter->drawEllipse(markerRect().center(), grab_radius_, grab_radius_);
+    }
+    if(show_uncover_indicator_) {
+        p.setWidth(3);
+        p.setColor(Qt::red);
+        painter->setPen(p);
+        painter->setOpacity(0.3);
+        painter->drawEllipse(markerRect().center(), uncover_indicator_radius, uncover_indicator_radius);
+    }
     QFont f = painter->font();
     f.setPixelSize(TEXT_HEIGHT);
     f.setWeight((int)(f.weight()*1.5f));
@@ -162,19 +200,30 @@ bool InteractiveImageToken::updateGrabFromTracker(Tracker *tracker, int target_p
     if(!ensureGrabbable(tracker, target_prop))
         return false;
 
+    QVector2D tracker_pos(tracker->getRelativePosition().x() * scene()->width(),
+                          tracker->getRelativePosition().y() * scene()->height());
+    float distance_to_tracker = (tracker_pos - QVector2D(pos())).length();
+
+    if(distance_to_tracker <= grab_radius_) {
+        token_grabbed_ = true;
+    }
+
     QPointF uncover_diff(
-        (tracker->getRelativePosition().x() - grabbed_relative_position_.x()) * scene()->width(),
-        (tracker->getRelativePosition().y() - grabbed_relative_position_.y()) * scene()->height()
-    );
+            (tracker->getRelativePosition().x() - grabbed_relative_position_.x()) * scene()->width(),
+            (tracker->getRelativePosition().y() - grabbed_relative_position_.y()) * scene()->height()
+            );
 
-    QPointF uncover_pos(
-        pos().x() + uncover_diff.x(),
-        pos().y() + uncover_diff.y()
-    );
 
-    grabbed_relative_position_ = tracker->getRelativePosition();
+    QPointF uncover_pos( pos().x(), pos().y() );
+    if(token_grabbed_)
+        uncover_pos = QPointF(
+                    pos().x() + uncover_diff.x(),
+                    pos().y() + uncover_diff.y()
+                    );
 
     float new_rotation = tracker->getRotation() - grabbed_rotation_;
+
+    grabbed_relative_position_ = tracker->getRelativePosition();
 
     switch(target_prop) {
         case Tracker::ALL:
@@ -195,8 +244,15 @@ bool InteractiveImageToken::updateGrabFromTracker(Tracker *tracker, int target_p
 
 bool InteractiveImageToken::registerGrab(Tracker *tracker, int target_prop)
 {
+    if(hasLink(target_prop)) {
+        removeLink(target_prop);
+    } else if (hasGrab(target_prop)) {
+        removeGrab(target_prop);
+    }
+
     if(!prepareRegistration(target_prop))
         return false;
+
     switch(target_prop) {
         case Tracker::ROTATION:
             grabbed_rotation_ = rotation();
@@ -213,6 +269,19 @@ bool InteractiveImageToken::registerGrab(Tracker *tracker, int target_prop)
     grabs_[target_prop] = tracker;
     updateGrabFromTracker(tracker, target_prop);
     return true;
+}
+
+bool InteractiveImageToken::registerLink(Tracker *tracker, int target_prop)
+{
+    token_grabbed_ = false;
+
+    if(hasLink(target_prop)) {
+        removeLink(target_prop);
+    } else if (hasGrab(target_prop)) {
+        removeGrab(target_prop);
+    }
+
+    return Trackable::registerLink(tracker, target_prop);
 }
 
 const QRectF InteractiveImageToken::uncoverBoundingRect() const
@@ -236,6 +305,16 @@ const QUuid &InteractiveImageToken::getUuid() const
     return uuid_;
 }
 
+const QRectF InteractiveImageToken::calculateBoundingRect() const
+{
+    QPainterPath p;
+    p.addRect(marker_rect_);
+    p.addRect(textRect());
+    p.addRect(grab_rect_);
+    p.addRect(uncover_rect_);
+    return p.boundingRect();
+}
+
 float InteractiveImageToken::getUncoverRadius() const
 {
     return uncover_radius_;
@@ -244,6 +323,66 @@ float InteractiveImageToken::getUncoverRadius() const
 void InteractiveImageToken::setUncoverRadius(float r)
 {
     uncover_radius_ = r;
+
+    emit uncoverRadiusChanged();
+}
+
+float InteractiveImageToken::getGrabRadius() const
+{
+    return grab_radius_;
+}
+
+void InteractiveImageToken::setGrabRadius(float d)
+{
+    grab_radius_ = d;
+    grab_rect_ = QRectF(-grab_radius_, -grab_radius_, grab_radius_*2, grab_radius_*2);
+    prepareGeometryChange();
+}
+
+bool InteractiveImageToken::getShowGrabIndicator() const
+{
+    return show_grab_indicator_;
+}
+
+void InteractiveImageToken::setShowGrabIndicator(bool show)
+{
+    show_grab_indicator_ = show;
+}
+
+bool InteractiveImageToken::getShowUncoverIndicator() const
+{
+    return show_uncover_indicator_;
+}
+
+void InteractiveImageToken::setShowUncoverIndicator(bool show)
+{
+    show_uncover_indicator_ = show;
+}
+
+float InteractiveImageToken::getUncoverIndicatorRadius() const
+{
+    return uncover_radius_;
+}
+
+void InteractiveImageToken::setUncoverIndicatorRadius(float r)
+{
+    uncover_rect_ = QRectF(-uncover_indicator_radius,
+                           -uncover_indicator_radius,
+                           uncover_indicator_radius * 2,
+                           uncover_indicator_radius * 2
+                           );
+    uncover_indicator_radius = r;
+}
+
+const QColor &InteractiveImageToken::getColor() const
+{
+    return color_;
+}
+
+void InteractiveImageToken::setColor(const QColor &clr)
+{
+    color_ = clr;
+    prepareGeometryChange();
 }
 
 void InteractiveImageToken::setSize(const QSizeF &s)

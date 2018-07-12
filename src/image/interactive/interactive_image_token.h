@@ -39,6 +39,9 @@ public:
     /***/
     virtual QRectF textRect() const;
 
+    /***/
+    virtual QRectF grabRect() const;
+
     /**
      * See BC.
     */
@@ -58,6 +61,11 @@ public:
      * See BC.
     */
     virtual bool registerGrab(Tracker* tracker, int target_prop);
+
+    /**
+     * See BC.
+     */
+    virtual bool registerLink(Tracker *tracker, int target_prop);
 
     /*
     * Returns a boundingRect for the current uncover area.
@@ -80,6 +88,11 @@ public:
     */
     const QUuid& getUuid() const;
 
+    /**
+     * Calculates the overall bounding rect
+     */
+    const QRectF calculateBoundingRect() const;
+
     /*
     * Returns the radius from center of bounds at which
     * this item should uncover an image item.
@@ -93,6 +106,58 @@ public:
     * this item should uncover an image item.
     */
     void setUncoverRadius(float r);
+
+    /**
+    * Returns the radius from center of bounds at which
+    * this item should be grabbable
+     */
+    float getGrabRadius() const;
+
+    /**
+     * Sets the distance from center at which
+     * the token can be grabbed.
+     */
+    void setGrabRadius(float d);
+
+    /**
+     * Returns, whether the grab ellipse is shown.
+     */
+    bool getShowGrabIndicator() const;
+
+    /**
+     * Sets, whether the grab ellipse is shown.
+     */
+    void setShowGrabIndicator(bool);
+
+    /**
+     * Returns, whether the uncover ellipse is shown
+     */
+    bool getShowUncoverIndicator() const;
+
+    /**
+     * Sets, whether the uncover ellipse is shown.
+     */
+    void setShowUncoverIndicator(bool show);
+
+    /**
+     * Returns, whether the uncover inidcator ellipse is shown
+     */
+    float getUncoverIndicatorRadius() const;
+
+    /**
+     * Sets, whether the uncover indicator ellipse is shown.
+     */
+    void setUncoverIndicatorRadius(float r);
+
+    /**
+     * Returns the tokens currently set color.
+     */
+    const QColor &getColor() const;
+
+    /**
+     * Sets the tokens color.
+     */
+    void setColor(const QColor &clr);
 
     /*
     * Sets a new bounding rect of this item from [0,0] to [s.width, s.height].
@@ -111,6 +176,7 @@ public:
 
 signals:
     void hasMoved();
+    void uncoverRadiusChanged();
 
 public slots:
 
@@ -124,13 +190,25 @@ protected:
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* e);
 
     QRectF marker_rect_;
+    QRectF grab_rect_;
+    QRectF uncover_rect_;
+
     State state_;
     QUuid uuid_;
     float uncover_radius_;
+    float uncover_indicator_radius;
     QString name_;
+    QColor color_;
+
+    bool show_grab_indicator_;
+    bool show_uncover_indicator_;
+
+    float grab_radius_;
     float grabbed_rotation_;
+    bool token_grabbed_;
     QPointF grabbed_position_;
     QPointF grabbed_relative_position_;
+
 };
 
 #endif // INTERACTIVE_IMAGE_TOKEN_H

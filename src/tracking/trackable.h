@@ -34,6 +34,9 @@ public:
     virtual void setTrackableName(const QString& name);
     const QString& getTrackableName() const;
 
+    bool getForcedTrackerChangeEnabled() const;
+    void setForcedTrackerChangeEnabled(bool);
+
 protected:
     bool ensureNotManipulated(int target_prop);
     bool prepareRegistration(int target_prop);

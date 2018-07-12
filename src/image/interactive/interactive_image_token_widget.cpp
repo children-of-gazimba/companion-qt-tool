@@ -4,6 +4,7 @@
 #include <QMessageBox>
 #include <QVBoxLayout>
 #include <QDebug>
+#include <QColorDialog>
 
 #include "resources/lib.h"
 
@@ -20,7 +21,12 @@ InteractiveImageTokenWidget::InteractiveImageTokenWidget(QWidget *parent)
     , collapse_button_(0)
     , link_select_(0)
     , grab_select_(0)
+    , grab_radius_slider_(0)
+    , uncover_radius_slider_(0)
+    , token_color_label_(0)
+    , token_color_button_(0)
     , collapsible_widgets_()
+
 {
     initWidgets();
     initLayout();
@@ -40,6 +46,10 @@ InteractiveImageTokenWidget::InteractiveImageTokenWidget(InteractiveImageToken *
     , collapse_button_(0)
     , link_select_(0)
     , grab_select_(0)
+    , grab_radius_slider_(0)
+    , uncover_radius_slider_(0)
+    , token_color_label_(0)
+    , token_color_button_(0)
     , collapsible_widgets_()
 {
     initWidgets();
@@ -98,6 +108,11 @@ void InteractiveImageTokenWidget::onSave()
         }
     }
 
+    token_->setShowGrabIndicator(false);
+    token_->setShowUncoverIndicator(false);
+
+    token_->setUncoverRadius(uncover_radius_slider_->value());
+
     title_label_->setText(name_edit_->text());
     save_button_->setEnabled(false);
     updateUI();
@@ -128,6 +143,14 @@ void InteractiveImageTokenWidget::onCollapseTriggered()
     }
 }
 
+void InteractiveImageTokenWidget::onChooseColor()
+{
+    QColor clr = QColorDialog::getColor();
+    QString css = QString("background-color: %1; background: %1").arg(clr.name());
+    token_color_label_->setStyleSheet(css);
+    token_->setColor(clr);
+}
+
 void InteractiveImageTokenWidget::hideCollapsibleWidgets()
 {
     foreach(auto w, collapsible_widgets_)
@@ -145,10 +168,16 @@ void InteractiveImageTokenWidget::contentsModifiedEvent()
     bool tracking_enabled = tracker_picker_->currentText().size() > 0;
     link_select_->setEnabled(tracking_enabled);
     grab_select_->setEnabled(tracking_enabled);
-    if(save_button_->isEnabled())
-        return;
     save_button_->setEnabled(true);
-    title_label_->setText(title_label_->text()+"*");
+    if(!title_label_->text().endsWith("*"))
+        title_label_->setText(title_label_->text()+"*");
+
+    grab_radius_slider_->setEnabled(grab_select_->isChecked());
+    token_->setShowUncoverIndicator(true);
+    token_->setUncoverIndicatorRadius(uncover_radius_slider_->value());
+
+    token_->setShowGrabIndicator(true);
+    token_->setGrabRadius(grab_radius_slider_->value());
 }
 
 void InteractiveImageTokenWidget::updateUI()
@@ -158,8 +187,14 @@ void InteractiveImageTokenWidget::updateUI()
             title_label_->setText(token_->getName());
         else
             title_label_->setText(tr("UNNAMED TOKEN"));
+
         name_edit_->setText(token_->getName());
         tracker_picker_->setCurrentTracker(token_->getTrackableName());
+
+        QString css = QString("background-color: %1;").arg(token_->getColor().name());
+        token_color_label_->setStyleSheet(css);
+        grab_radius_slider_->setValue(token_->getGrabRadius());
+        uncover_radius_slider_->setValue(token_->getUncoverRadius());
     }
     else {
         title_label_->setText(tr("UNNAMED TOKEN"));
@@ -201,14 +236,32 @@ void InteractiveImageTokenWidget::initWidgets()
             this, &InteractiveImageTokenWidget::onCollapseTriggered);
 
     link_select_ = new QRadioButton(tr("link"), this);
-    connect(link_select_, &QRadioButton::clicked,
-            this, [=](){contentsModifiedEvent();});
     link_select_->setEnabled(false);
+    connect(link_select_, &QRadioButton::clicked,
+            this, [=](){qDebug() <<"foo"; contentsModifiedEvent();});
 
     grab_select_ = new QRadioButton(tr("grab"), this);
-    connect(grab_select_, &QRadioButton::clicked,
-            this, [=](){contentsModifiedEvent();});
     grab_select_->setEnabled(false);
+    connect(grab_select_, &QRadioButton::clicked,
+            this, [=](){qDebug() << "bar"; contentsModifiedEvent();});
+
+    grab_radius_slider_ = new QSlider(Qt::Orientation::Horizontal, this);
+    grab_radius_slider_->setMinimum(1);
+    grab_radius_slider_->setMaximum(1000);
+    grab_radius_slider_->setEnabled(false);
+    connect(grab_radius_slider_, &QSlider::valueChanged,
+            this, [=]() { contentsModifiedEvent();});
+
+    uncover_radius_slider_ = new QSlider(Qt::Orientation::Horizontal, this);
+    uncover_radius_slider_->setMinimum(1);
+    uncover_radius_slider_->setMaximum(1000);
+    connect(uncover_radius_slider_, &QSlider::valueChanged,
+            this, [=](){ contentsModifiedEvent();});
+
+    token_color_label_ = new QLabel(this);
+    token_color_button_ = new QPushButton(tr("Choose token color"), this);
+    connect(token_color_button_, &QPushButton::clicked,
+            this, &InteractiveImageTokenWidget::onChooseColor);
 
     collapsible_widgets_.append(name_label_);
     collapsible_widgets_.append(name_edit_);
@@ -216,6 +269,10 @@ void InteractiveImageTokenWidget::initWidgets()
     collapsible_widgets_.append(tracker_label_);
     collapsible_widgets_.append(link_select_);
     collapsible_widgets_.append(grab_select_);
+    collapsible_widgets_.append(grab_radius_slider_);
+    collapsible_widgets_.append(uncover_radius_slider_);
+    collapsible_widgets_.append(token_color_label_);
+    collapsible_widgets_.append(token_color_button_);
 }
 
 void InteractiveImageTokenWidget::initLayout()
@@ -261,10 +318,25 @@ void InteractiveImageTokenWidget::initLayout()
     tracking_mani_layout->addWidget(grab_select_);
     link_select_->setChecked(true);
 
+    QGroupBox *options_box = new QGroupBox(tr("Token Options"), this);
+    collapsible_widgets_.append(options_box);
+
+    QVBoxLayout *options_box_layout = new QVBoxLayout;
+    options_box->setLayout(options_box_layout);
+    options_box_layout->addWidget(new QLabel("Grab Radius", this));
+    options_box_layout->addWidget(grab_radius_slider_);
+    options_box_layout->addWidget(new QLabel("Uncover Radius", this));
+    options_box_layout->addWidget(uncover_radius_slider_);
+    QHBoxLayout *color_layout = new QHBoxLayout;
+    color_layout->addWidget(token_color_label_, 2);
+    color_layout->addWidget(token_color_button_, 6);
+    options_box_layout->addLayout(color_layout);
+
     tracking_box_layout->addLayout(tracking_src_layout);
     tracking_box_layout->addLayout(tracking_mani_layout);
 
     group_layout->addLayout(header_layout, -1);
     group_layout->addLayout(name_layout);
     group_layout->addWidget(tracking_box);
+    group_layout->addWidget(options_box);
 }
