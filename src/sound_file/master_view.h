@@ -21,7 +21,8 @@ public slots:
 
 protected slots:
     void showCustomContextMenu(const QPoint&);
-    void onDeleteAction();
+    void onDelete();
+    void onAddTag();
 
 protected:
     virtual void initContextMenu();
