@@ -70,6 +70,13 @@ public:
 
     bool removeTrackerName(const QString& n);
 
+    void drawTokenPath(QPainter* painter, InteractiveImageToken* token, bool draw_thin=false);
+    void drawTokenPath(QPainter* painter, InteractiveImageToken* token,
+                       const QPen& pen, const QBrush& brush);
+
+    void drawUncoveredShapes(QPainter *painter);
+    void drawUncoveredShapes(QPainter* painter, const QPen& pen, const QBrush& b);
+
 signals:
     void tokenAdded(InteractiveImageToken* it);
     void shapeAdded(InteractiveImageShape* sh);
@@ -96,6 +103,7 @@ protected:
     void loadFileIntoImage(const QString& file, QImage* img);
     void setAllUncovered(bool state);
     void finalizeShapeDraw();
+    void unveilShapes(InteractiveImageToken* it);
 
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);

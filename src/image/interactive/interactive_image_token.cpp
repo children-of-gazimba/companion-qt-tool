@@ -26,6 +26,7 @@ InteractiveImageToken::InteractiveImageToken(QGraphicsItem *parent)
 {
     uncover_radius_ = sqrt(100*100 + 100*100);
     setFlag(QGraphicsItem::ItemIsMovable, true);
+    setZValue(1);
 }
 
 InteractiveImageToken::InteractiveImageToken(const QSizeF &s, QGraphicsItem *parent)
@@ -42,6 +43,7 @@ InteractiveImageToken::InteractiveImageToken(const QSizeF &s, QGraphicsItem *par
 {
     uncover_radius_ = sqrt(s.width()*s.width() + s.height()*s.height());
     setFlag(QGraphicsItem::ItemIsMovable, true);
+    setZValue(1);
 }
 
 InteractiveImageToken::InteractiveImageToken(const InteractiveImageToken &it, QGraphicsItem *parent)
