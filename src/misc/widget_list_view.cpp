@@ -2,6 +2,8 @@
 
 #include "misc/container.h"
 
+#include <QDebug>
+
 WidgetListView::WidgetListView(QWidget *parent)
     : QScrollArea(parent)
     , scroll_layout_(0)
@@ -19,11 +21,13 @@ WidgetListView::~WidgetListView()
 void WidgetListView::addWidget(QWidget* w)
 {
     scroll_layout_->addWidget(w);
+    connect(w, &QWidget::destroyed,
+            this, &WidgetListView::onItemDestroyed);
 }
 
 void WidgetListView::removeWidget(QWidget* w)
 {
-    scroll_layout_->addWidget(w);
+    scroll_layout_->removeWidget(w);
 }
 
 const QList<QWidget *> WidgetListView::getWidgets() const
@@ -36,6 +40,13 @@ const QList<QWidget *> WidgetListView::getWidgets() const
             child_widgets.append(temp);
     }
     return child_widgets;
+}
+
+void WidgetListView::onItemDestroyed(QObject* o)
+{
+    QWidget* w = qobject_cast<QWidget*>(o);
+    if(w)
+        scroll_layout_->removeWidget(w);
 }
 
 void WidgetListView::init()

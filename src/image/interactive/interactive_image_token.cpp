@@ -40,6 +40,7 @@ InteractiveImageToken::InteractiveImageToken(QGraphicsItem *parent)
     uncover_rect_ = QRectF(-uncover_radius_, -uncover_radius_, uncover_radius_ * 2, uncover_radius_ * 2);
 
     setFlag(QGraphicsItem::ItemIsMovable, true);
+    setZValue(1);
 }
 
 InteractiveImageToken::InteractiveImageToken(const QSizeF &s, QGraphicsItem *parent)
@@ -66,6 +67,7 @@ InteractiveImageToken::InteractiveImageToken(const QSizeF &s, QGraphicsItem *par
     grab_radius_ = sqrt(s.width()*s.width() + s.height()*s.height());
 
     setFlag(QGraphicsItem::ItemIsMovable, true);
+    setZValue(1);
 }
 
 InteractiveImageToken::InteractiveImageToken(const InteractiveImageToken &it, QGraphicsItem *parent)
@@ -76,6 +78,12 @@ InteractiveImageToken::InteractiveImageToken(const InteractiveImageToken &it, QG
     , uncover_radius_(it.getUncoverRadius())
 {
     setFlag(QGraphicsItem::ItemIsMovable, true);
+}
+
+InteractiveImageToken::~InteractiveImageToken()
+{
+    if(scene())
+        scene()->removeItem(this);
 }
 
 QRectF InteractiveImageToken::boundingRect() const
@@ -297,7 +305,7 @@ const QUuid &InteractiveImageToken::getUuid() const
     return uuid_;
 }
 
-const QRectF &InteractiveImageToken::calculateBoundingRect() const
+const QRectF InteractiveImageToken::calculateBoundingRect() const
 {
     QPainterPath p;
     p.addRect(marker_rect_);

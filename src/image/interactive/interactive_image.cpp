@@ -88,8 +88,10 @@ InteractiveImage::~InteractiveImage()
     delete result_image_;
     foreach(auto it, token_paths_.keys())
         it->deleteLater();
+    token_paths_.clear();
     foreach(auto sh, shapes_)
         sh->deleteLater();
+    shapes_.clear();
     if(menu_bar_extension_)
         menu_bar_extension_->deleteLater();
 }
@@ -115,17 +117,24 @@ void InteractiveImage::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
     painter->drawPixmap(boundingRect().toRect(), QPixmap::fromImage(*result_image_));
 
-    if(creating_shape_ && !shape_rect_.isEmpty()) {
-        painter->fillRect(shape_rect_, QColor(155,155,156));
-        QPen p(painter->pen());
-        p.setWidth(5);
-        p.setColor(QColor(55,55,56));
-        painter->setPen(p);
-        painter->drawRect(shape_rect_);
-    }
+    QPen p(painter->pen());
+    p.setWidth(5);
+    p.setColor(QColor(155,155,156));
+    painter->setPen(p);
 
     if(!all_uncovered_) {
         painter->drawPath(merged_shape_);
+        //painter->drawPath(merged_shape_);
+        /*foreach(auto sh, shapes_.toSet().subtract(uncovered_shapes_))
+            painter->fillPath(sh->shape(), QColor(55,55,56));*/
+    }
+
+    p.setColor(QColor(55,55,56));
+    painter->setPen(p);
+
+    if(creating_shape_ && !shape_rect_.isEmpty()) {
+        painter->fillRect(shape_rect_, QColor(155,155,156));
+        painter->drawRect(shape_rect_);
     }
 }
 
@@ -142,6 +151,9 @@ void InteractiveImage::addToken(InteractiveImageToken *it)
     scene()->addItem(it);
     linkToken(it);
     scheduleCalcResultImage();
+    connect(it, &InteractiveImageToken::destroyed,
+            this, &InteractiveImage::onTokenDeleted);
+    evaluateShapeTrackers();
     emit tokenAdded(it);
 }
 
@@ -151,13 +163,17 @@ void InteractiveImage::addShape(InteractiveImageShape *sh)
     shapes_.append(sh);
     if(all_uncovered_) {
         sh->setOpacity(0.7f);
+        sh->setFlag(QGraphicsItem::ItemIsSelectable, true);
     }
     else {
+        sh->hide();
         prepareGeometryChange();
-        merged_shape_.addRect(sh->boundingRect());
+        merged_shape_.addPath(sh->shape());
         merged_shape_ = merged_shape_.simplified();
         merged_shape_.setFillRule(Qt::WindingFill);
     }
+    connect(sh, &InteractiveImageShape::destroyed,
+            this, &InteractiveImage::onShapeDeleted);
     emit shapeAdded(sh);
 }
 
@@ -206,6 +222,49 @@ bool InteractiveImage::removeTrackerName(const QString &n)
     return true;
 }
 
+void InteractiveImage::drawTokenPath(QPainter *painter, InteractiveImageToken *token, bool draw_thin)
+{
+    QPen p(Qt::black, 4, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    if(!draw_thin) {
+        p.setWidth(token->getUncoverRadius());
+        if(token->getUncoverRadius() > token_paths_[token].boundingRect().width() &&
+           token->getUncoverRadius() > token_paths_[token].boundingRect().height())
+        {
+            painter->setBrush(Qt::black);
+            painter->setPen(Qt::NoPen);
+            QRectF uncover_area(token->mapRectToScene(token->uncoverBoundingRect()));
+            painter->drawEllipse(uncover_area);
+        }
+    }
+    drawTokenPath(painter, token, p, QBrush(Qt::NoBrush));
+}
+
+void InteractiveImage::drawTokenPath(QPainter *painter, InteractiveImageToken* token, const QPen &pen, const QBrush& brush)
+{
+    if(!token_paths_.contains(token))
+        return;
+    painter->setBrush(brush);
+    painter->setPen(pen);
+    painter->drawPath(token_paths_[token]);
+}
+
+void InteractiveImage::drawUncoveredShapes(QPainter *painter)
+{
+    drawUncoveredShapes(
+        painter,
+        QPen(Qt::black, 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin),
+        QBrush(Qt::black)
+    );
+}
+
+void InteractiveImage::drawUncoveredShapes(QPainter *painter, const QPen &pen, const QBrush &b)
+{
+    painter->setPen(pen);
+    painter->setBrush(b);
+    foreach(auto path, paths_)
+        painter->drawPath(path);
+}
+
 void InteractiveImage::linkToken(InteractiveImageToken *it)
 {
     token_paths_[it] = QPainterPath(it->centerPos());
@@ -230,6 +289,7 @@ void InteractiveImage::onHasMoved(const QUuid &uuid)
         token_paths_[it].lineTo(it->centerPos());
         if(!all_uncovered_)
             scheduleCalcResultImage();
+        evaluateShapeTrackers();
     }
 }
 
@@ -269,11 +329,36 @@ void InteractiveImage::onCreateToken(const QString &n)
     }
 }
 
+void InteractiveImage::onMergeShapes()
+{
+    QList<InteractiveImageShape*> shapes_to_merge;
+    foreach(auto sh, shapes_) {
+        if(sh->isSelected())
+            shapes_to_merge.append(sh);
+    }
+    if(shapes_to_merge.size() <= 1)
+        return;
+    QPainterPath p;
+    p.setFillRule(Qt::WindingFill);
+    foreach(auto sh, shapes_to_merge) {
+        p.addPath(sh->shape());
+        if(sh->scene())
+            sh->scene()->removeItem(sh);
+        shapes_.removeAll(sh);
+        if(uncovered_shapes_.contains(sh))
+            uncovered_shapes_.remove(sh);
+        sh->deleteLater();
+    }
+    addShape(new InteractiveImageShape(p.simplified()));
+}
+
 void InteractiveImage::onCreateShape()
 {
     prepareGeometryChange();
     creating_shape_ = true;
     shape_rect_ = QRectF();
+    foreach(auto sh, shapes_)
+        sh->setFlag(QGraphicsItem::ItemIsSelectable, false);
 }
 
 void InteractiveImage::onUncoverAll()
@@ -313,6 +398,34 @@ void InteractiveImage::onUncoverRadiusChanged()
         scheduleCalcResultImage();
 }
 
+void InteractiveImage::onTokenDeleted(QObject* o)
+{
+    /*auto gi = qobject_cast<QGraphicsItem*>(o);
+    if(!gi)
+        return;*/
+    auto token = static_cast<InteractiveImageToken*>(o);
+    if(token && token_paths_.contains(token)) {
+        scheduleCalcResultImage();
+        paths_.append(token_paths_[token]);
+        token_paths_.remove(token);
+    }
+}
+
+void InteractiveImage::onShapeDeleted(QObject* o)
+{
+    /*auto gi = qobject_cast<QGraphicsItem*>(o);
+    if(!gi)
+        return;*/
+    auto sh = static_cast<InteractiveImageShape*>(o);
+    if(sh && (uncovered_shapes_.contains(sh) || shapes_.contains(sh))) {
+        scheduleCalcResultImage();
+        if(uncovered_shapes_.contains(sh))
+            uncovered_shapes_.remove(sh);
+        if(shapes_.contains(sh))
+            shapes_.removeAll(sh);
+    }
+}
+
 void InteractiveImage::clearAllPaths()
 {
     paths_.clear();
@@ -334,6 +447,10 @@ void InteractiveImage::mousePressEvent(QGraphicsSceneMouseEvent *event)
         return;
 
     if(event->button() == Qt::LeftButton) {
+        foreach(auto sh, shapes_) {
+            if(sh->isSelected())
+                sh->setSelected(false);
+        }
         if(!creating_shape_) {
             drawing_ = true;
             paths_.append(QPainterPath(event->pos()));
@@ -341,6 +458,7 @@ void InteractiveImage::mousePressEvent(QGraphicsSceneMouseEvent *event)
         }
         else {
             prepareGeometryChange();
+            click_pos_ = event->pos();
             shape_rect_.setTopLeft(event->pos());
             shape_rect_.setBottomRight(event->pos());
             event->accept();
@@ -363,7 +481,7 @@ void InteractiveImage::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     }
     else if(creating_shape_) {
         prepareGeometryChange();
-        shape_rect_.setBottomRight(event->pos());
+        shape_rect_ = orderedRect(click_pos_, event->pos());
     }
 }
 
@@ -378,44 +496,50 @@ void InteractiveImage::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 void InteractiveImage::contextMenuEvent(QGraphicsSceneContextMenuEvent *e)
 {
     click_pos_ = e->pos();
+    int num_selected_shapes = 0;
+    foreach(auto sh, shapes_) {
+        if(sh->isSelected()) {
+            ++num_selected_shapes;
+            if(num_selected_shapes > 1)
+                break;
+        }
+    }
+    actions_["merge_shapes"]->setEnabled(num_selected_shapes > 1);
     context_menu_->popup(e->screenPos());
 }
 
 void InteractiveImage::calcResultImage()
 {
+    // only update if re-calc needed
     if(!need_calc_)
         return;
+
+    // setup paint context for result image
+    // and make all image content transparent
     QPainter p(result_image_);
     p.setCompositionMode(QPainter::CompositionMode_Source);
     p.fillRect(result_image_->rect(), Qt::transparent);
+
+    // draw shapes which will be filled by source image
     p.setCompositionMode(QPainter::CompositionMode_SourceOver);
     if(all_uncovered_) {
+        // paint result image everywhere (all is visible)
         p.fillRect(result_image_->rect(), Qt::black);
     }
     else {
+        // paint result image wherever there are:
+        // - token paths
+        // - unveiled shapes
+        // - other shapes
+        //   - e.g. mouse painted shapes, paths added from outside instance
         foreach(auto it, token_paths_.keys()) {
-            p.setBrush(Qt::NoBrush);
-            p.setPen(QPen(Qt::black, it->getUncoverRadius(), Qt::SolidLine, Qt::RoundCap));
-            p.drawPath(token_paths_[it]);
-            p.setBrush(Qt::black);
-            p.setPen(Qt::NoPen);
-            QRectF uncover_area(it->mapRectToScene(it->uncoverBoundingRect()));
-            p.drawEllipse(uncover_area);
-            QSet<InteractiveImageShape*> unrevealed(shapes_.toSet());
-            unrevealed.subtract(uncovered_shapes_);
-            foreach(auto sh, unrevealed) {
-                if(sh->shape().contains(it->pos())) {
-                    paths_.append(sh->shape());
-                    uncovered_shapes_.insert(sh);
-                    sh->hide();
-                }
-            }
+            drawTokenPath(&p, it);
+            unveilShapes(it);
         }
-        p.setBrush(Qt::black);
-        p.setPen(QPen(Qt::black, 5, Qt::SolidLine, Qt::RoundCap));
-        foreach(auto path, paths_)
-            p.drawPath(path);
+        drawUncoveredShapes(&p);
     }
+
+    // fill result image
     p.setCompositionMode(QPainter::CompositionMode_SourceIn);
     p.drawImage(0, 0, *src_image_);
     p.setCompositionMode(QPainter::CompositionMode_DestinationOver);
@@ -460,10 +584,12 @@ void InteractiveImage::setAllUncovered(bool state)
                 uncovered_shapes_.remove(sh);
             sh->setOpacity(0.7f);
             sh->show();
+            sh->setFlag(QGraphicsItem::ItemIsSelectable, true);
         }
         else {
-            merged_shape_.addRect(sh->boundingRect());
+            merged_shape_.addPath(sh->shape());
             sh->hide();
+            sh->setFlag(QGraphicsItem::ItemIsSelectable, false);
         }
     }
 
@@ -478,10 +604,60 @@ void InteractiveImage::finalizeShapeDraw()
 {
     prepareGeometryChange();
     creating_shape_ = false;
+    if(all_uncovered_) {
+        foreach(auto sh, shapes_)
+            sh->setFlag(QGraphicsItem::ItemIsSelectable, true);
+    }
+
     QPainterPath p;
     p.addRect(shape_rect_);
     InteractiveImageShape* img_shape = new InteractiveImageShape(p);
     addShape(img_shape);
+}
+
+void InteractiveImage::unveilShapes(InteractiveImageToken *it)
+{
+    QSet<InteractiveImageShape*> unrevealed(shapes_.toSet());
+    unrevealed.subtract(uncovered_shapes_);
+    foreach(auto sh, unrevealed) {
+        if(!sh->getUncoverEnabled())
+            continue;
+        if(sh->shape().contains(it->pos())) {
+            paths_.append(sh->shape());
+            uncovered_shapes_.insert(sh);
+            sh->hide();
+        }
+    }
+}
+
+void InteractiveImage::evaluateShapeTrackers()
+{
+    foreach(auto sh, shapes_) {
+        if(!Resources::Lib::TRACKER_MODEL->hasTracker(sh))
+            continue;
+        bool active = false;
+        foreach(auto it, token_paths_.keys()) {
+            if(sh->contains(it->pos())) {
+                active = true;
+                break;
+            }
+        }
+        sh->setActiveState(active);
+    }
+}
+
+const QRectF InteractiveImage::orderedRect(const QPointF &p1, const QPointF &p2)
+{
+    return QRectF(
+        QPointF(
+            qMin(p1.x(), p2.x()),
+            qMin(p1.y(), p2.y())
+        ),
+        QPointF(
+            qMax(p1.x(), p2.x()),
+            qMax(p1.y(), p2.y())
+        )
+    );
 }
 
 void InteractiveImage::initContextMenu()
@@ -496,6 +672,11 @@ void InteractiveImage::initContextMenu()
     connect(actions_["create_shape"], SIGNAL(triggered()),
             this, SLOT(onCreateShape()));
 
+    actions_["merge_shapes"] = new QAction(tr("Merge Shapes"));
+    connect(actions_["merge_shapes"], SIGNAL(triggered()),
+            this, SLOT(onMergeShapes()));
+    actions_["merge_shapes"]->setEnabled(false);
+
     actions_["cover"] = new QAction(tr("Overlay Map Fog"));
     connect(actions_["cover"], SIGNAL(triggered()),
             this, SLOT(onCoverAll()));
@@ -507,6 +688,8 @@ void InteractiveImage::initContextMenu()
 
     context_menu_->addAction(actions_["create_token"]);
     context_menu_->addAction(actions_["create_shape"]);
+    context_menu_->addSeparator();
+    context_menu_->addAction(actions_["merge_shapes"]);
     context_menu_->addSeparator();
     context_menu_->addAction(actions_["cover"]);
     context_menu_->addAction(actions_["uncover"]);

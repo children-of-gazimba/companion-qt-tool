@@ -70,6 +70,13 @@ public:
 
     bool removeTrackerName(const QString& n);
 
+    void drawTokenPath(QPainter* painter, InteractiveImageToken* token, bool draw_thin=false);
+    void drawTokenPath(QPainter* painter, InteractiveImageToken* token,
+                       const QPen& pen, const QBrush& brush);
+
+    void drawUncoveredShapes(QPainter *painter);
+    void drawUncoveredShapes(QPainter* painter, const QPen& pen, const QBrush& b);
+
 signals:
     void tokenAdded(InteractiveImageToken* it);
     void shapeAdded(InteractiveImageShape* sh);
@@ -81,12 +88,15 @@ protected slots:
     void onHasMoved(const QUuid&);
     void onCreateToken();
     void onCreateToken(const QString&);
+    void onMergeShapes();
     void onCreateShape();
     void onUncoverAll();
     void onCoverAll();
     void onTrackerAdded(QString const&);
     void onTrackerRemoved(QString const&);
     void onUncoverRadiusChanged();
+    void onTokenDeleted(QObject*);
+    void onShapeDeleted(QObject*);
 
 protected:    
     void linkToken(InteractiveImageToken* it);
@@ -97,6 +107,10 @@ protected:
     void loadFileIntoImage(const QString& file, QImage* img);
     void setAllUncovered(bool state);
     void finalizeShapeDraw();
+    void unveilShapes(InteractiveImageToken* it);
+    void evaluateShapeTrackers();
+
+    static const QRectF orderedRect(const QPointF& p1, const QPointF& p2);
 
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);

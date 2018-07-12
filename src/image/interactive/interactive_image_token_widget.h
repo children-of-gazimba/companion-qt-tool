@@ -17,6 +17,7 @@ class InteractiveImageTokenWidget : public QWidget
 public:
     explicit InteractiveImageTokenWidget(QWidget *parent = nullptr);
     explicit InteractiveImageTokenWidget(InteractiveImageToken* token, QWidget *parent = nullptr);
+    virtual ~InteractiveImageTokenWidget();
 
     void setToken(InteractiveImageToken* token);
     InteractiveImageToken* getToken() const;

@@ -56,11 +56,22 @@ InteractiveImageTokenWidget::InteractiveImageTokenWidget(InteractiveImageToken *
     initLayout();
     updateUI();
     hideCollapsibleWidgets();
+    connect(token_, &InteractiveImageToken::destroyed,
+            this, &InteractiveImageTokenWidget::deleteLater);
 }
+
+InteractiveImageTokenWidget::~InteractiveImageTokenWidget()
+{}
 
 void InteractiveImageTokenWidget::setToken(InteractiveImageToken *token)
 {
+    if(token_) {
+        disconnect(token_, &InteractiveImageToken::destroyed,
+                   this, &InteractiveImageTokenWidget::deleteLater);
+    }
     token_ = token;
+    connect(token_, &InteractiveImageToken::destroyed,
+            this, &InteractiveImageTokenWidget::deleteLater);
     updateUI();
 }
 
@@ -116,8 +127,7 @@ void InteractiveImageTokenWidget::onDelete()
     b.setDefaultButton(QMessageBox::No);
     b.setWindowTitle(tr("Delete Token"));
     if(b.exec() == QMessageBox::Yes) {
-        qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
-        qDebug() << "  > delete token" << token_->getName();
+        token_->deleteLater();
     }
 }
 

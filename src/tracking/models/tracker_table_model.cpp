@@ -98,6 +98,15 @@ bool TrackerTableModel::hasTracker(const QString &name) const
     return trackers_.contains(name);
 }
 
+bool TrackerTableModel::hasTracker(Tracker *tracker) const
+{
+    foreach(auto t, trackers_.values()) {
+        if(t == tracker)
+            return true;
+    }
+    return false;
+}
+
 bool TrackerTableModel::addTracker(Tracker* t)
 {
     if(hasTracker(t->getName()))
@@ -120,6 +129,17 @@ bool TrackerTableModel::removeTracker(const QString &name)
         return false;
     internalRemoveTracker(name);
     return true;
+}
+
+bool TrackerTableModel::removeTracker(Tracker *t)
+{
+    if(!hasTracker(t))
+        return false;
+    foreach(auto name, trackers_.keys()) {
+        if(trackers_[name] == t)
+            return removeTracker(name);
+    }
+    return false;
 }
 
 QVariant TrackerTableModel::data(Tracker *tracker, int field) const
@@ -168,7 +188,10 @@ void TrackerTableModel::internalRemoveTracker(const QString &name)
 {
     int row = getRow(name);
     beginRemoveRows(QModelIndex(), row, row);
-    delete trackers_[name];
+    if(trackers_[name]->getCleanByModelEnabled())
+        delete trackers_[name];
+    else
+        trackers_[name]->removeAllTracking();
     trackers_.remove(name);
     endRemoveRows();
     emit trackerRemoved(name);

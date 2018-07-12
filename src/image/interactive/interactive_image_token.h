@@ -26,6 +26,7 @@ public:
     explicit InteractiveImageToken(QGraphicsItem *parent = nullptr);
     explicit InteractiveImageToken(const QSizeF& s, QGraphicsItem *parent = nullptr);
     explicit InteractiveImageToken(const InteractiveImageToken&, QGraphicsItem *parent = nullptr);
+    virtual ~InteractiveImageToken();
 
     /**
      * See BC.
@@ -90,7 +91,7 @@ public:
     /**
      * Calculates the overall bounding rect
      */
-    const QRectF &calculateBoundingRect() const;
+    const QRectF calculateBoundingRect() const;
 
     /*
     * Returns the radius from center of bounds at which

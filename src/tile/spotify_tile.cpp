@@ -357,7 +357,7 @@ const QPixmap SpotifyTile::getPlayStatePixmap() const
 
 void SpotifyTile::setIsPlaying(bool state)
 {
-    is_activated_ = state;
+    //is_activated_ = state;
     is_playing_ = state;
 }
 

@@ -83,6 +83,12 @@ public:
     bool hasTracker(const QString& name) const;
 
     /**
+     * Returns true if a Tracker is maintained by this model.
+     * False otherwise.
+    */
+    bool hasTracker(Tracker* t) const;
+
+    /**
      * Adds given tracker to the list of trackers maintained by the model.
      * Returns true if tracker added.
      * If a tracker with name of given tracker already exists, no new entry
@@ -103,6 +109,12 @@ public:
      * Returns true if removal successful, false otherwise.
     */
     bool removeTracker(const QString& name);
+
+    /**
+     * Removes tracker.
+     * Returns true if removal successful, false otherwise.
+    */
+    bool removeTracker(Tracker* t);
 
 signals:
     void trackerAdded(const QString& name);

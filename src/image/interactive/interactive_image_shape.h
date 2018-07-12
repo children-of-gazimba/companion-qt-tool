@@ -4,7 +4,9 @@
 #include <QGraphicsPathItem>
 #include <QObject>
 
-class InteractiveImageShape : public QGraphicsObject
+#include "tracking/activation_tracker.h"
+
+class InteractiveImageShape : public QGraphicsObject, public ActivationTracker
 {
     Q_OBJECT
 
@@ -16,15 +18,23 @@ public:
 
 public:
     InteractiveImageShape(const QPainterPath& path, QGraphicsItem* parent = 0);
+    virtual ~InteractiveImageShape();
+
+    virtual void setName(const QString&);
 
     virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                       QWidget *widget);
     virtual QPainterPath shape() const;
 
     void setPath(const QPainterPath& p);
 
+    void setUncoverEnabled(bool enabled);
+    bool getUncoverEnabled() const;
+
 protected:
     QPainterPath path_;
+    bool is_uncover_shape_;
 };
 
 #endif // INTERACTIVE_IMAGE_SHAPE_H

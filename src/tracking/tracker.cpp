@@ -10,6 +10,7 @@ Tracker::Tracker()
     , grabs_()
     , manipulations_()
     , bulk_update_(false)
+    , cleaned_by_model_(true)
 {}
 
 Tracker::~Tracker()
@@ -23,7 +24,8 @@ bool Tracker::link(Trackable *target, int target_prop)
         if(isLinked(target, target_prop) || isGrabbed(target, target_prop))
             return false;
     }
-
+    if(!supportedTargetProperties().contains(target_prop))
+        return false;
     // check linkability
     bool can_link = false;
     if(target_prop == ALL) {
@@ -31,13 +33,16 @@ bool Tracker::link(Trackable *target, int target_prop)
         if(isLinked(target))
             removeLink(target);
     }
-    else if(target_prop == POSITION || target_prop == REL_POSITION) {
+    else {
+        can_link = true;
+    }
+    /*else if(target_prop == POSITION || target_prop == REL_POSITION) {
         can_link = (!isLinked(target, POSITION) || !isLinked(target, REL_POSITION)) &&
                 (!isGrabbed(target, POSITION) || !isGrabbed(target, REL_POSITION));
     }
     else if(target_prop == ROTATION) {
         can_link = true;
-    }
+    }*/
     // link if linkable
     if(can_link)
         return internalLink(target, target_prop);
@@ -50,6 +55,8 @@ bool Tracker::grab(Trackable *target, int target_prop)
         if(isLinked(target, target_prop) || isGrabbed(target, target_prop))
             return false;
     }
+    if(!supportedTargetProperties().contains(target_prop))
+        return false;
     // check grabbability
     bool can_grab = false;
     if(target_prop == ALL) {
@@ -57,13 +64,16 @@ bool Tracker::grab(Trackable *target, int target_prop)
         if(isGrabbed(target))
             removeGrab(target);
     }
-    else if(target_prop == POSITION || target_prop == REL_POSITION) {
-        can_grab = (!isLinked(target, POSITION) || !isLinked(target, REL_POSITION)) &&
-                (!isGrabbed(target, POSITION) || !isGrabbed(target, REL_POSITION));
-    }
-    else if(target_prop == ROTATION) {
+    else {
         can_grab = true;
     }
+//    else if(target_prop == POSITION || target_prop == REL_POSITION) {
+//        can_grab = (!isLinked(target, POSITION) || !isLinked(target, REL_POSITION)) &&
+//                (!isGrabbed(target, POSITION) || !isGrabbed(target, REL_POSITION));
+//    }
+//    else if(target_prop == ROTATION) {
+//        can_grab = true;
+//    }
     // link if grabbable
     if(can_grab)
         return internalGrab(target, target_prop);
@@ -263,6 +273,16 @@ const QSet<Trackable *> Tracker::manipulationTargets() const
 const QSet<Trackable *> Tracker::targets() const
 {
     return manipulationTargets();
+}
+
+bool Tracker::getCleanByModelEnabled() const
+{
+    return cleaned_by_model_;
+}
+
+void Tracker::setCleanByModelEnabled(bool state)
+{
+    cleaned_by_model_ = state;
 }
 
 bool Tracker::internalLink(Trackable *target, int target_prop)

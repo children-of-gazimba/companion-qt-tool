@@ -1,12 +1,15 @@
 #include "image_display_widget.h"
 
+#include <QGroupBox>
 #include <QPushButton>
 #include <QVBoxLayout>
 
 #include "view.h"
 #include "misc/widget_list_view.h"
+#include "misc/container.h"
 #include "interactive/interactive_image.h"
 #include "interactive/interactive_image_token_widget.h"
+#include "interactive/interactive_image_shape_widget.h"
 
 ImageDisplayWidget::ImageDisplayWidget(QWidget *parent)
     : QWidget(parent)
@@ -14,6 +17,7 @@ ImageDisplayWidget::ImageDisplayWidget(QWidget *parent)
     , view_menu_(0)
     , view_(0)
     , token_config_list_(0)
+    , shape_config_list_(0)
     , main_splitter_(0)
 {
     initWidgets();
@@ -41,6 +45,8 @@ void ImageDisplayWidget::onItemSet()
     if(img) {
         connect(img, &InteractiveImage::tokenAdded,
                 this, &ImageDisplayWidget::onTokenAdded);
+        connect(img, &InteractiveImage::shapeAdded,
+                this, &ImageDisplayWidget::onShapeAdded);
     }
     else {
         removeAllTokenConfigs();
@@ -74,11 +80,26 @@ void ImageDisplayWidget::onTokenAdded(InteractiveImageToken *token)
     token_config_list_->addWidget(new InteractiveImageTokenWidget(token));
 }
 
+void ImageDisplayWidget::onShapeAdded(InteractiveImageShape* shape)
+{
+    shape_config_list_->addWidget(new InteractiveImageShapeWidget(shape));
+}
+
 void ImageDisplayWidget::removeAllTokenConfigs()
 {
     QList<QWidget*> configs = token_config_list_->getWidgets();
     while(configs.size() > 0) {
         token_config_list_->removeWidget(configs[0]);
+        configs[0]->deleteLater();
+        configs.pop_front();
+    }
+}
+
+void ImageDisplayWidget::removeAllShapeConfigs()
+{
+    QList<QWidget*> configs = shape_config_list_->getWidgets();
+    while(configs.size() > 0) {
+        shape_config_list_->removeWidget(configs[0]);
         configs[0]->deleteLater();
         configs.pop_front();
     }
@@ -105,7 +126,9 @@ void ImageDisplayWidget::initWidgets()
     view_ = new Image::View(this);
     menu_bar_ = new QMenuBar(this);
     token_config_list_ = new WidgetListView(this);
+    shape_config_list_ = new WidgetListView(this);
     main_splitter_ = new QSplitter(Qt::Horizontal, this);
+    //main_splitter_->setHandleWidth(30);
 
     connect(view_, SIGNAL(itemSet()),
             this, SLOT(onItemSet()));
@@ -134,8 +157,25 @@ void ImageDisplayWidget::initLayout()
 {
     QVBoxLayout* layout = new QVBoxLayout;
 
+    QGroupBox* token_box = new QGroupBox(tr("Tokens"), this);
+    token_box->setLayout(new QHBoxLayout);
+    token_box->layout()->addWidget(token_config_list_);
+
+    QGroupBox* shape_box = new QGroupBox(tr("Shapes"), this);
+    shape_box->setLayout(new QHBoxLayout);
+    shape_box->layout()->addWidget(shape_config_list_);
+
+    QVBoxLayout* config_layout = new QVBoxLayout;
+    config_layout->addWidget(token_box, 1);
+    config_layout->addWidget(shape_box, 1);
+    config_layout->setContentsMargins(0,0,0,0);
+
+    Container* container = new Container(this);
+    container->setLayout(config_layout);
+
+    //main_splitter_->setStyleSheet("Container { color: white; background-color: black; }");
     main_splitter_->addWidget(view_);
-    main_splitter_->addWidget(token_config_list_);
+    main_splitter_->addWidget(container);
     main_splitter_->setSizes(QList<int>() << 100 << 0);
 
     layout->setSpacing(0);

@@ -18,6 +18,7 @@
 
 #include "db/handler.h"
 #include "db/model/preset_table_model.h"
+#include "tracking/trackable.h"
 
 namespace Tile {
 
@@ -28,7 +29,7 @@ namespace Tile {
  * Defines inteface for evaluating mime data and Setting activation shortscuts.
  * Holds functionality to convert to JSON description and be set from JSON.
 */
-class BaseTile : public QObject, public QGraphicsItem
+class BaseTile : public QObject, public QGraphicsItem, public Trackable
 {
     Q_OBJECT
 
@@ -70,6 +71,15 @@ public:
      * See BC.
     */
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+
+    /** See BC. */
+    virtual const QList<int> supportedTargetProperties() const;
+
+    /** See BC. */
+    virtual bool updateGrabFromTracker(Tracker *tracker, int target_prop);
+
+    /** See BC. */
+    virtual bool updateLinkFromTracker(Tracker *tracker, int target_prop);
 
     /**
      * Initialize default properties of tile.
@@ -177,6 +187,11 @@ public:
     bool isActivated() const;
 
     /**
+     * Sets activation state with respect to given bool
+    */
+    void setActivated(bool state);
+
+    /**
      * @brief getClassName
      * @return string identifying class
      */
@@ -225,6 +240,9 @@ protected slots:
 
     /** sets the activation key using char input dialog */
     void onSetKey();
+
+    /** Opens a dialog to configure the current activation tracker */
+    void onSetActivationTracker();
 
 protected:
     /*

@@ -7,6 +7,11 @@ Container {
    color: white;
 }
 
+QSplitter {
+   background-color: #373738;
+   color: white;
+}
+
 /*
 InteractiveImageTokenWidget > QGroupBox {
    background-color: #545556;

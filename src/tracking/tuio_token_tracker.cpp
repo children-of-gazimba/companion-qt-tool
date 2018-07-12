@@ -18,6 +18,9 @@ TuioTokenTracker::TuioTokenTracker(int class_id, int id)
     , flip_y_(false)
 {}
 
+TuioTokenTracker::~TuioTokenTracker()
+{}
+
 void TuioTokenTracker::set(const Tracker *other)
 {
     if(other->trackerType() == TuioTokenTracker::TrackerType) {
