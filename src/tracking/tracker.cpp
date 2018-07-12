@@ -19,8 +19,11 @@ Tracker::~Tracker()
 
 bool Tracker::link(Trackable *target, int target_prop)
 {
-    if(isLinked(target, target_prop) || isGrabbed(target, target_prop))
-        return false;
+    if(!target->getForcedTrackerChangeEnabled()) {
+        if(isLinked(target, target_prop) || isGrabbed(target, target_prop))
+            return false;
+    }
+
     // check linkability
     bool can_link = false;
     if(target_prop == ALL) {
@@ -30,7 +33,7 @@ bool Tracker::link(Trackable *target, int target_prop)
     }
     else if(target_prop == POSITION || target_prop == REL_POSITION) {
         can_link = (!isLinked(target, POSITION) || !isLinked(target, REL_POSITION)) &&
-                   (!isGrabbed(target, POSITION) || !isGrabbed(target, REL_POSITION));
+                (!isGrabbed(target, POSITION) || !isGrabbed(target, REL_POSITION));
     }
     else if(target_prop == ROTATION) {
         can_link = true;
@@ -43,8 +46,10 @@ bool Tracker::link(Trackable *target, int target_prop)
 
 bool Tracker::grab(Trackable *target, int target_prop)
 {
-    if(isLinked(target, target_prop) || isGrabbed(target, target_prop))
-        return false;
+    if(!target->getForcedTrackerChangeEnabled()) {
+        if(isLinked(target, target_prop) || isGrabbed(target, target_prop))
+            return false;
+    }
     // check grabbability
     bool can_grab = false;
     if(target_prop == ALL) {
@@ -54,7 +59,7 @@ bool Tracker::grab(Trackable *target, int target_prop)
     }
     else if(target_prop == POSITION || target_prop == REL_POSITION) {
         can_grab = (!isLinked(target, POSITION) || !isLinked(target, REL_POSITION)) &&
-                   (!isGrabbed(target, POSITION) || !isGrabbed(target, REL_POSITION));
+                (!isGrabbed(target, POSITION) || !isGrabbed(target, REL_POSITION));
     }
     else if(target_prop == ROTATION) {
         can_grab = true;
@@ -67,8 +72,10 @@ bool Tracker::grab(Trackable *target, int target_prop)
 
 bool Tracker::manipulate(Trackable *target, const QString &key)
 {
-    if(isManipulated(target, key))
-        return false;
+    if(!target->getForcedTrackerChangeEnabled()) {
+        if(isManipulated(target, key))
+            return false;
+    }
     return internalManipulate(target, key);
 }
 
@@ -147,6 +154,14 @@ qreal Tracker::getRotation() const
     return rotation_;
 }
 
+void Tracker::set(const Tracker *other)
+{
+    setName(other->getName());
+    setPosition(other->getPosition());
+    setRelativePosition(other->getRelativePosition());
+    setRotation(other->getRotation());
+}
+
 void Tracker::setName(const QString &n)
 {
     name_ = n;
@@ -183,7 +198,7 @@ bool Tracker::isLinked(Trackable *target, int target_prop) const
         return false;
     }
     return (links_.contains(ALL) && links_[ALL].contains(target)) ||
-           (links_.contains(target_prop) && links_[target_prop].contains(target));
+            (links_.contains(target_prop) && links_[target_prop].contains(target));
 }
 
 bool Tracker::isGrabbed(Trackable *target, int target_prop) const
@@ -196,7 +211,7 @@ bool Tracker::isGrabbed(Trackable *target, int target_prop) const
         return false;
     }
     return (grabs_.contains(ALL) && grabs_[ALL].contains(target)) ||
-           (grabs_.contains(target_prop) && grabs_[target_prop].contains(target));
+            (grabs_.contains(target_prop) && grabs_[target_prop].contains(target));
 }
 
 bool Tracker::isManipulated(Trackable *target, const QString &key) const

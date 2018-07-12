@@ -15,13 +15,8 @@
 #include <QSplitter>
 
 #include "tuio_graphics_view.h"
-#include "udp_client.h"
 #include "tuio_model_handler.h"
 #include "register_token_dialog.h"
-
-#include "image/view.h"
-#include "tracking/tracker.h"
-
 
 class TuioControlPanel : public QWidget
 {
@@ -29,8 +24,6 @@ class TuioControlPanel : public QWidget
 public:
     explicit TuioControlPanel(QWidget *parent = nullptr);
     virtual ~TuioControlPanel();
-
-    void setImageView(Image::View *view);
 
 protected slots:
     void onNewHostName();
@@ -48,8 +41,7 @@ protected slots:
     void onTrackerAdded(const TuioTokenTracker&);
 
 private:
-    bool isTrackingToken(const QTuioToken&) const;
-    void updateInteractiveImageToken(const QTuioToken& active_token);
+    void updateTrackedData(const QTuioToken& active_token);
 
 private:
     void initTuio(const QHostAddress& ip, unsigned port);
@@ -63,8 +55,6 @@ private:
 
     RegisterTokenDialog* token_registry_;
 
-    Image::View *image_view_;
-
     QLineEdit* host_name_;
     QPushButton* host_submit_;
     QLabel* host_label_;
@@ -75,7 +65,6 @@ private:
     QTableView* blob_table_;
     QMenuBar* menu_bar_;
     QSplitter* main_splitter_;
-    QMap<QString, TuioTokenTracker*> token_tracker_;
 };
 
 #endif // TUIO_CONTROL_PANEL_H

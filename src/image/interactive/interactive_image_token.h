@@ -19,6 +19,9 @@ public:
         MOVE
     };
 
+    enum { Type = UserType + 79 };
+    virtual int type() const { return Type; }
+
 public:
     explicit InteractiveImageToken(QGraphicsItem *parent = nullptr);
     explicit InteractiveImageToken(const QSizeF& s, QGraphicsItem *parent = nullptr);
@@ -28,6 +31,12 @@ public:
      * See BC.
     */
     virtual QRectF boundingRect() const;
+
+    /***/
+    virtual QRectF markerRect() const;
+
+    /***/
+    virtual QRectF textRect() const;
 
     /**
      * See BC.
@@ -43,6 +52,16 @@ public:
      * See BC.
     */
     virtual bool updateGrabFromTracker(Tracker *tracker, int target_prop);
+
+    /**
+     * See BC.
+    */
+    virtual bool registerGrab(Tracker* tracker, int target_prop);
+
+    /**
+     * See BC.
+     */
+    virtual bool registerLink(Tracker *tracker, int target_prop);
 
     /*
     * Returns a boundingRect for the current uncover area.
@@ -79,6 +98,18 @@ public:
     */
     void setUncoverRadius(float r);
 
+    /**
+    * Returns the radius from center of bounds at which
+    * this item should be grabbable
+     */
+    float getGrabDistance() const;
+
+    /**
+     * Sets the distance from center at which
+     * the token can be grabbed.
+     */
+    void setGrabDistance(float d);
+
     /*
     * Sets a new bounding rect of this item from [0,0] to [s.width, s.height].
     */
@@ -96,21 +127,30 @@ public:
 
 signals:
     void hasMoved();
+    void uncoverRadiusChanged();
 
 public slots:
 
 protected:
+    bool ensureGrabbable(Tracker* tracker, int target_prop);
+
     void setState(State);
 
     virtual void mousePressEvent(QGraphicsSceneMouseEvent* e);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* e);
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* e);
 
-    QRectF bounding_rect_;
+    QRectF marker_rect_;
     State state_;
     QUuid uuid_;
     float uncover_radius_;
     QString name_;
+
+    float grab_distance_;
+    float grabbed_rotation_;
+    bool grabbed = false;
+    QPointF grabbed_position_;
+    QPointF grabbed_relative_position_;
 };
 
 #endif // INTERACTIVE_IMAGE_TOKEN_H

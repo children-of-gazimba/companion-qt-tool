@@ -6,6 +6,7 @@
 #include <QMap>
 #include <QSettings>
 #include <QFile>
+#include "tracking/models/tracker_table_model.h"
 
 namespace Resources {
 
@@ -16,6 +17,11 @@ struct Lib
     static const QString loadFileToString(QString const& path);
 
     static QPixmap* getKeyPixmap(const QChar& k);
+
+    /**
+     * Global models
+    */
+    static TrackerTableModel* TRACKER_MODEL;
 
     /*
     * general paths

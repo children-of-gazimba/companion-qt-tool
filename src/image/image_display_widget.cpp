@@ -1,14 +1,20 @@
 #include "image_display_widget.h"
 
+#include <QPushButton>
 #include <QVBoxLayout>
 
 #include "view.h"
+#include "misc/widget_list_view.h"
+#include "interactive/interactive_image.h"
+#include "interactive/interactive_image_token_widget.h"
 
 ImageDisplayWidget::ImageDisplayWidget(QWidget *parent)
     : QWidget(parent)
     , menu_bar_(0)
     , view_menu_(0)
     , view_(0)
+    , token_config_list_(0)
+    , main_splitter_(0)
 {
     initWidgets();
     initMenu();
@@ -31,6 +37,14 @@ void ImageDisplayWidget::onItemSet()
     QAction* zoom_out = view_menu_->addAction(tr("Zoom Out"));
     connect(zoom_out, &QAction::triggered,
             this, &ImageDisplayWidget::onZoomOut);
+    auto img = qgraphicsitem_cast<InteractiveImage*>(view_->getItem());
+    if(img) {
+        connect(img, &InteractiveImage::tokenAdded,
+                this, &ImageDisplayWidget::onTokenAdded);
+    }
+    else {
+        removeAllTokenConfigs();
+    }
 }
 
 void ImageDisplayWidget::onToggleFullscreen()
@@ -55,6 +69,21 @@ void ImageDisplayWidget::onZoomOut()
     view_->scale(0.9,0.9);
 }
 
+void ImageDisplayWidget::onTokenAdded(InteractiveImageToken *token)
+{
+    token_config_list_->addWidget(new InteractiveImageTokenWidget(token));
+}
+
+void ImageDisplayWidget::removeAllTokenConfigs()
+{
+    QList<QWidget*> configs = token_config_list_->getWidgets();
+    while(configs.size() > 0) {
+        token_config_list_->removeWidget(configs[0]);
+        configs[0]->deleteLater();
+        configs.pop_front();
+    }
+}
+
 void ImageDisplayWidget::keyPressEvent(QKeyEvent *event)
 {
     switch(event->key()) {
@@ -75,6 +104,8 @@ void ImageDisplayWidget::initWidgets()
 {
     view_ = new Image::View(this);
     menu_bar_ = new QMenuBar(this);
+    token_config_list_ = new WidgetListView(this);
+    main_splitter_ = new QSplitter(Qt::Horizontal, this);
 
     connect(view_, SIGNAL(itemSet()),
             this, SLOT(onItemSet()));
@@ -87,15 +118,30 @@ void ImageDisplayWidget::initMenu()
     QAction* toggle_full = window_menu->addAction(tr("Toggle Fullscreen"));
     connect(toggle_full, &QAction::triggered,
             this, &ImageDisplayWidget::onToggleFullscreen);
+    QMenu* tool_menu = menu_bar_->addMenu(tr("Tools"));
+    QAction* toggle_side_bar = tool_menu->addAction(tr("Toggle Side Bar"));
+    toggle_side_bar->setShortcut(QKeySequence("Alt+0"));
+    connect(toggle_side_bar, &QAction::triggered,
+            this, [=](){
+        if(main_splitter_->sizes()[1] == 0)
+            main_splitter_->setSizes(QList<int>() << 300 << 100);
+        else
+            main_splitter_->setSizes(QList<int>() << 100 << 0);
+    });
 }
 
 void ImageDisplayWidget::initLayout()
 {
     QVBoxLayout* layout = new QVBoxLayout;
+
+    main_splitter_->addWidget(view_);
+    main_splitter_->addWidget(token_config_list_);
+    main_splitter_->setSizes(QList<int>() << 100 << 0);
+
     layout->setSpacing(0);
-    layout->setMargin(0);
     layout->setContentsMargins(0,0,0,0);
     layout->addWidget(menu_bar_, -1);
-    layout->addWidget(view_, 10);
+    layout->addWidget(main_splitter_, 1000000);
+
     setLayout(layout);
 }

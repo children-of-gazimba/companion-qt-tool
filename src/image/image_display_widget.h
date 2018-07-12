@@ -3,12 +3,14 @@
 
 #include <QWidget>
 #include <QMenuBar>
+#include <QSplitter>
 
 class InteractiveImageToken;
 
 namespace Image {
 class View;
 }
+class WidgetListView;
 
 class ImageDisplayWidget : public QWidget
 {
@@ -18,13 +20,13 @@ public:
 
     Image::View* getView() const;
 
-signals:
-
 private slots:
     void onItemSet();
     void onToggleFullscreen();
     void onZoomIn();
     void onZoomOut();
+    void onTokenAdded(InteractiveImageToken*);
+    void removeAllTokenConfigs();
 
 private:
     void keyPressEvent(QKeyEvent *event);
@@ -36,6 +38,8 @@ private:
     QMenuBar* menu_bar_;
     QMenu* view_menu_;
     Image::View* view_;
+    WidgetListView* token_config_list_;
+    QSplitter* main_splitter_;
 };
 
 #endif // IMAGE_DISPLAY_WIDGET_H

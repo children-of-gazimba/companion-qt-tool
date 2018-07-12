@@ -7,6 +7,7 @@
 #include <QSet>
 
 #include "interactive_image_token.h"
+#include "interactive_image_shape.h"
 
 class QAction;
 
@@ -45,6 +46,12 @@ public:
     void addToken(InteractiveImageToken* it);
 
     /*
+    * Adds given shape to the view
+    * and connects it to interactive functionality.
+    */
+    void addShape(InteractiveImageShape* sh);
+
+    /*
     * Returns the QMenu which can be used as a
     * MenuBar extension. All actions
     * are also available from the context menu.
@@ -64,6 +71,8 @@ public:
     bool removeTrackerName(const QString& n);
 
 signals:
+    void tokenAdded(InteractiveImageToken* it);
+    void shapeAdded(InteractiveImageShape* sh);
 
 public slots:
     void loadImage();
@@ -72,8 +81,12 @@ protected slots:
     void onHasMoved(const QUuid&);
     void onCreateToken();
     void onCreateToken(const QString&);
+    void onCreateShape();
     void onUncoverAll();
     void onCoverAll();
+    void onTrackerAdded(QString const&);
+    void onTrackerRemoved(QString const&);
+    void onUncoverRadiusChanged();
 
 protected:    
     void linkToken(InteractiveImageToken* it);
@@ -83,6 +96,7 @@ protected:
     const QPoint imagePos(const QImage& img) const;
     void loadFileIntoImage(const QString& file, QImage* img);
     void setAllUncovered(bool state);
+    void finalizeShapeDraw();
 
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
@@ -98,6 +112,9 @@ protected:
     bool drawing_;
     QList<QPainterPath> paths_;
     QMap<InteractiveImageToken*, QPainterPath> token_paths_;
+    QList<InteractiveImageShape*> shapes_;
+    QSet<InteractiveImageShape*> uncovered_shapes_;
+    QPainterPath merged_shape_;
     QPointF click_pos_;
     QLineF line_;
     QMenu* context_menu_;
@@ -106,6 +123,8 @@ protected:
     QMenu* menu_bar_extension_;
     bool need_calc_;
     QSet<QString> tracker_names_;
+    bool creating_shape_;
+    QRectF shape_rect_;
 };
 
 #endif // INTERACTIVE_IMAGE_H

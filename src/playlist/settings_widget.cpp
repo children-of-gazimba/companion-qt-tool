@@ -127,7 +127,7 @@ void SettingsWidget::initWidgets()
 {
     name_edit_ = new QLineEdit(this);
     name_edit_->setPlaceholderText("Playlist Name");
-    loop_checkbox_ = new QCheckBox(tr("Loop this shit"),this);
+    loop_checkbox_ = new QCheckBox(tr("Loop Contents"),this);
     if (playlist_->getSettings()->loop_flag){
         loop_checkbox_->setChecked(true);
     } else {
