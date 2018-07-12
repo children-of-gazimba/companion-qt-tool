@@ -88,11 +88,14 @@ protected slots:
     void onHasMoved(const QUuid&);
     void onCreateToken();
     void onCreateToken(const QString&);
+    void onMergeShapes();
     void onCreateShape();
     void onUncoverAll();
     void onCoverAll();
     void onTrackerAdded(QString const&);
     void onTrackerRemoved(QString const&);
+    void onTokenDeleted(QObject*);
+    void onShapeDeleted(QObject*);
 
 protected:    
     void linkToken(InteractiveImageToken* it);
@@ -104,6 +107,8 @@ protected:
     void setAllUncovered(bool state);
     void finalizeShapeDraw();
     void unveilShapes(InteractiveImageToken* it);
+
+    static const QRectF orderedRect(const QPointF& p1, const QPointF& p2);
 
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);

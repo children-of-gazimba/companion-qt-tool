@@ -16,9 +16,11 @@ public:
 
 public:
     InteractiveImageShape(const QPainterPath& path, QGraphicsItem* parent = 0);
+    virtual ~InteractiveImageShape();
 
     virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                       QWidget *widget);
     virtual QPainterPath shape() const;
 
     void setPath(const QPainterPath& p);

@@ -18,6 +18,9 @@ public:
     const QList<QWidget*> getWidgets() const;
 signals:
 
+protected slots:
+    void onItemDestroyed(QObject* o);
+
 protected:
     void init();
 

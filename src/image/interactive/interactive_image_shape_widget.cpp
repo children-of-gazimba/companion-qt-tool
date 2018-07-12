@@ -1,4 +1,4 @@
-#include "interactive_image_token_widget.h"
+#include "interactive_image_shape_widget.h"
 
 #include <QGroupBox>
 #include <QMessageBox>
@@ -7,9 +7,9 @@
 
 #include "resources/lib.h"
 
-InteractiveImageTokenWidget::InteractiveImageTokenWidget(QWidget *parent)
+InteractiveImageShapeWidget::InteractiveImageShapeWidget(QWidget *parent)
     : QWidget(parent)
-    , token_(0)
+    , shape_(0)
     , title_label_(0)
     , name_label_(0)
     , name_edit_(0)
@@ -27,9 +27,9 @@ InteractiveImageTokenWidget::InteractiveImageTokenWidget(QWidget *parent)
     hideCollapsibleWidgets();
 }
 
-InteractiveImageTokenWidget::InteractiveImageTokenWidget(InteractiveImageToken *token, QWidget *parent)
+InteractiveImageShapeWidget::InteractiveImageShapeWidget(InteractiveImageShape *shape, QWidget *parent)
     : QWidget(parent)
-    , token_(token)
+    , shape_(shape)
     , title_label_(0)
     , name_label_(0)
     , name_edit_(0)
@@ -46,77 +46,78 @@ InteractiveImageTokenWidget::InteractiveImageTokenWidget(InteractiveImageToken *
     initLayout();
     updateUI();
     hideCollapsibleWidgets();
-    connect(token_, &InteractiveImageToken::destroyed,
-            this, &InteractiveImageTokenWidget::deleteLater);
+    connect(shape_, &InteractiveImageShape::destroyed,
+            this, &InteractiveImageShapeWidget::deleteLater);
 }
 
-InteractiveImageTokenWidget::~InteractiveImageTokenWidget()
+InteractiveImageShapeWidget::~InteractiveImageShapeWidget()
 {}
 
-void InteractiveImageTokenWidget::setToken(InteractiveImageToken *token)
+void InteractiveImageShapeWidget::setShape(InteractiveImageShape *shape)
 {
-    if(token_) {
-        disconnect(token_, &InteractiveImageToken::destroyed,
-                   this, &InteractiveImageTokenWidget::deleteLater);
+    if(shape_) {
+        disconnect(shape_, &InteractiveImageShape::destroyed,
+                   this, &InteractiveImageShapeWidget::deleteLater);
     }
-    token_ = token;
-    connect(token_, &InteractiveImageToken::destroyed,
-            this, &InteractiveImageTokenWidget::deleteLater);
+    shape_ = shape;
+    connect(shape_, &InteractiveImageShape::destroyed,
+            this, &InteractiveImageShapeWidget::deleteLater);
     updateUI();
 }
 
-InteractiveImageToken *InteractiveImageTokenWidget::getToken() const
+InteractiveImageShape *InteractiveImageShapeWidget::getShape() const
 {
-    return token_;
+    return shape_;
 }
 
-void InteractiveImageTokenWidget::onSave()
+void InteractiveImageShapeWidget::onSave()
 {
-    if(token_->getName().compare(name_edit_->text()) != 0)
-        token_->setName(name_edit_->text());
+    /*if(shape_->getName().compare(name_edit_->text()) != 0)
+        shape_->setName(name_edit_->text());
 
-    token_->setTrackableName(tracker_picker_->currentText());
-    if(token_->getTrackableName().size() == 0) {
-        token_->removeManipulate();
+    shape_->setTrackableName(tracker_picker_->currentText());
+    if(shape_->getTrackableName().size() == 0) {
+        shape_->removeManipulate();
     }
     else {
         foreach(auto tracker, Resources::Lib::TRACKER_MODEL->getTrackers()) {
-            if(token_->getTrackableName().compare(tracker->getName()) == 0) {
+            if(shape_->getTrackableName().compare(tracker->getName()) == 0) {
                 if(link_select_->isChecked()) {
                     qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
                     qDebug() << "  > " << "linking";
-                    tracker->link(token_, Tracker::REL_POSITION);
-                    tracker->link(token_, Tracker::ROTATION);
+                    tracker->link(shape_, Tracker::REL_POSITION);
+                    tracker->link(shape_, Tracker::ROTATION);
                 }
                 else if(grab_select_->isChecked()) {
                     qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
                     qDebug() << "  > " << "grabbing";
-                    tracker->grab(token_, Tracker::REL_POSITION);
-                    tracker->grab(token_, Tracker::ROTATION);
+                    tracker->grab(shape_, Tracker::REL_POSITION);
+                    tracker->grab(shape_, Tracker::ROTATION);
                 }
             }
         }
     }
+    */
 
     title_label_->setText(name_edit_->text());
     save_button_->setEnabled(false);
     updateUI();
 }
 
-void InteractiveImageTokenWidget::onDelete()
+void InteractiveImageShapeWidget::onDelete()
 {
     QMessageBox b;
-    b.setText(tr("You are about to delete a token named '") + title_label_->text() + tr("'."));
+    b.setText(tr("You are about to delete a shape named '") + title_label_->text() + tr("'."));
     b.setInformativeText(tr("Do you wish to proceed?"));
     b.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     b.setDefaultButton(QMessageBox::No);
-    b.setWindowTitle(tr("Delete Token"));
+    b.setWindowTitle(tr("Delete Shape"));
     if(b.exec() == QMessageBox::Yes) {
-        token_->deleteLater();
+        shape_->deleteLater();
     }
 }
 
-void InteractiveImageTokenWidget::onCollapseTriggered()
+void InteractiveImageShapeWidget::onCollapseTriggered()
 {
     if(collapse_button_->text().compare("show more") == 0) {
         collapse_button_->setText(tr("show less"));
@@ -128,19 +129,19 @@ void InteractiveImageTokenWidget::onCollapseTriggered()
     }
 }
 
-void InteractiveImageTokenWidget::hideCollapsibleWidgets()
+void InteractiveImageShapeWidget::hideCollapsibleWidgets()
 {
     foreach(auto w, collapsible_widgets_)
         w->hide();
 }
 
-void InteractiveImageTokenWidget::showCollapsibleWidgets()
+void InteractiveImageShapeWidget::showCollapsibleWidgets()
 {
     foreach(auto w, collapsible_widgets_)
         w->show();
 }
 
-void InteractiveImageTokenWidget::contentsModifiedEvent()
+void InteractiveImageShapeWidget::contentsModifiedEvent()
 {
     bool tracking_enabled = tracker_picker_->currentText().size() > 0;
     link_select_->setEnabled(tracking_enabled);
@@ -151,15 +152,15 @@ void InteractiveImageTokenWidget::contentsModifiedEvent()
     title_label_->setText(title_label_->text()+"*");
 }
 
-void InteractiveImageTokenWidget::updateUI()
+void InteractiveImageShapeWidget::updateUI()
 {
-    if(token_) {
-        if(token_->getName().size() > 0)
-            title_label_->setText(token_->getName());
+    if(shape_) {
+        /*if(shape_->getName().size() > 0)
+            title_label_->setText(shape_->getName());
         else
             title_label_->setText(tr("UNNAMED TOKEN"));
-        name_edit_->setText(token_->getName());
-        tracker_picker_->setCurrentTracker(token_->getTrackableName());
+        name_edit_->setText(shape_->getName());
+        tracker_picker_->setCurrentTracker(shape_->getTrackableName());*/
     }
     else {
         title_label_->setText(tr("UNNAMED TOKEN"));
@@ -168,9 +169,9 @@ void InteractiveImageTokenWidget::updateUI()
     }
 }
 
-void InteractiveImageTokenWidget::initWidgets()
+void InteractiveImageShapeWidget::initWidgets()
 {
-    title_label_ = new QLabel(tr("Unnamed Token"), this);
+    title_label_ = new QLabel(tr("Unnamed Shape"), this);
     QFont f(title_label_->font());
     f.setPointSize(f.pointSize()*1.5);
     title_label_->setFont(f);
@@ -189,16 +190,16 @@ void InteractiveImageTokenWidget::initWidgets()
 
     delete_button_ = new QPushButton(tr("delete"), this);
     connect(delete_button_, &QPushButton::clicked,
-            this, &InteractiveImageTokenWidget::onDelete);
+            this, &InteractiveImageShapeWidget::onDelete);
 
     save_button_ = new QPushButton(tr("save"), this);
     save_button_->setEnabled(false);
     connect(save_button_, &QPushButton::clicked,
-            this, &InteractiveImageTokenWidget::onSave);
+            this, &InteractiveImageShapeWidget::onSave);
 
     collapse_button_ = new QPushButton(tr("show more"), this);
     connect(collapse_button_, &QPushButton::clicked,
-            this, &InteractiveImageTokenWidget::onCollapseTriggered);
+            this, &InteractiveImageShapeWidget::onCollapseTriggered);
 
     link_select_ = new QRadioButton(tr("link"), this);
     connect(link_select_, &QRadioButton::clicked,
@@ -218,7 +219,7 @@ void InteractiveImageTokenWidget::initWidgets()
     collapsible_widgets_.append(grab_select_);
 }
 
-void InteractiveImageTokenWidget::initLayout()
+void InteractiveImageShapeWidget::initLayout()
 {
     QVBoxLayout* layout = new QVBoxLayout;
     layout->setContentsMargins(0,0,0,0);

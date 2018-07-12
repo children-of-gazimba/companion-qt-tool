@@ -6,6 +6,7 @@
 #include <QSplitter>
 
 class InteractiveImageToken;
+class InteractiveImageShape;
 
 namespace Image {
 class View;
@@ -26,7 +27,9 @@ private slots:
     void onZoomIn();
     void onZoomOut();
     void onTokenAdded(InteractiveImageToken*);
+    void onShapeAdded(InteractiveImageShape*);
     void removeAllTokenConfigs();
+    void removeAllShapeConfigs();
 
 private:
     void keyPressEvent(QKeyEvent *event);
@@ -39,6 +42,7 @@ private:
     QMenu* view_menu_;
     Image::View* view_;
     WidgetListView* token_config_list_;
+    WidgetListView* shape_config_list_;
     QSplitter* main_splitter_;
 };
 

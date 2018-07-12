@@ -1,5 +1,5 @@
-#ifndef INTERACTIVE_IMAGE_TOKEN_WIDGET_H
-#define INTERACTIVE_IMAGE_TOKEN_WIDGET_H
+#ifndef INTERACTIVE_IMAGE_SHAPE_WIDGET_H
+#define INTERACTIVE_IMAGE_SHAPE_WIDGET_H
 
 #include <QWidget>
 #include <QLineEdit>
@@ -7,19 +7,19 @@
 #include <QLabel>
 #include <QRadioButton>
 
-#include "interactive_image_token.h"
+#include "interactive_image_shape.h"
 #include "tracking/tracker_picker.h"
 
-class InteractiveImageTokenWidget : public QWidget
+class InteractiveImageShapeWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit InteractiveImageTokenWidget(QWidget *parent = nullptr);
-    explicit InteractiveImageTokenWidget(InteractiveImageToken* token, QWidget *parent = nullptr);
-    virtual ~InteractiveImageTokenWidget();
+    explicit InteractiveImageShapeWidget(QWidget *parent = nullptr);
+    explicit InteractiveImageShapeWidget(InteractiveImageShape* shape, QWidget *parent = nullptr);
+    virtual ~InteractiveImageShapeWidget();
 
-    void setToken(InteractiveImageToken* token);
-    InteractiveImageToken* getToken() const;
+    void setShape(InteractiveImageShape* token);
+    InteractiveImageShape* getShape() const;
 
     void toggleCollapse();
 
@@ -41,7 +41,7 @@ private:
     void initWidgets();
     void initLayout();
 
-    InteractiveImageToken* token_;
+    InteractiveImageShape* shape_;
     QLabel* title_label_;
     QLabel* name_label_;
     QLineEdit* name_edit_;
@@ -56,4 +56,4 @@ private:
     QList<QWidget*> collapsible_widgets_;
 };
 
-#endif // INTERACTIVE_IMAGE_TOKEN_WIDGET_H
+#endif // INTERACTIVE_IMAGE_SHAPE_WIDGET_H

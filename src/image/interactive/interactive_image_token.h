@@ -26,6 +26,7 @@ public:
     explicit InteractiveImageToken(QGraphicsItem *parent = nullptr);
     explicit InteractiveImageToken(const QSizeF& s, QGraphicsItem *parent = nullptr);
     explicit InteractiveImageToken(const InteractiveImageToken&, QGraphicsItem *parent = nullptr);
+    virtual ~InteractiveImageToken();
 
     /**
      * See BC.

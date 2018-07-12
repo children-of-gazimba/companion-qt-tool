@@ -56,6 +56,15 @@ InteractiveImageToken::InteractiveImageToken(const InteractiveImageToken &it, QG
     setFlag(QGraphicsItem::ItemIsMovable, true);
 }
 
+InteractiveImageToken::~InteractiveImageToken()
+{
+    if(scene()) {
+        qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+        scene()->removeItem(this);
+        qDebug() << "  > " << scene();
+    }
+}
+
 QRectF InteractiveImageToken::boundingRect() const
 {
     return QRectF (
