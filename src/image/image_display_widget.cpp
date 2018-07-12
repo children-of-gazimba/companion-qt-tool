@@ -61,12 +61,12 @@ void ImageDisplayWidget::onToggleFullscreen()
 
 void ImageDisplayWidget::onZoomIn()
 {
-    view_->scale(1.1,1.1);
+    view_->scale(1.1, 1.1);
 }
 
 void ImageDisplayWidget::onZoomOut()
 {
-    view_->scale(0.9,0.9);
+    view_->scale(0.9, 0.9);
 }
 
 void ImageDisplayWidget::onTokenAdded(InteractiveImageToken *token)

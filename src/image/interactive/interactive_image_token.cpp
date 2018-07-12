@@ -30,7 +30,7 @@ InteractiveImageToken::InteractiveImageToken(QGraphicsItem *parent)
     , show_grab_indicator_(false)
     , grab_radius_(0.0f)
     , grabbed_rotation_(0.0f)
-    , grabbed(false)
+    , token_grabbed_(false)
     , grabbed_position_()
     , grabbed_relative_position_()
 {
@@ -56,7 +56,7 @@ InteractiveImageToken::InteractiveImageToken(const QSizeF &s, QGraphicsItem *par
     , color_(55,55,56)
     , show_grab_indicator_(false)
     , grabbed_rotation_(0.0f)
-    , grabbed(false)
+    , token_grabbed_(false)
     , grabbed_position_()
     , grabbed_relative_position_()
 {
@@ -127,21 +127,19 @@ void InteractiveImageToken::paint(QPainter *painter, const QStyleOptionGraphicsI
     painter->setBrush(color_);
     painter->drawEllipse(markerRect());
     if(show_grab_indicator_) {
-        p.setWidth(2);
+        p.setWidth(3);
         p.setColor(Qt::white);
         painter->setPen(p);
-        painter->setOpacity(0.1);
+        painter->setOpacity(0.3);
         painter->drawEllipse(markerRect().center(), grab_radius_, grab_radius_);
     }
-
     if(show_uncover_indicator_) {
-        p.setWidth(2);
+        p.setWidth(3);
         p.setColor(Qt::red);
         painter->setPen(p);
-        painter->setOpacity(0.1);
+        painter->setOpacity(0.3);
         painter->drawEllipse(markerRect().center(), uncover_indicator_radius, uncover_indicator_radius);
     }
-
     QFont f = painter->font();
     f.setPixelSize(TEXT_HEIGHT);
     f.setWeight((int)(f.weight()*1.5f));
@@ -199,7 +197,7 @@ bool InteractiveImageToken::updateGrabFromTracker(Tracker *tracker, int target_p
     float distance_to_tracker = (tracker_pos - QVector2D(pos())).length();
 
     if(distance_to_tracker <= grab_radius_) {
-        grabbed = true;
+        token_grabbed_ = true;
     }
 
     QPointF uncover_diff(
@@ -209,7 +207,7 @@ bool InteractiveImageToken::updateGrabFromTracker(Tracker *tracker, int target_p
 
 
     QPointF uncover_pos( pos().x(), pos().y() );
-    if(grabbed)
+    if(token_grabbed_)
         uncover_pos = QPointF(
                     pos().x() + uncover_diff.x(),
                     pos().y() + uncover_diff.y()
@@ -267,7 +265,7 @@ bool InteractiveImageToken::registerGrab(Tracker *tracker, int target_prop)
 
 bool InteractiveImageToken::registerLink(Tracker *tracker, int target_prop)
 {
-    grabbed = false;
+    token_grabbed_ = false;
 
     if(hasLink(target_prop)) {
         removeLink(target_prop);
@@ -299,7 +297,7 @@ const QUuid &InteractiveImageToken::getUuid() const
     return uuid_;
 }
 
-QRectF InteractiveImageToken::calculateBoundingRect() const
+const QRectF &InteractiveImageToken::calculateBoundingRect() const
 {
     QPainterPath p;
     p.addRect(marker_rect_);

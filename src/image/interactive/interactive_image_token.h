@@ -90,7 +90,7 @@ public:
     /**
      * Calculates the overall bounding rect
      */
-    QRectF calculateBoundingRect() const;
+    const QRectF &calculateBoundingRect() const;
 
     /*
     * Returns the radius from center of bounds at which
@@ -148,8 +148,14 @@ public:
      */
     void setUncoverIndicatorRadius(float r);
 
+    /**
+     * Returns the tokens currently set color.
+     */
     const QColor &getColor() const;
 
+    /**
+     * Sets the tokens color.
+     */
     void setColor(const QColor &clr);
 
     /*
@@ -198,7 +204,7 @@ protected:
 
     float grab_radius_;
     float grabbed_rotation_;
-    bool grabbed;
+    bool token_grabbed_;
     QPointF grabbed_position_;
     QPointF grabbed_relative_position_;
 
