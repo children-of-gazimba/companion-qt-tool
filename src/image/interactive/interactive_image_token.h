@@ -38,6 +38,9 @@ public:
     /***/
     virtual QRectF textRect() const;
 
+    /***/
+    virtual QRectF grabRect() const;
+
     /**
      * See BC.
     */
@@ -84,6 +87,11 @@ public:
     */
     const QUuid& getUuid() const;
 
+    /**
+     * Calculates the overall bounding rect
+     */
+    QRectF calculateBoundingRect() const;
+
     /*
     * Returns the radius from center of bounds at which
     * this item should uncover an image item.
@@ -102,13 +110,47 @@ public:
     * Returns the radius from center of bounds at which
     * this item should be grabbable
      */
-    float getGrabDistance() const;
+    float getGrabRadius() const;
 
     /**
      * Sets the distance from center at which
      * the token can be grabbed.
      */
-    void setGrabDistance(float d);
+    void setGrabRadius(float d);
+
+    /**
+     * Returns, whether the grab ellipse is shown.
+     */
+    bool getShowGrabIndicator() const;
+
+    /**
+     * Sets, whether the grab ellipse is shown.
+     */
+    void setShowGrabIndicator(bool);
+
+    /**
+     * Returns, whether the uncover ellipse is shown
+     */
+    bool getShowUncoverIndicator() const;
+
+    /**
+     * Sets, whether the uncover ellipse is shown.
+     */
+    void setShowUncoverIndicator(bool show);
+
+    /**
+     * Returns, whether the uncover inidcator ellipse is shown
+     */
+    float getUncoverIndicatorRadius() const;
+
+    /**
+     * Sets, whether the uncover indicator ellipse is shown.
+     */
+    void setUncoverIndicatorRadius(float r);
+
+    const QColor &getColor() const;
+
+    void setColor(const QColor &clr);
 
     /*
     * Sets a new bounding rect of this item from [0,0] to [s.width, s.height].
@@ -141,16 +183,25 @@ protected:
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* e);
 
     QRectF marker_rect_;
+    QRectF grab_rect_;
+    QRectF uncover_rect_;
+
     State state_;
     QUuid uuid_;
     float uncover_radius_;
+    float uncover_indicator_radius;
     QString name_;
+    QColor color_;
 
-    float grab_distance_;
+    bool show_grab_indicator_;
+    bool show_uncover_indicator_;
+
+    float grab_radius_;
     float grabbed_rotation_;
-    bool grabbed = false;
+    bool grabbed;
     QPointF grabbed_position_;
     QPointF grabbed_relative_position_;
+
 };
 
 #endif // INTERACTIVE_IMAGE_TOKEN_H

@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QRadioButton>
+#include <QCheckBox>
 
 #include "interactive_image_token.h"
 #include "tracking/tracker_picker.h"
@@ -30,6 +31,7 @@ public slots:
 
 private slots:
     void onCollapseTriggered();
+    void onChooseColor();
 
 private:
     void hideCollapsibleWidgets();
@@ -51,9 +53,10 @@ private:
     QPushButton* collapse_button_;
     QRadioButton* link_select_;
     QRadioButton* grab_select_;
-    QSlider *grab_distance_slider_;
+    QSlider *grab_radius_slider_;
     QSlider *uncover_radius_slider_;
-
+    QLabel *token_color_label_;
+    QPushButton *token_color_button_;
     QList<QWidget*> collapsible_widgets_;
 };
 
