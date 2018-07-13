@@ -174,7 +174,7 @@ void InteractiveImageTokenWidget::contentsModifiedEvent()
 
     grab_radius_slider_->setEnabled(grab_select_->isChecked());
     token_->setShowUncoverIndicator(true);
-    token_->setUncoverIndicatorRadius(uncover_radius_slider_->value());
+    token_->setUncoverRadius(uncover_radius_slider_->value());
 
     token_->setShowGrabIndicator(true);
     token_->setGrabRadius(grab_radius_slider_->value());
@@ -194,6 +194,8 @@ void InteractiveImageTokenWidget::updateUI()
         QString css = QString("background-color: %1;").arg(token_->getColor().name());
         token_color_label_->setStyleSheet(css);
         grab_radius_slider_->setValue(token_->getGrabRadius());
+        qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+        qDebug() << "  > " << token_->getUncoverRadius();
         uncover_radius_slider_->setValue(token_->getUncoverRadius());
     }
     else {
@@ -238,12 +240,12 @@ void InteractiveImageTokenWidget::initWidgets()
     link_select_ = new QRadioButton(tr("link"), this);
     link_select_->setEnabled(false);
     connect(link_select_, &QRadioButton::clicked,
-            this, [=](){qDebug() <<"foo"; contentsModifiedEvent();});
+            this, [=](){contentsModifiedEvent();});
 
     grab_select_ = new QRadioButton(tr("grab"), this);
     grab_select_->setEnabled(false);
     connect(grab_select_, &QRadioButton::clicked,
-            this, [=](){qDebug() << "bar"; contentsModifiedEvent();});
+            this, [=](){contentsModifiedEvent();});
 
     grab_radius_slider_ = new QSlider(Qt::Orientation::Horizontal, this);
     grab_radius_slider_->setMinimum(1);
@@ -255,8 +257,11 @@ void InteractiveImageTokenWidget::initWidgets()
     uncover_radius_slider_ = new QSlider(Qt::Orientation::Horizontal, this);
     uncover_radius_slider_->setMinimum(1);
     uncover_radius_slider_->setMaximum(1000);
+    if(token_)
+        uncover_radius_slider_->setValue(token_->getUncoverRadius());
     connect(uncover_radius_slider_, &QSlider::valueChanged,
             this, [=](){ contentsModifiedEvent();});
+
 
     token_color_label_ = new QLabel(this);
     token_color_button_ = new QPushButton(tr("Choose token color"), this);

@@ -24,7 +24,6 @@ InteractiveImageToken::InteractiveImageToken(QGraphicsItem *parent)
     , state_(IDLE)
     , uuid_(QUuid::createUuid())
     , uncover_radius_(0.0f)
-    , uncover_indicator_radius(0.0f)
     , name_("")
     , color_(55,55,56)
     , show_grab_indicator_(false)
@@ -35,9 +34,9 @@ InteractiveImageToken::InteractiveImageToken(QGraphicsItem *parent)
     , grabbed_relative_position_()
 {
     uncover_radius_ = sqrt(300*300 + 300*300);
-    uncover_indicator_radius = uncover_radius_;
-    grab_radius_ = sqrt(300*300 + 300*300);
     uncover_rect_ = QRectF(-uncover_radius_, -uncover_radius_, uncover_radius_ * 2, uncover_radius_ * 2);
+    grab_radius_ = sqrt(300*300 + 300*300);
+    grab_rect_ = QRectF(-grab_radius_, -grab_radius_, grab_radius_*2, grab_radius_*2);
 
     setFlag(QGraphicsItem::ItemIsMovable, true);
     setZValue(1);
@@ -52,7 +51,6 @@ InteractiveImageToken::InteractiveImageToken(const QSizeF &s, QGraphicsItem *par
     , state_(IDLE)
     , uuid_(QUuid::createUuid())
     , uncover_radius_(0.0f)
-    , uncover_indicator_radius(0.0f)
     , name_("")
     , color_(55,55,56)
     , show_grab_indicator_(false)
@@ -62,22 +60,12 @@ InteractiveImageToken::InteractiveImageToken(const QSizeF &s, QGraphicsItem *par
     , grabbed_relative_position_()
 {
     uncover_radius_ = sqrt(s.width()*s.width() + s.height()*s.height());
-    uncover_indicator_radius = uncover_radius_;
     uncover_rect_ = QRectF(-uncover_radius_, -uncover_radius_, uncover_radius_ * 2, uncover_radius_ * 2);
     grab_radius_ = sqrt(s.width()*s.width() + s.height()*s.height());
+    grab_rect_ = QRectF(-grab_radius_, -grab_radius_, grab_radius_*2, grab_radius_*2);
 
     setFlag(QGraphicsItem::ItemIsMovable, true);
     setZValue(1);
-}
-
-InteractiveImageToken::InteractiveImageToken(const InteractiveImageToken &it, QGraphicsItem *parent)
-    : QGraphicsObject(parent)
-    , marker_rect_(it.boundingRect())
-    , state_(IDLE)
-    , uuid_(it.getUuid())
-    , uncover_radius_(it.getUncoverRadius())
-{
-    setFlag(QGraphicsItem::ItemIsMovable, true);
 }
 
 InteractiveImageToken::~InteractiveImageToken()
@@ -99,11 +87,11 @@ QRectF InteractiveImageToken::markerRect() const
 QRectF InteractiveImageToken::textRect() const
 {
     return QRectF(
-                -TEXT_WIDTH/2.0f,
-                marker_rect_.bottom(),
-                TEXT_WIDTH,
-                TEXT_HEIGHT
-                );
+        -TEXT_WIDTH/2.0f,
+        marker_rect_.bottom(),
+        TEXT_WIDTH,
+        TEXT_HEIGHT
+    );
 }
 
 QRectF InteractiveImageToken::grabRect() const
@@ -139,14 +127,14 @@ void InteractiveImageToken::paint(QPainter *painter, const QStyleOptionGraphicsI
         p.setColor(Qt::white);
         painter->setPen(p);
         painter->setOpacity(0.3);
-        painter->drawEllipse(markerRect().center(), grab_radius_, grab_radius_);
+        painter->drawEllipse(grabRect());
     }
     if(show_uncover_indicator_) {
         p.setWidth(3);
         p.setColor(Qt::red);
         painter->setPen(p);
         painter->setOpacity(0.3);
-        painter->drawEllipse(markerRect().center(), uncover_indicator_radius, uncover_indicator_radius);
+        painter->drawEllipse(uncoverBoundingRect());
     }
     QFont f = painter->font();
     f.setPixelSize(TEXT_HEIGHT);
@@ -155,6 +143,8 @@ void InteractiveImageToken::paint(QPainter *painter, const QStyleOptionGraphicsI
     painter->setPen(p);
     painter->setFont(f);
     painter->drawText(textRect(), getName(), QTextOption(Qt::AlignCenter));
+    // DEBUG
+    //painter->drawRect(boundingRect());
     /*setOpacity(0.6f);
     painter->drawPixmap(bounding_rect_.toRect(), *Resources::Lib::PX_COMPANION);*/
 }
@@ -286,7 +276,7 @@ bool InteractiveImageToken::registerLink(Tracker *tracker, int target_prop)
 
 const QRectF InteractiveImageToken::uncoverBoundingRect() const
 {
-    return QRectF(-uncover_radius_/2.0, -uncover_radius_/2.0, uncover_radius_, uncover_radius_);
+    return uncover_rect_;//QRectF(-uncover_radius_/2.0, -uncover_radius_/2.0, uncover_radius_, uncover_radius_);
 }
 
 const QString &InteractiveImageToken::getName() const
@@ -322,8 +312,14 @@ float InteractiveImageToken::getUncoverRadius() const
 
 void InteractiveImageToken::setUncoverRadius(float r)
 {
+    prepareGeometryChange();
     uncover_radius_ = r;
-
+    uncover_rect_ = QRectF(
+        -uncover_radius_,
+        -uncover_radius_,
+        uncover_radius_ * 2,
+        uncover_radius_ * 2
+    );
     emit uncoverRadiusChanged();
 }
 
@@ -334,9 +330,9 @@ float InteractiveImageToken::getGrabRadius() const
 
 void InteractiveImageToken::setGrabRadius(float d)
 {
+    prepareGeometryChange();
     grab_radius_ = d;
     grab_rect_ = QRectF(-grab_radius_, -grab_radius_, grab_radius_*2, grab_radius_*2);
-    prepareGeometryChange();
 }
 
 bool InteractiveImageToken::getShowGrabIndicator() const
@@ -357,21 +353,6 @@ bool InteractiveImageToken::getShowUncoverIndicator() const
 void InteractiveImageToken::setShowUncoverIndicator(bool show)
 {
     show_uncover_indicator_ = show;
-}
-
-float InteractiveImageToken::getUncoverIndicatorRadius() const
-{
-    return uncover_radius_;
-}
-
-void InteractiveImageToken::setUncoverIndicatorRadius(float r)
-{
-    uncover_rect_ = QRectF(-uncover_indicator_radius,
-                           -uncover_indicator_radius,
-                           uncover_indicator_radius * 2,
-                           uncover_indicator_radius * 2
-                           );
-    uncover_indicator_radius = r;
 }
 
 const QColor &InteractiveImageToken::getColor() const
@@ -420,8 +401,9 @@ void InteractiveImageToken::setState(InteractiveImageToken::State state)
 
 void InteractiveImageToken::mousePressEvent(QGraphicsSceneMouseEvent *e)
 {
-    if(e->button() == Qt::LeftButton) {
+    if(e->button() == Qt::LeftButton && markerRect().contains(e->pos())) {
         setState(MOVE);
+        e->accept();
     }
     else if(e->button() == Qt::RightButton) {
         // qDebug() << "right button";
