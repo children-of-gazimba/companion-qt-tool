@@ -25,7 +25,6 @@ public:
 public:
     explicit InteractiveImageToken(QGraphicsItem *parent = nullptr);
     explicit InteractiveImageToken(const QSizeF& s, QGraphicsItem *parent = nullptr);
-    explicit InteractiveImageToken(const InteractiveImageToken&, QGraphicsItem *parent = nullptr);
     virtual ~InteractiveImageToken();
 
     /**
@@ -138,16 +137,6 @@ public:
      * Sets, whether the uncover ellipse is shown.
      */
     void setShowUncoverIndicator(bool show);
-
-    /**
-     * Returns, whether the uncover inidcator ellipse is shown
-     */
-    float getUncoverIndicatorRadius() const;
-
-    /**
-     * Sets, whether the uncover indicator ellipse is shown.
-     */
-    void setUncoverIndicatorRadius(float r);
 
     /**
      * Returns the tokens currently set color.

@@ -226,9 +226,9 @@ void InteractiveImage::drawTokenPath(QPainter *painter, InteractiveImageToken *t
 {
     QPen p(Qt::black, 4, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     if(!draw_thin) {
-        p.setWidth(token->getUncoverRadius());
-        if(token->getUncoverRadius() > token_paths_[token].boundingRect().width() &&
-           token->getUncoverRadius() > token_paths_[token].boundingRect().height())
+        p.setWidth(token->getUncoverRadius()*2.0f);
+        if(token->getUncoverRadius()*2.0f > token_paths_[token].boundingRect().width() &&
+           token->getUncoverRadius()*2.0f > token_paths_[token].boundingRect().height())
         {
             painter->setBrush(Qt::black);
             painter->setPen(Qt::NoPen);
