@@ -18,6 +18,7 @@ InteractiveImageShapeWidget::InteractiveImageShapeWidget(QWidget *parent)
     , collapse_button_(0)
     , tracker_add_button_(0)
     , uncover_box_(0)
+    , fog_visibility_box_(0)
     , collapsible_widgets_()
 {
     initWidgets();
@@ -36,6 +37,7 @@ InteractiveImageShapeWidget::InteractiveImageShapeWidget(InteractiveImageShape *
     , collapse_button_(0)
     , tracker_add_button_(0)
     , uncover_box_(0)
+    , fog_visibility_box_(0)
     , collapsible_widgets_()
 {
     initWidgets();
@@ -72,6 +74,8 @@ void InteractiveImageShapeWidget::onSave()
         shape_->setName(name_edit_->text());
     if(uncover_box_->isChecked() != shape_->getUncoverEnabled())
         shape_->setUncoverEnabled(uncover_box_->isChecked());
+    if(fog_visibility_box_->isChecked() != shape_->isVisibleInFog())
+        shape_->setFogVisibility(fog_visibility_box_->isChecked());
     title_label_->setText(name_edit_->text());
     save_button_->setEnabled(false);
     updateUI();
@@ -181,6 +185,7 @@ void InteractiveImageShapeWidget::updateUI()
         }
         name_edit_->setText(shape_->getName());
         uncover_box_->setChecked(shape_->getUncoverEnabled());
+        fog_visibility_box_->setChecked(shape_->isVisibleInFog());
         if(!Resources::Lib::TRACKER_MODEL->hasTracker(shape_))
             tracker_add_button_->setText("add activation tracker");
         else
@@ -190,6 +195,7 @@ void InteractiveImageShapeWidget::updateUI()
         title_label_->setText(tr("UNNAMED SHAPE"));
         name_edit_->setText("");
         uncover_box_->setChecked(false);
+        fog_visibility_box_->setChecked(false);
         tracker_add_button_->setText("add activation tracker");
     }
 }
@@ -224,6 +230,10 @@ void InteractiveImageShapeWidget::initWidgets()
     connect(uncover_box_, &QCheckBox::clicked,
             this, [=](){contentsModifiedEvent();});
 
+    fog_visibility_box_ = new QCheckBox(tr("merged outline is visible in fog"), this);
+    connect(fog_visibility_box_, &QCheckBox::clicked,
+            this, [=](){contentsModifiedEvent();});
+
     tracker_add_button_ = new QPushButton(tr("add activation tracker"), this);
     connect(tracker_add_button_, &QPushButton::clicked,
             this, &InteractiveImageShapeWidget::onTrackerAddButtonClicked);
@@ -231,6 +241,7 @@ void InteractiveImageShapeWidget::initWidgets()
     collapsible_widgets_.append(name_label_);
     collapsible_widgets_.append(name_edit_);
     collapsible_widgets_.append(uncover_box_);
+    collapsible_widgets_.append(fog_visibility_box_);
     collapsible_widgets_.append(tracker_add_button_);
 }
 
@@ -264,5 +275,6 @@ void InteractiveImageShapeWidget::initLayout()
     group_layout->addLayout(header_layout, -1);
     group_layout->addLayout(name_layout);
     group_layout->addWidget(uncover_box_);
+    group_layout->addWidget(fog_visibility_box_);
     group_layout->addWidget(tracker_add_button_,-1);
 }

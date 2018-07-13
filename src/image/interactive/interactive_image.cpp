@@ -167,13 +167,17 @@ void InteractiveImage::addShape(InteractiveImageShape *sh)
     }
     else {
         sh->hide();
-        prepareGeometryChange();
-        merged_shape_.addPath(sh->shape());
-        merged_shape_ = merged_shape_.simplified();
-        merged_shape_.setFillRule(Qt::WindingFill);
+        if(sh->isVisibleInFog()) {
+            prepareGeometryChange();
+            merged_shape_.addPath(sh->shape());
+            merged_shape_ = merged_shape_.simplified();
+            merged_shape_.setFillRule(Qt::WindingFill);
+        }
     }
     connect(sh, &InteractiveImageShape::destroyed,
             this, &InteractiveImage::onShapeDeleted);
+    connect(sh, &InteractiveImageShape::fogVisibilityChanged,
+            this, [=](){calcMergedShape();});
     emit shapeAdded(sh);
 }
 
@@ -587,7 +591,8 @@ void InteractiveImage::setAllUncovered(bool state)
             sh->setFlag(QGraphicsItem::ItemIsSelectable, true);
         }
         else {
-            merged_shape_.addPath(sh->shape());
+            if(sh->isVisibleInFog())
+                merged_shape_.addPath(sh->shape());
             sh->hide();
             sh->setFlag(QGraphicsItem::ItemIsSelectable, false);
         }
@@ -644,6 +649,18 @@ void InteractiveImage::evaluateShapeTrackers()
         }
         sh->setActiveState(active);
     }
+}
+
+void InteractiveImage::calcMergedShape()
+{
+    prepareGeometryChange();
+    merged_shape_ = QPainterPath();
+    merged_shape_.setFillRule(Qt::WindingFill);
+    foreach(auto sh, shapes_) {
+        if(sh->isVisibleInFog())
+            merged_shape_.addPath(sh->shape());
+    }
+    merged_shape_ = merged_shape_.simplified();
 }
 
 const QRectF InteractiveImage::orderedRect(const QPointF &p1, const QPointF &p2)

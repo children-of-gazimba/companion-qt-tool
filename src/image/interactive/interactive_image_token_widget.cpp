@@ -145,10 +145,15 @@ void InteractiveImageTokenWidget::onCollapseTriggered()
 
 void InteractiveImageTokenWidget::onChooseColor()
 {
-    QColor clr = QColorDialog::getColor();
-    QString css = QString("background-color: %1; background: %1").arg(clr.name());
-    token_color_label_->setStyleSheet(css);
-    token_->setColor(clr);
+    QColorDialog d;
+    d.setWindowFlags(Qt::WindowStaysOnTopHint);
+    d.setCurrentColor(token_->getColor());
+    if(d.exec() == QDialog::Accepted) {
+        QColor clr = d.currentColor();
+        QString css = QString("background-color: %1; background: %1").arg(clr.name());
+        token_color_label_->setStyleSheet(css);
+        token_->setColor(d.currentColor());
+    }
 }
 
 void InteractiveImageTokenWidget::hideCollapsibleWidgets()

@@ -11,6 +11,7 @@ InteractiveImageShape::InteractiveImageShape(const QPainterPath& path, QGraphics
     , ActivationTracker()
     , path_(path)
     , is_uncover_shape_(true)
+    , is_visible_in_fog_(true)
 {
     setCleanByModelEnabled(false);
 }
@@ -76,4 +77,18 @@ void InteractiveImageShape::setUncoverEnabled(bool enabled)
 bool InteractiveImageShape::getUncoverEnabled() const
 {
     return is_uncover_shape_;
+}
+
+void InteractiveImageShape::setFogVisibility(bool enabled)
+{
+    if(enabled == is_visible_in_fog_)
+        return;
+
+    is_visible_in_fog_ = enabled;
+    emit fogVisibilityChanged();
+}
+
+bool InteractiveImageShape::isVisibleInFog() const
+{
+    return is_visible_in_fog_;
 }

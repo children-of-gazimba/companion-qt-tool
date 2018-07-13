@@ -32,9 +32,16 @@ public:
     void setUncoverEnabled(bool enabled);
     bool getUncoverEnabled() const;
 
+    void setFogVisibility(bool enabled);
+    bool isVisibleInFog() const;
+
+signals:
+    void fogVisibilityChanged();
+
 protected:
     QPainterPath path_;
     bool is_uncover_shape_;
+    bool is_visible_in_fog_;
 };
 
 #endif // INTERACTIVE_IMAGE_SHAPE_H

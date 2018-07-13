@@ -51,6 +51,7 @@ private:
     QPushButton* collapse_button_;
     QPushButton* tracker_add_button_;
     QCheckBox* uncover_box_;
+    QCheckBox* fog_visibility_box_;
 
     QList<QWidget*> collapsible_widgets_;
 };

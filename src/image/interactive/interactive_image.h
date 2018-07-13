@@ -109,6 +109,7 @@ protected:
     void finalizeShapeDraw();
     void unveilShapes(InteractiveImageToken* it);
     void evaluateShapeTrackers();
+    void calcMergedShape();
 
     static const QRectF orderedRect(const QPointF& p1, const QPointF& p2);
 
