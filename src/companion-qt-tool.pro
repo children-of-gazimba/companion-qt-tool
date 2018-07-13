@@ -19,6 +19,7 @@ QT       += core \
             #webenginewidgets
 
 include(../sockets/src/companion-qt-sockets.pri)
+include(../qtuio/src/companion-qtuio.pri)
 
 SOURCES += main.cpp \
     main_window.cpp \
@@ -72,7 +73,33 @@ SOURCES += main.cpp \
     resources/web_pixmap.cpp \
     new_web/socket_host_widget.cpp \
     new_web/companion_server.cpp \
-    new_web/companion_udp_discovery.cpp
+    new_web/companion_udp_discovery.cpp \
+    image/image_item.cpp \
+    image/interactive/interactive_image.cpp \
+    image/interactive/interactive_image_token.cpp \
+    image/image_display_widget.cpp \
+    tuio/tuio_control_panel.cpp \
+    tuio/tuio_graphics_view.cpp \
+    tuio/models/tuio_cursor_table_model.cpp \
+    tuio/models/tuio_token_table_model.cpp \
+    tuio/tuio_model_handler.cpp \
+    tuio/tuio_token_item.cpp \
+    tuio/tuio_cursor_item.cpp \
+    tracking/tracker.cpp \
+    tracking/trackable.cpp \
+    tuio/register_token_dialog.cpp \
+    tracking/tuio_token_tracker.cpp \
+    tuio/models/tuio_blob_table_model.cpp \
+    tuio/tuio_blob_item.cpp \
+    tracking/models/tracker_table_model.cpp \
+    misc/widget_list_view.cpp \
+    misc/container.cpp \
+    image/interactive/interactive_image_token_widget.cpp \
+    tracking/tracker_picker.cpp \
+    image/interactive/interactive_image_shape.cpp \
+    image/interactive/interactive_image_shape_widget.cpp \
+    tracking/activation_tracker.cpp \
+    tracking/tracker_picker_dialog.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -126,7 +153,33 @@ HEADERS  += main_window.h \
     resources/web_pixmap.h \
     new_web/socket_host_widget.h \
     new_web/companion_server.h \
-    new_web/companion_udp_discovery.h
+    new_web/companion_udp_discovery.h \
+    image/image_item.h \
+    image/interactive/interactive_image.h \
+    image/interactive/interactive_image_token.h \
+    image/image_display_widget.h \
+    tuio/tuio_control_panel.h \
+    tuio/tuio_graphics_view.h \
+    tuio/models/tuio_cursor_table_model.h \
+    tuio/models/tuio_token_table_model.h \
+    tuio/tuio_model_handler.h \
+    tuio/tuio_token_item.h \
+    tuio/tuio_cursor_item.h \
+    tracking/tracker.h \
+    tracking/trackable.h \
+    tuio/register_token_dialog.h \
+    tracking/tuio_token_tracker.h \
+    tuio/models/tuio_blob_table_model.h \
+    tuio/tuio_blob_item.h \
+    tracking/models/tracker_table_model.h \
+    misc/widget_list_view.h \
+    misc/container.h \
+    image/interactive/interactive_image_token_widget.h \
+    tracking/tracker_picker.h \
+    image/interactive/interactive_image_shape.h \
+    image/interactive/interactive_image_shape_widget.h \
+    tracking/activation_tracker.h \
+    tracking/tracker_picker_dialog.h
 
 RESOURCES += \
     _RES/resources.qrc

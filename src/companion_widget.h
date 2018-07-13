@@ -25,6 +25,7 @@
 #include "preset/preset_view.h"
 #include "spotify/spotify_control_panel.h"
 #include "new_web/socket_host_widget.h"
+#include "tuio/tuio_control_panel.h"
 
 class CompanionWidget : public QWidget
 {
@@ -52,6 +53,7 @@ private slots:
     void onSaveViewAsLayout();
     void onLoadLayout();
     void onStartSpotifyControlWidget();
+    void onStartTuioControlPanel();
     void onStartSocketServer();
     void onLayoutAdded(const QString& name);
 
@@ -89,8 +91,10 @@ private:
     SocketHostWidget* socket_host_;
     Image::Browser* image_browser_;
     SpotifyControlPanel *spotify_authenticator_widget_;
+    TuioControlPanel *tuio_control_panel_;
     QTabWidget* left_tabwidget_;
     QMenu* spotify_menu_;
+
 
     // DB handler
     DB::Handler* db_handler_;

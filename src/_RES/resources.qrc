@@ -11,6 +11,7 @@
         <file>icon_play.png</file>
         <file>icon_stop.png</file>
         <file>folder.png</file>
+        <file>companion-icon.png</file>
         <file>spungify.png</file>
     </qresource>
     <qresource prefix="/styles">

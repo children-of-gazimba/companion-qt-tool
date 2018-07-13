@@ -32,6 +32,7 @@ CompanionWidget::CompanionWidget(QWidget *parent)
     , socket_host_(0)
     , image_browser_(0)
     , spotify_authenticator_widget_(0)
+    , tuio_control_panel_(0)
     , left_tabwidget_(0)
     , spotify_menu_(0)
     , db_handler_(0)
@@ -47,6 +48,9 @@ CompanionWidget::~CompanionWidget()
 {
     if(spotify_authenticator_widget_) {
         spotify_authenticator_widget_->deleteLater();
+    }
+    if(tuio_control_panel_) {
+        tuio_control_panel_->deleteLater();
     }
     if(socket_host_)
         socket_host_->deleteLater();
@@ -253,6 +257,21 @@ void CompanionWidget::onStartSpotifyControlWidget()
     }
 }
 
+void CompanionWidget::onStartTuioControlPanel()
+{
+    if(tuio_control_panel_ == 0) {
+        tuio_control_panel_ = new TuioControlPanel;
+    }
+    if(tuio_control_panel_->isVisible()) {
+        tuio_control_panel_->raise();
+        tuio_control_panel_->activateWindow();
+    }
+    else {
+        tuio_control_panel_->show();
+    }
+
+}
+
 void CompanionWidget::onStartSocketServer()
 {
     if(socket_host_ == 0)
@@ -420,6 +439,9 @@ void CompanionWidget::initActions()
     actions_["Run Socket Host..."] = new QAction(tr("Run Socket Host..."), this);
     actions_["Run Socket Host..."]->setToolTip(tr("Opens a local socket application to control current project."));
 
+    actions_["Tuio Control Panel..."] = new QAction(tr("Tuio Control Panel..."), this);
+    actions_["Tuio Control Panel..."]->setToolTip(tr("Shows the Tuio control panel."));
+
     connect(actions_["Import Resource Folder..."] , SIGNAL(triggered(bool)),
             sound_file_importer_, SLOT(startBrowseFolder(bool)));
     connect(actions_["Delete Database Contents..."], SIGNAL(triggered()),
@@ -440,6 +462,8 @@ void CompanionWidget::initActions()
             this, SLOT(onStartSpotifyControlWidget()));
     connect(actions_["Run Socket Host..."], SIGNAL(triggered()),
             this, SLOT(onStartSocketServer()));
+    connect(actions_["Tuio Control Panel..."], SIGNAL(triggered()),
+            this, SLOT(onStartTuioControlPanel()));
 }
 
 void CompanionWidget::initMenu()
@@ -462,6 +486,7 @@ void CompanionWidget::initMenu()
     spotify_menu_->addAction(actions_["Connect to Spotify"]);
     spotify_menu_->addAction(actions_["Spotify Control Panel..."]);
     tool_menu->addAction(actions_["Run Socket Host..."]);
+    tool_menu->addAction(actions_["Tuio Control Panel..."]);
 
     main_menu_->addMenu(file_menu);
     main_menu_->addMenu(tool_menu);

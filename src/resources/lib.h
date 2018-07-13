@@ -6,6 +6,7 @@
 #include <QMap>
 #include <QSettings>
 #include <QFile>
+#include "tracking/models/tracker_table_model.h"
 
 namespace Resources {
 
@@ -17,6 +18,11 @@ struct Lib
 
     static QPixmap* getKeyPixmap(const QChar& k);
 
+    /**
+     * Global models
+    */
+    static TrackerTableModel* TRACKER_MODEL;
+
     /*
     * general paths
     */
@@ -26,6 +32,8 @@ struct Lib
     /*
     * ICONS
     */
+    // companion icon
+    static QString IMG_COMPANION;
     // drag icon
     static QString IMG_SOUND_FILE_DRAG_PATH;
     // player controls
@@ -76,6 +84,7 @@ struct Lib
     static QString IMG_KEY_Z_PATH;
 
     // pixmaps
+    static QPixmap* PX_COMPANION;
     static QPixmap* PX_CRACKED_STONE;
     static QPixmap* PX_CRACKED_STONE_INV;
     static QPixmap* PX_PLAY;

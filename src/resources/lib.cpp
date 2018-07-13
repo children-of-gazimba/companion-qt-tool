@@ -29,6 +29,10 @@ void Lib::init()
 #else
     DARK_STYLE = loadFileToString(":/styles/dark_style.css");
 #endif
+    if(!TRACKER_MODEL)
+        TRACKER_MODEL = new TrackerTableModel;
+    if(PX_COMPANION == 0)
+        PX_COMPANION = new QPixmap(IMG_COMPANION);
     if(PX_CRACKED_STONE == 0)
         PX_CRACKED_STONE = new QPixmap(IMG_CRACKED_STONE_PATH);
     if(PX_CRACKED_STONE_INV == 0)
@@ -121,6 +125,10 @@ void Lib::init()
 
 void Lib::cleanup()
 {
+    if(TRACKER_MODEL)
+        TRACKER_MODEL->deleteLater();
+    if(PX_COMPANION != 0)
+        delete PX_COMPANION;
     if(PX_CRACKED_STONE != 0)
         delete PX_CRACKED_STONE;
     if(PX_CRACKED_STONE_INV != 0)
@@ -210,6 +218,8 @@ void Lib::cleanup()
     if(PX_Z_KEY != 0)
         delete PX_Z_KEY;
 
+    TRACKER_MODEL = nullptr;
+    PX_COMPANION = 0;
     PX_CRACKED_STONE = 0;
     PX_CRACKED_STONE_INV = 0;
     PX_PLAY = 0;
@@ -351,6 +361,11 @@ QPixmap *Lib::getKeyPixmap(const QChar &k)
     }
 }
 
+/**
+ * Global models
+*/
+TrackerTableModel* Lib::TRACKER_MODEL = nullptr;
+
 /*
 * DATABASE
 */
@@ -362,6 +377,7 @@ QString Lib::DEFAULT_PROJECT_PATH = "../../companion-shared-files";
 /*
 * ICONS
 */
+QString Lib::IMG_COMPANION = ":/images/companion-icon.png";
 QString Lib::IMG_SOUND_FILE_DRAG_PATH = ":/images/dick.png";
 QString Lib::IMG_PLAY_PATH = ":/images/icon_play.png";
 QString Lib::IMG_PAUSE_PATH = ":/images/icon_pause.png";
@@ -409,6 +425,7 @@ QString Lib::IMG_KEY_X_PATH = ":/keys/X_key.png";
 QString Lib::IMG_KEY_Y_PATH = ":/keys/Y_key.png";
 QString Lib::IMG_KEY_Z_PATH = ":/keys/Z_key.png";
 
+QPixmap* Lib::PX_COMPANION = 0;
 QPixmap* Lib::PX_CRACKED_STONE = 0;
 QPixmap* Lib::PX_CRACKED_STONE_INV = 0;
 QPixmap* Lib::PX_PLAY = 0;

@@ -1,0 +1,40 @@
+#ifndef INTERACTIVE_IMAGE_SHAPE_H
+#define INTERACTIVE_IMAGE_SHAPE_H
+
+#include <QGraphicsPathItem>
+#include <QObject>
+
+#include "tracking/activation_tracker.h"
+
+class InteractiveImageShape : public QGraphicsObject, public ActivationTracker
+{
+    Q_OBJECT
+
+    Q_INTERFACES(QGraphicsItem) // so instances can be casted using qobject_cast
+
+public:
+    enum { Type = UserType + 80 };
+    virtual int type() const { return Type; }
+
+public:
+    InteractiveImageShape(const QPainterPath& path, QGraphicsItem* parent = 0);
+    virtual ~InteractiveImageShape();
+
+    virtual void setName(const QString&);
+
+    virtual QRectF boundingRect() const;
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                       QWidget *widget);
+    virtual QPainterPath shape() const;
+
+    void setPath(const QPainterPath& p);
+
+    void setUncoverEnabled(bool enabled);
+    bool getUncoverEnabled() const;
+
+protected:
+    QPainterPath path_;
+    bool is_uncover_shape_;
+};
+
+#endif // INTERACTIVE_IMAGE_SHAPE_H
