@@ -194,8 +194,6 @@ void InteractiveImageTokenWidget::updateUI()
         QString css = QString("background-color: %1;").arg(token_->getColor().name());
         token_color_label_->setStyleSheet(css);
         grab_radius_slider_->setValue(token_->getGrabRadius());
-        qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
-        qDebug() << "  > " << token_->getUncoverRadius();
         uncover_radius_slider_->setValue(token_->getUncoverRadius());
     }
     else {
@@ -328,9 +326,9 @@ void InteractiveImageTokenWidget::initLayout()
 
     QVBoxLayout *options_box_layout = new QVBoxLayout;
     options_box->setLayout(options_box_layout);
-    options_box_layout->addWidget(new QLabel("Grab Radius", this));
+    options_box_layout->addWidget(new QLabel("Grab Radius (white outline)", this));
     options_box_layout->addWidget(grab_radius_slider_);
-    options_box_layout->addWidget(new QLabel("Uncover Radius", this));
+    options_box_layout->addWidget(new QLabel("Uncover Radius (red outline)", this));
     options_box_layout->addWidget(uncover_radius_slider_);
     QHBoxLayout *color_layout = new QHBoxLayout;
     color_layout->addWidget(token_color_label_, 2);
