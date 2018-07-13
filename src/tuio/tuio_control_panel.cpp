@@ -383,16 +383,20 @@ void TuioControlPanel::initActions()
     connect(register_blob, &QAction::triggered,
             this, &TuioControlPanel::onRegisterBlobTracker);
 
+    QMenu* tool_menu = new QMenu(tr("Tools"), this);
+    tool_menu->addActions(QList<QAction*>()
+        << show_data_view
+    );
 
-    QMenu* menu = new QMenu(tr("Add"), this);
-    menu->addActions(QList<QAction*>()
-                            << show_data_view
-                            << register_cursor
-                            << register_token
-                            << register_blob
-                            );
-    menu_bar_->addMenu(menu);
+    QMenu* add_menu = new QMenu(tr("Add"), this);
+    add_menu->addActions(QList<QAction*>()
+        << register_cursor
+        << register_token
+        << register_blob
+    );
 
+    menu_bar_->addMenu(tool_menu);
+    menu_bar_->addMenu(add_menu);
 }
 
 void TuioControlPanel::initLayout()
