@@ -3,6 +3,7 @@
 #include <QPainter>
 #include <QGraphicsScene>
 #include <QDebug>
+#include <QJsonArray>
 
 #include "resources/lib.h"
 
@@ -91,4 +92,88 @@ void InteractiveImageShape::setFogVisibility(bool enabled)
 bool InteractiveImageShape::isVisibleInFog() const
 {
     return is_visible_in_fog_;
+}
+
+const QJsonObject InteractiveImageShape::toJsonObject() const
+{
+    QJsonObject obj;
+    obj["name"] = name_;
+
+    QJsonArray path_arr;
+    QJsonObject e_obj;
+    QPainterPath::Element e;
+    for(int i = 0; i < path_.elementCount(); ++i) {
+        e = path_.elementAt(i);
+        e_obj["x"] = e.x;
+        e_obj["y"] = e.y;
+        e_obj["type"] = e.type;
+        path_arr.append(e_obj);
+    }
+    obj["path"] = path_arr;
+
+    QJsonArray pos_arr;
+    pos_arr.append(pos().x());
+    pos_arr.append(pos().y());
+    obj["position"] = pos_arr;
+
+    obj["is_uncover_shape"] = is_uncover_shape_;
+    obj["is_visible_in_fog"] = is_visible_in_fog_;
+    obj["is_tracker"] = Resources::Lib::TRACKER_MODEL->hasTracker(name_);
+
+    return obj;
+}
+
+bool InteractiveImageShape::setFromJsonObject(const QJsonObject &obj)
+{
+    if(obj.isEmpty())
+        return false;
+
+    bool well_formed = obj.contains("name") && obj["name"].isString() &&
+        obj.contains("is_uncover_shape") && obj["is_uncover_shape"].isBool() &&
+        obj.contains("is_visible_in_fog") && obj["is_visible_in_fog"].isBool() &&
+        obj.contains("is_tracker") && obj["is_tracker"].isBool() &&
+        obj.contains("position") && obj["position"].isArray() &&
+        obj.contains("path") && obj["path"].isArray();
+
+    if(!well_formed)
+        return false;
+
+    QJsonArray arr_pos = obj["position"].toArray();
+    if(obj["position"].toArray().size() != 2)
+        return false;
+
+    QJsonArray arr_path = obj["path"].toArray();
+    QPainterPath p;
+    QJsonObject e_obj;
+    foreach(auto value, arr_path) {
+        if(!value.isObject())
+            continue;
+        e_obj = value.toObject();
+        switch(e_obj["type"].toInt()) {
+            case QPainterPath::MoveToElement:
+                p.moveTo(e_obj["x"].toDouble(),e_obj["y"].toDouble());
+                break;
+            case QPainterPath::LineToElement:
+                p.lineTo(e_obj["x"].toDouble(),e_obj["y"].toDouble());
+                break;
+            case QPainterPath::CurveToElement:
+                qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+                qDebug() << "  > QPainterPath::CurveToElement " << e_obj;
+                break;
+            case QPainterPath::CurveToDataElement:
+                qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+                qDebug() << "  > QPainterPath::CurveToDataElement " << e_obj;
+                break;
+            default: break;
+        }
+    }
+    path_ = p;
+
+    setUncoverEnabled(obj["is_uncover_shape"].toBool());
+    setFogVisibility(obj["is_visible_in_fog"].toBool());
+    setName(obj["name"].toString());
+    setPos(QPointF(arr_pos[0].toDouble(),arr_pos[1].toDouble()));
+
+    if(obj["is_tracker"].toBool())
+        Resources::Lib::TRACKER_MODEL->addTracker(this);
 }

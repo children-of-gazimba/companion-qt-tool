@@ -2,6 +2,7 @@
 #define INTERACTIVE_IMAGE_SHAPE_H
 
 #include <QGraphicsPathItem>
+#include <QJsonObject>
 #include <QObject>
 
 #include "tracking/activation_tracker.h"
@@ -34,6 +35,17 @@ public:
 
     void setFogVisibility(bool enabled);
     bool isVisibleInFog() const;
+
+    /**
+     * Returns a QJsonObject holding all information about the token
+    */
+    virtual const QJsonObject toJsonObject() const;
+
+    /**
+     * Set all values held by JSON object.
+     * Returns success of parsing JsonObject.
+    */
+    virtual bool setFromJsonObject(const QJsonObject& obj);
 
 signals:
     void fogVisibilityChanged();

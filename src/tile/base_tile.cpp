@@ -241,7 +241,6 @@ bool BaseTile::setFromJsonObject(const QJsonObject &obj)
         return false;
 
     QJsonArray arr_pos = obj["position"].toArray();
-
     if(obj["position"].toArray().size() != 2)
         return false;
 
