@@ -287,6 +287,10 @@ const QJsonObject InteractiveImageToken::toJsonObject() const
     arr_pos.append(pos().x());
     arr_pos.append(pos().y());
     obj["position"] = arr_pos;
+    QJsonArray arr_size;
+    arr_size.append(marker_rect_.width());
+    arr_size.append(marker_rect_.height());
+    obj["size"] = arr_size;
     if(getTrackableName().size() > 0)
         obj["trackable_name"] = getTrackableName();
     return obj;
@@ -300,7 +304,8 @@ bool InteractiveImageToken::setFromJsonObject(const QJsonObject &obj)
     bool well_formed = obj.contains("name") && obj["name"].isString() &&
         obj.contains("uncover_radius") && obj["uncover_radius"].isDouble() &&
         obj.contains("grab_radius") && obj["grab_radius"].isDouble() &&
-        obj.contains("position") && obj["position"].isArray();
+        obj.contains("position") && obj["position"].isArray() &&
+        obj.contains("size") && obj["size"].isArray();
 
     if(!well_formed)
         return false;
@@ -309,7 +314,12 @@ bool InteractiveImageToken::setFromJsonObject(const QJsonObject &obj)
     if(obj["position"].toArray().size() != 2)
         return false;
 
+    QJsonArray arr_size = obj["size"].toArray();
+    if(obj["size"].toArray().size() != 2)
+        return false;
+
     setName(obj["name"].toString());
+    setSize(QSizeF(arr_size[0].toDouble(),arr_size[1].toDouble()));
     setUncoverRadius(obj["uncover_radius"].toDouble());
     setGrabRadius(obj["grab_radius"].toDouble());
     setUncoverPos(QPointF(arr_pos[0].toDouble(),arr_pos[1].toDouble()));
@@ -319,6 +329,8 @@ bool InteractiveImageToken::setFromJsonObject(const QJsonObject &obj)
         uuid_ = QUuid(obj["uuid"].toString());
     if(obj.contains("trackable_name") && obj["trackable_name"].isString())
         setTrackableName(obj["trackable_name"].toString());
+
+    return true;
 }
 
 const QRectF InteractiveImageToken::uncoverBoundingRect() const
@@ -416,7 +428,12 @@ void InteractiveImageToken::setColor(const QColor &clr)
 void InteractiveImageToken::setSize(const QSizeF &s)
 {
     prepareGeometryChange();
-    marker_rect_.setSize(s);
+    marker_rect_ = QRectF(
+        -s.width()/2.0,
+        -s.height()/2.0,
+        s.width(),
+        s.height()
+    );
 }
 
 const QPointF InteractiveImageToken::centerPos() const

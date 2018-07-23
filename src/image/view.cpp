@@ -87,12 +87,22 @@ void View::onMakeInteractive()
         auto interactive_img = new InteractiveImage(path, it->boundingRect().size().toSize());
         setItem(interactive_img);
         emit interactiveEnabled(true);
+        connect(interactive_img, &InteractiveImage::newContentsLoaded,
+                this, &View::onNewContentsLoaded);
     }
+}
+
+void View::onNewContentsLoaded()
+{
+    scene()->setSceneRect(item_->boundingRect());
+    scaleContentsToViewport();
 }
 
 void View::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
+    if(item_)
+        scene()->setSceneRect(item_->boundingRect());
     scaleContentsToViewport();
 }
 

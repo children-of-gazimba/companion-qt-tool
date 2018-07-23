@@ -175,6 +175,8 @@ void CompanionWidget::onOpenProject()
             b.setDefaultButton(QMessageBox::Yes);
             if(b.exec() == QMessageBox::Yes)
                 onOpenProject();
+            else
+                return;
         }
 
         setProjectPath(file_name);

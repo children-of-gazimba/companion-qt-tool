@@ -34,6 +34,9 @@ public slots:
     void scaleContentsToViewport();
     void onMakeInteractive();
 
+private slots:
+    void onNewContentsLoaded();
+
 private:
     void setItem(QGraphicsItem*);
 

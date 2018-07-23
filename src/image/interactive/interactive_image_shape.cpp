@@ -6,11 +6,22 @@
 #include <QJsonArray>
 
 #include "resources/lib.h"
+#include "misc/json_mime_data_parser.h"
 
 InteractiveImageShape::InteractiveImageShape(const QPainterPath& path, QGraphicsItem* parent)
     : QGraphicsObject(parent)
     , ActivationTracker()
     , path_(path)
+    , is_uncover_shape_(true)
+    , is_visible_in_fog_(true)
+{
+    setCleanByModelEnabled(false);
+}
+
+InteractiveImageShape::InteractiveImageShape(QGraphicsItem *parent)
+    : QGraphicsObject(parent)
+    , ActivationTracker()
+    , path_()
     , is_uncover_shape_(true)
     , is_visible_in_fog_(true)
 {
@@ -98,18 +109,7 @@ const QJsonObject InteractiveImageShape::toJsonObject() const
 {
     QJsonObject obj;
     obj["name"] = name_;
-
-    QJsonArray path_arr;
-    QJsonObject e_obj;
-    QPainterPath::Element e;
-    for(int i = 0; i < path_.elementCount(); ++i) {
-        e = path_.elementAt(i);
-        e_obj["x"] = e.x;
-        e_obj["y"] = e.y;
-        e_obj["type"] = e.type;
-        path_arr.append(e_obj);
-    }
-    obj["path"] = path_arr;
+    obj["path"] = Misc::JsonMimeDataParser::toJsonArray(path_);
 
     QJsonArray pos_arr;
     pos_arr.append(pos().x());
@@ -142,33 +142,7 @@ bool InteractiveImageShape::setFromJsonObject(const QJsonObject &obj)
     if(obj["position"].toArray().size() != 2)
         return false;
 
-    QJsonArray arr_path = obj["path"].toArray();
-    QPainterPath p;
-    QJsonObject e_obj;
-    foreach(auto value, arr_path) {
-        if(!value.isObject())
-            continue;
-        e_obj = value.toObject();
-        switch(e_obj["type"].toInt()) {
-            case QPainterPath::MoveToElement:
-                p.moveTo(e_obj["x"].toDouble(),e_obj["y"].toDouble());
-                break;
-            case QPainterPath::LineToElement:
-                p.lineTo(e_obj["x"].toDouble(),e_obj["y"].toDouble());
-                break;
-            case QPainterPath::CurveToElement:
-                qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
-                qDebug() << "  > QPainterPath::CurveToElement " << e_obj;
-                break;
-            case QPainterPath::CurveToDataElement:
-                qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
-                qDebug() << "  > QPainterPath::CurveToDataElement " << e_obj;
-                break;
-            default: break;
-        }
-    }
-    path_ = p;
-
+    setPath(Misc::JsonMimeDataParser::toPainterPath(obj["path"].toArray()));
     setUncoverEnabled(obj["is_uncover_shape"].toBool());
     setFogVisibility(obj["is_visible_in_fog"].toBool());
     setName(obj["name"].toString());
@@ -176,4 +150,6 @@ bool InteractiveImageShape::setFromJsonObject(const QJsonObject &obj)
 
     if(obj["is_tracker"].toBool())
         Resources::Lib::TRACKER_MODEL->addTracker(this);
+
+    return true;
 }

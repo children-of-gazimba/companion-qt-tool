@@ -244,6 +244,56 @@ Playlist::Settings* JsonMimeDataParser::toPlaylistSettings(const QJsonObject& ob
     return set;
 }
 
+const QJsonArray JsonMimeDataParser::toJsonArray(const QPainterPath &path)
+{
+    QJsonArray path_arr;
+    QJsonObject e_obj;
+    QPainterPath::Element e;
+    for(int i = 0; i < path.elementCount(); ++i) {
+        e = path.elementAt(i);
+        e_obj["x"] = e.x;
+        e_obj["y"] = e.y;
+        e_obj["type"] = e.type;
+        path_arr.append(e_obj);
+    }
+    return path_arr;
+}
+
+const QPainterPath JsonMimeDataParser::toPainterPath(const QJsonArray &arr)
+{
+    QPainterPath p;
+    QJsonObject e_obj;
+    bool is_well_formed;
+    foreach(auto value, arr) {
+        if(!value.isObject())
+            continue;
+        e_obj = value.toObject();
+        is_well_formed = e_obj.contains("type") &&
+            e_obj.contains("x") && e_obj["x"].isDouble() &&
+            e_obj.contains("y") && e_obj["y"].isDouble();
+        if(!is_well_formed)
+            continue;
+        switch(e_obj["type"].toInt()) {
+            case QPainterPath::MoveToElement:
+                p.moveTo(e_obj["x"].toDouble(),e_obj["y"].toDouble());
+                break;
+            case QPainterPath::LineToElement:
+                p.lineTo(e_obj["x"].toDouble(),e_obj["y"].toDouble());
+                break;
+            case QPainterPath::CurveToElement:
+                qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+                qDebug() << "  > QPainterPath::CurveToElement " << e_obj;
+                break;
+            case QPainterPath::CurveToDataElement:
+                qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+                qDebug() << "  > QPainterPath::CurveToDataElement " << e_obj;
+                break;
+            default: break;
+        }
+    }
+    return p;
+}
+
 const QJsonObject JsonMimeDataParser::toJsonObject(DB::CategoryRecord* rec)
 {
     QJsonObject obj;

@@ -19,6 +19,7 @@ public:
 
 public:
     InteractiveImageShape(const QPainterPath& path, QGraphicsItem* parent = 0);
+    InteractiveImageShape(QGraphicsItem* parent = 0);
     virtual ~InteractiveImageShape();
 
     virtual void setName(const QString&);

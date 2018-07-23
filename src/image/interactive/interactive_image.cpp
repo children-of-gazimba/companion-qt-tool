@@ -7,11 +7,14 @@
 #include <QMenu>
 #include <QGraphicsScene>
 #include <QMessageBox>
+#include <QJsonArray>
 
 #include "resources/lib.h"
+#include "misc/json_mime_data_parser.h"
 
 InteractiveImage::InteractiveImage(const QSize &size, QGraphicsItem* parent)
     : QGraphicsObject(parent)
+    , src_image_path_()
     , result_image_(0)
     , result_size_(size)
     , src_image_(0)
@@ -35,8 +38,8 @@ InteractiveImage::InteractiveImage(const QSize &size, QGraphicsItem* parent)
     merged_shape_.setFillRule(Qt::WindingFill);
     result_image_ = new QImage(result_size_, QImage::Format_ARGB32_Premultiplied);
     src_image_ = new QImage;
-    loadImage();
-    scheduleCalcResultImage();
+    //loadImage();
+    //scheduleCalcResultImage();
     initContextMenu();
     connect(Resources::Lib::TRACKER_MODEL, &TrackerTableModel::trackerAdded,
             this, &InteractiveImage::onTrackerAdded);
@@ -48,6 +51,7 @@ InteractiveImage::InteractiveImage(const QSize &size, QGraphicsItem* parent)
 
 InteractiveImage::InteractiveImage(const QString& path, const QSize &size, QGraphicsItem *parent)
     : QGraphicsObject(parent)
+    , src_image_path_(path)
     , result_image_(0)
     , result_size_(size)
     , src_image_(0)
@@ -71,7 +75,7 @@ InteractiveImage::InteractiveImage(const QString& path, const QSize &size, QGrap
     merged_shape_.setFillRule(Qt::WindingFill);
     result_image_ = new QImage(result_size_, QImage::Format_ARGB32_Premultiplied);
     src_image_ = new QImage;
-    loadFileIntoImage(path, src_image_);
+    loadFileIntoImage(src_image_path_, src_image_);
     scheduleCalcResultImage();
     initContextMenu();
     connect(Resources::Lib::TRACKER_MODEL, &TrackerTableModel::trackerAdded,
@@ -84,14 +88,7 @@ InteractiveImage::InteractiveImage(const QString& path, const QSize &size, QGrap
 
 InteractiveImage::~InteractiveImage()
 {
-    delete src_image_;
-    delete result_image_;
-    foreach(auto it, token_paths_.keys())
-        it->deleteLater();
-    token_paths_.clear();
-    foreach(auto sh, shapes_)
-        sh->deleteLater();
-    shapes_.clear();
+    clearContents();
     if(menu_bar_extension_)
         menu_bar_extension_->deleteLater();
 }
@@ -122,12 +119,8 @@ void InteractiveImage::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     p.setColor(QColor(155,155,156));
     painter->setPen(p);
 
-    if(!all_uncovered_) {
+    if(!all_uncovered_)
         painter->drawPath(merged_shape_);
-        //painter->drawPath(merged_shape_);
-        /*foreach(auto sh, shapes_.toSet().subtract(uncovered_shapes_))
-            painter->fillPath(sh->shape(), QColor(55,55,56));*/
-    }
 
     p.setColor(QColor(55,55,56));
     painter->setPen(p);
@@ -136,6 +129,131 @@ void InteractiveImage::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         painter->fillRect(shape_rect_, QColor(155,155,156));
         painter->drawRect(shape_rect_);
     }
+}
+
+const QJsonObject InteractiveImage::toJsonObject() const
+{
+    QJsonObject obj;
+
+    obj["path"] = src_image_path_;
+    obj["all_uncovered"] = all_uncovered_;
+
+    QJsonArray size_arr;
+    size_arr.append(result_size_.width());
+    size_arr.append(result_size_.height());
+    obj["size"] = size_arr;
+
+    QJsonArray token_arr;
+    QJsonObject token_paths_obj;
+    QJsonArray temp_arr;
+    foreach(auto t, token_paths_.keys()) {
+        token_arr.append(t->toJsonObject());
+        temp_arr = Misc::JsonMimeDataParser::toJsonArray(token_paths_[t]);
+        if(!all_uncovered_)
+            token_paths_obj[t->getUuid().toString()] = temp_arr;
+    }
+    obj["tokens"] = token_arr;
+    obj["token_paths"] = token_paths_obj;
+
+    QJsonArray shape_arr;
+    QJsonObject shape_obj;
+    foreach(auto sh, shapes_) {
+        shape_obj = sh->toJsonObject();
+        shape_obj["is_uncovered"] = uncovered_shapes_.contains(sh);
+        shape_arr.append(shape_obj);
+    }
+    obj["shapes"] = shape_arr;
+
+    QJsonArray paths_arr;
+    foreach(auto p, paths_)
+        paths_arr.append(Misc::JsonMimeDataParser::toJsonArray(p));
+    obj["paths"] = paths_arr;
+
+    return obj;
+}
+
+bool InteractiveImage::setFromJsonObject(const QJsonObject &obj)
+{
+    if(obj.isEmpty())
+        return false;
+
+    bool well_formed = obj.contains("path") && obj["path"].isString() &&
+        obj.contains("all_uncovered") && obj["all_uncovered"].isBool() &&
+        obj.contains("size") && obj["size"].isArray();
+
+    if(!well_formed)
+        return false;
+
+    // set size and prepare image calculation
+    QJsonArray size_arr = obj["size"].toArray();
+    result_size_ = QSize(size_arr[0].toInt(),size_arr[1].toInt());
+
+    clearContents();
+    result_image_ = new QImage(result_size_, QImage::Format_ARGB32_Premultiplied);
+    src_image_ = new QImage;
+
+    src_image_path_ = obj["path"].toString();
+    loadFileIntoImage(src_image_path_, src_image_);
+    scheduleCalcResultImage();
+
+    // add tokens and token paths
+    if(obj.contains("tokens") && obj["tokens"].isArray()) {
+        QJsonObject token_paths_obj;
+        if(obj.contains("token_paths") && obj["token_paths"].isObject())
+            token_paths_obj = obj["token_paths"].toObject();
+        foreach(auto v, obj["tokens"].toArray()) {
+            if(!v.isObject())
+                continue;
+            auto token = new InteractiveImageToken;
+            if(!token->setFromJsonObject(v.toObject())) {
+                token->deleteLater();
+                continue;
+            }
+            QString token_uuid = token->getUuid().toString();
+            if(token_paths_obj.contains(token_uuid) && token_paths_obj[token_uuid].isArray()) {
+                QPainterPath p = Misc::JsonMimeDataParser::toPainterPath(token_paths_obj[token_uuid].toArray());
+                token_paths_[token] = p;
+            }
+            addToken(token);
+        }
+    }
+
+    // add shapes
+    if(obj.contains("shapes") && obj["shapes"].isArray()) {
+        foreach(auto v, obj["shapes"].toArray()) {
+            if(!v.isObject())
+                continue;
+            QJsonObject shape_obj = v.toObject();
+            auto sh = new InteractiveImageShape;
+            if(!sh->setFromJsonObject(shape_obj)) {
+                sh->deleteLater();
+                continue;
+            }
+            if(shape_obj.contains("is_uncovered") && shape_obj["is_uncovered"].isBool()) {
+                if(shape_obj["is_uncovered"].toBool())
+                    uncovered_shapes_.insert(sh);
+            }
+            addShape(sh);
+        }
+    }
+
+    // add additional paths
+    if(obj.contains("paths") && obj["paths"].isArray()) {
+        foreach(auto v, obj["paths"].toArray()) {
+            if(!v.isArray())
+                continue;
+            QPainterPath p = Misc::JsonMimeDataParser::toPainterPath(v.toArray());
+            if(!p.isEmpty())
+                paths_.append(p);
+        }
+    }
+
+    // evaluate uncover state
+    setAllUncovered(obj["all_uncovered"].toBool());
+
+    emit newContentsLoaded();
+
+    return true;
 }
 
 InteractiveImageToken *InteractiveImage::getToken(const QUuid &uuid)
@@ -148,7 +266,13 @@ InteractiveImageToken *InteractiveImage::getToken(const QUuid &uuid)
 
 void InteractiveImage::addToken(InteractiveImageToken *it)
 {
-    scene()->addItem(it);
+    if(scene()) {
+        scene()->addItem(it);
+    }
+    else {
+        qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+        qDebug() << "  > unable to add token to scene. scene is null.";
+    }
     linkToken(it);
     scheduleCalcResultImage();
     connect(it, &InteractiveImageToken::destroyed,
@@ -159,7 +283,13 @@ void InteractiveImage::addToken(InteractiveImageToken *it)
 
 void InteractiveImage::addShape(InteractiveImageShape *sh)
 {
-    scene()->addItem(sh);
+    if(scene()) {
+        scene()->addItem(sh);
+    }
+    else {
+        qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+        qDebug() << "  > unable to add shape to scene. scene is null.";
+    }
     shapes_.append(sh);
     if(all_uncovered_) {
         sh->setOpacity(0.7f);
@@ -186,10 +316,16 @@ QMenu *InteractiveImage::getMenuBarExtension()
     if(menu_bar_extension_)
         return menu_bar_extension_;
     menu_bar_extension_ = new QMenu(tr("Actions"));
+
     QMenu* fog_menu = menu_bar_extension_->addMenu(tr("Fog"));
     fog_menu->addAction(actions_["cover"]);
     fog_menu->addAction(actions_["uncover"]);
     menu_bar_extension_->addMenu(fog_menu);
+
+    menu_bar_extension_->addAction(actions_["save_map"]);
+    menu_bar_extension_->addAction(actions_["open_map"]);
+    menu_bar_extension_->addMenu(fog_menu);
+
     return menu_bar_extension_;
 }
 
@@ -271,7 +407,8 @@ void InteractiveImage::drawUncoveredShapes(QPainter *painter, const QPen &pen, c
 
 void InteractiveImage::linkToken(InteractiveImageToken *it)
 {
-    token_paths_[it] = QPainterPath(it->centerPos());
+    if(!token_paths_.contains(it))
+        token_paths_[it] = QPainterPath(it->centerPos());
     connect(it, &InteractiveImageToken::hasMoved,
             this, [=](){onHasMoved(it->getUuid());});
     connect(it, &InteractiveImageToken::uncoverRadiusChanged,
@@ -283,7 +420,8 @@ void InteractiveImage::loadImage()
     QString file_name = QFileDialog::getOpenFileName();
     if (file_name.isEmpty())
         return;
-    loadFileIntoImage(file_name, src_image_);
+    src_image_path_ = file_name;
+    loadFileIntoImage(src_image_path_, src_image_);
 }
 
 void InteractiveImage::onHasMoved(const QUuid &uuid)
@@ -404,9 +542,6 @@ void InteractiveImage::onUncoverRadiusChanged()
 
 void InteractiveImage::onTokenDeleted(QObject* o)
 {
-    /*auto gi = qobject_cast<QGraphicsItem*>(o);
-    if(!gi)
-        return;*/
     auto token = static_cast<InteractiveImageToken*>(o);
     if(token && token_paths_.contains(token)) {
         scheduleCalcResultImage();
@@ -417,9 +552,6 @@ void InteractiveImage::onTokenDeleted(QObject* o)
 
 void InteractiveImage::onShapeDeleted(QObject* o)
 {
-    /*auto gi = qobject_cast<QGraphicsItem*>(o);
-    if(!gi)
-        return;*/
     auto sh = static_cast<InteractiveImageShape*>(o);
     if(sh && (uncovered_shapes_.contains(sh) || shapes_.contains(sh))) {
         scheduleCalcResultImage();
@@ -428,6 +560,79 @@ void InteractiveImage::onShapeDeleted(QObject* o)
         if(shapes_.contains(sh))
             shapes_.removeAll(sh);
     }
+}
+
+void InteractiveImage::onSaveMapAs()
+{
+    QString file_name = QFileDialog::getSaveFileName(
+        0, tr("Save Map"),
+        Resources::Lib::DEFAULT_PROJECT_PATH,
+        tr("COMPANION MAP (*.cmpn.map)")
+    );
+
+    if(file_name.size() > 0) {
+        QJsonDocument doc;
+        doc.setObject(toJsonObject());
+
+        QFile json_file(file_name);
+        json_file.open(QFile::WriteOnly);
+        json_file.write(doc.toJson());
+    }
+}
+
+void InteractiveImage::onOpenMap()
+{
+    QString file_name = QFileDialog::getOpenFileName(
+        0, tr("Open Map"),
+        Resources::Lib::DEFAULT_PROJECT_PATH,
+        tr("COMPANION MAP (*.cmpn.map)")
+    );
+
+    if(file_name.size() > 0) {
+        QFile json_file(file_name);
+
+        // opening failed
+        if(!json_file.open(QFile::ReadOnly)) {
+            QMessageBox b;
+            b.setText(tr("The selected file could not be opened."));
+            b.setInformativeText(tr("Do you wish to select a different file?"));
+            b.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            b.setDefaultButton(QMessageBox::Yes);
+            if(b.exec() == QMessageBox::Yes)
+                onOpenMap();
+            else
+                return;
+        }
+
+        QJsonDocument doc = QJsonDocument::fromJson(json_file.readAll());
+
+        // map could not be set from json
+        if(!setFromJsonObject(doc.object())) {
+            QMessageBox b;
+            b.setText(tr("The selected file does not seem to contain valid project data."));
+            b.setInformativeText(tr("Do you wish to select a different file?"));
+            b.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            b.setDefaultButton(QMessageBox::Yes);
+            if(b.exec() == QMessageBox::Yes)
+                onOpenMap();
+        }
+    }
+}
+
+void InteractiveImage::clearContents()
+{
+    delete src_image_;
+    src_image_ = nullptr;
+    delete result_image_;
+    result_image_ = nullptr;
+    foreach(auto it, token_paths_.keys())
+        it->deleteLater();
+    token_paths_.clear();
+    foreach(auto sh, shapes_)
+        sh->deleteLater();
+    shapes_.clear();
+    uncovered_shapes_.clear();
+    merged_shape_ = QPainterPath();
 }
 
 void InteractiveImage::clearAllPaths()
@@ -703,6 +908,14 @@ void InteractiveImage::initContextMenu()
             this, SLOT(onUncoverAll()));
     actions_["uncover"]->setEnabled(!all_uncovered_);
 
+    actions_["save_map"] = new QAction(tr("Save Map As..."));
+    connect(actions_["save_map"], SIGNAL(triggered()),
+            this, SLOT(onSaveMapAs()));
+
+    actions_["open_map"] = new QAction(tr("Open Map..."));
+    connect(actions_["open_map"], SIGNAL(triggered()),
+            this, SLOT(onOpenMap()));
+
     context_menu_->addAction(actions_["create_token"]);
     context_menu_->addAction(actions_["create_shape"]);
     context_menu_->addSeparator();
@@ -710,5 +923,8 @@ void InteractiveImage::initContextMenu()
     context_menu_->addSeparator();
     context_menu_->addAction(actions_["cover"]);
     context_menu_->addAction(actions_["uncover"]);
+    context_menu_->addSeparator();
+    context_menu_->addAction(actions_["save_map"]);
+    context_menu_->addAction(actions_["open_map"]);
     context_menu_->addSeparator();
 }
