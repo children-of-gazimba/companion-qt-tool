@@ -30,6 +30,16 @@ Image::View *ImageDisplayWidget::getView() const
     return view_;
 }
 
+void ImageDisplayWidget::popOpen()
+{
+    if(isHidden())
+        showNormal();
+    else
+        show();
+    raise();
+    activateWindow();
+}
+
 void ImageDisplayWidget::onItemSet()
 {
     view_menu_->clear();

@@ -35,6 +35,11 @@ View *Browser::getView() const
     return list_view_->getView();
 }
 
+ImageDisplayWidget *Browser::getDisplayWidget() const
+{
+    return list_view_->getDisplayWidget();
+}
+
 void Browser::onNewDirectory(const QString & name)
 {
     if(model_ != 0) {

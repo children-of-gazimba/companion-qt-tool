@@ -11,6 +11,8 @@
 #include "db/model/sound_file_table_model.h"
 #include "db/model/preset_table_model.h"
 #include "base_tile.h"
+#include "image/view.h"
+#include "image/image_display_widget.h"
 
 // TODO: rename namespace to Tile
 namespace Tile {
@@ -90,6 +92,10 @@ public:
      */
     bool setVolume(const QUuid& tile_id, int volume);
 
+    void setImageDisplay(ImageDisplayWidget* view);
+
+    ImageDisplayWidget* getImageDisplay() const;
+
     /**
      * pushes a scene onto the scene stack and shows it.
     */
@@ -116,6 +122,18 @@ public:
      * Creates an empty NestedTile
     */
     void createEmptyNestedTile(QPoint const& p);
+
+    /*
+     * @brief Creates an empty SpotifyTile
+     * @param p
+     */
+    void createEmptySpotifyTile(QPoint const& p);
+
+    /*
+     * @brief Creates an empty MapTile
+     * @param p
+     */
+    void createEmptyMapTile(QPoint const& p);
 
     /**
      * returns true if this instance manages a layout with given name.
@@ -156,12 +174,6 @@ public:
     */
     const QStringList getLayoutNames() const;
 
-    /*
-     * @brief Creates an empty SpotifyTile
-     * @param p
-     */
-    void createEmptySpotifyTile(QPoint const& p);
-
 private:
     /**
      * Handle scene size when widget resizes.
@@ -181,6 +193,7 @@ private slots:
     void onEmptyPlaylistTile();
     void onEmptyNestedTile();
     void onEmptySpotifyTile();
+    void onEmptyMapTile();
 
 private:
     /**
@@ -228,6 +241,8 @@ private:
     QMenu* context_menu_;
     QPoint click_pos_;
     QMap<QString, QJsonObject> layouts_;
+    Image::View* image_view_;
+    ImageDisplayWidget* image_widget_;
 };
 
 } // namespace Tile

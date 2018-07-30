@@ -59,6 +59,11 @@ View *List::getView() const
     return presentation_view_->getView();
 }
 
+ImageDisplayWidget *List::getDisplayWidget() const
+{
+    return presentation_view_;
+}
+
 void List::onOpen()
 {
     QString dir_name = QFileDialog::getExistingDirectory(this, tr("Open Directory"));
@@ -83,11 +88,7 @@ void List::onImageSelected(int row)
         return;
     QString path = model_->data(model_->index(row, 0), Qt::UserRole).toString();
     presentation_view_->getView()->setItem(new ImageItem(path));
-    if(presentation_view_->isHidden())
-        presentation_view_->showNormal();
-    else
-        presentation_view_->show();
-    presentation_view_->activateWindow();
+    presentation_view_->popOpen();
 }
 
 void List::initWidgets()

@@ -20,6 +20,7 @@ public:
     explicit ImageDisplayWidget(QWidget *parent = nullptr);
 
     Image::View* getView() const;
+    void popOpen();
 
 private slots:
     void onItemSet();

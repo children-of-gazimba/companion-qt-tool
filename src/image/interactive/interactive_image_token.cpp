@@ -138,7 +138,7 @@ void InteractiveImageToken::paint(QPainter *painter, const QStyleOptionGraphicsI
         painter->drawEllipse(uncoverBoundingRect());
     }
     QFont f = painter->font();
-    f.setPixelSize(TEXT_HEIGHT);
+    f.setPixelSize(TEXT_HEIGHT-10.f);
     f.setWeight((int)(f.weight()*1.5f));
     p.setColor(QColor(Qt::white));
     painter->setPen(p);

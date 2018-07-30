@@ -81,6 +81,9 @@ public:
     /** See BC. */
     virtual bool updateLinkFromTracker(Tracker *tracker, int target_prop);
 
+    /** See BC. */
+    virtual void setTrackableName(const QString& name);
+
     /**
      * Initialize default properties of tile.
      * createContextMenu will be called by this function.
@@ -244,6 +247,8 @@ protected slots:
     /** Opens a dialog to configure the current activation tracker */
     void onSetActivationTracker();
 
+    void onTrackerAdded(QString const&);
+
 protected:
     /*
      * BC overrides
@@ -257,6 +262,9 @@ protected:
     virtual void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
     virtual void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
     virtual void dropEvent(QGraphicsSceneDragDropEvent *event);
+
+    /** Called whenever a tracker matching trackable name has been added */
+    virtual void trackableSourceAddedEvent(Tracker*);
 
     /**
     * relayouts all other tiles based on overlaps created by resize operation
