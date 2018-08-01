@@ -218,7 +218,7 @@ void SettingsWidget::initWidgets()
 
 void SettingsWidget::initLayout()
 {
-    //QWidget::setWindowFlags(Qt::Tool);
+    QWidget::setWindowFlags(Qt::Tool);
     QWidget::setWindowTitle("Playlist Settings");
 
     QGroupBox* name_box = new QGroupBox(tr("Playlist Name"),this);

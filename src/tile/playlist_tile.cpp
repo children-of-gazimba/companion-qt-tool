@@ -18,13 +18,22 @@ PlaylistTile::PlaylistTile(QGraphicsItem *parent)
     , playlist_(0)
     , model_(0)
     , is_playing_(false)
+    , draw_filled_volume_indicator_(false)
+    , filled_volume_timer_()
 {
     player_ = new CustomMediaPlayer(this);
     //connect(player_, SIGNAL(stateChanged(QMediaPlayer::State)),
     //        this, SLOT(changePlayerState(QMediaPlayer::State)));
 
     connect(player_, SIGNAL(toggledPlayerActivation(bool)),
-            this, SLOT(changedCustomPlayerActivation(bool)) );
+            this, SLOT(changedCustomPlayerActivation(bool)));
+
+    filled_volume_timer_.setSingleShot(true);
+    connect(&filled_volume_timer_, &QTimer::timeout,
+            this, [=]() {
+        prepareGeometryChange();
+        draw_filled_volume_indicator_ = false;
+    });
 
     playlist_ = new Playlist::MediaPlaylist("Playlist");
     player_->setPlaylist(playlist_);
@@ -45,6 +54,18 @@ void PlaylistTile::paint(QPainter *painter, const QStyleOptionGraphicsItem* opti
 
     QRectF p_rect(getPaintRect());
     if(p_rect.width() > 0 && p_rect.height() > 0) {
+        // draw current volume
+        QRectF volume_rect(getVolumeRect());
+        QLineF volume_line(volume_rect.topLeft(), volume_rect.topRight());
+        qreal op = painter->opacity();
+        painter->setOpacity(0.5);
+        painter->setPen(QPen(QBrush(Qt::green), 5));
+        painter->drawLine(volume_line);
+        if(draw_filled_volume_indicator_)
+            painter->fillRect(volume_rect, Qt::green);
+        painter->setOpacity(op);
+
+        // draw play state
         painter->drawPixmap(
             (int) p_rect.x(),
             (int)p_rect.y(),
@@ -109,10 +130,11 @@ void PlaylistTile::receiveWheelEvent(QWheelEvent *event)
             log_volume = 100;
     }
 
-    settings.volume = VolumeMapper::logarithmicToLinear(log_volume);
-    pl->setSettings(settings);
-
-    emit wheelChangedVolume(settings.volume);
+    int new_volume = VolumeMapper::logarithmicToLinear(log_volume);
+    if(new_volume != settings.volume) {
+        setVolume(new_volume);
+        emit wheelChangedVolume(settings.volume);
+    }
 }
 
 bool PlaylistTile::addMedia(int record_id)
@@ -280,7 +302,11 @@ void PlaylistTile::onActivate()
 
 void PlaylistTile::setVolume(int volume)
 {
-    player_->setVolume(volume);
+    Playlist::Settings settings = player_->getCustomPlaylist()->getSettings();
+    settings.volume = volume;
+    player_->getCustomPlaylist()->setSettings(settings);
+    volumeChangedEvent();
+    //player_->setVolume(volume);
 }
 
 int PlaylistTile::getVolume() const
@@ -314,12 +340,12 @@ void PlaylistTile::onConfigurePlaylist()
         playlist_settings_widget_ = new Playlist::SettingsWidget(s);
         playlist_settings_widget_->setWindowTitle(tr("Playback Settings"));
         playlist_settings_widget_->move(QCursor::pos() - QPoint(170,170));
-        connect(playlist_settings_widget_, SIGNAL(closed()),
-                this, SLOT(closePlaylistSettings()));
+        connect(playlist_settings_widget_, &Playlist::SettingsWidget::closed,
+                this, &PlaylistTile::closePlaylistSettings);
         connect(playlist_settings_widget_, &Playlist::SettingsWidget::saved,
                 this, &PlaylistTile::savePlaylistSettings);
-        connect(playlist_settings_widget_, SIGNAL(volumeSettingsChanged(int)),
-                player_, SLOT(mediaVolumeChanged(int)));
+        connect(playlist_settings_widget_, &Playlist::SettingsWidget::volumeSettingsChanged,
+                this, &PlaylistTile::setVolume);
         connect(this, &PlaylistTile::wheelChangedVolume,
                 playlist_settings_widget_, &Playlist::SettingsWidget::onExternalVolumeChanged);
     }
@@ -397,9 +423,25 @@ const QPixmap PlaylistTile::getPlayStatePixmap() const
         return *Resources::Lib::PX_PLAY;
 }
 
+void PlaylistTile::volumeChangedEvent()
+{
+    prepareGeometryChange();
+    draw_filled_volume_indicator_ = true;
+    filled_volume_timer_.start(2500);
+}
+
 void PlaylistTile::setIsPlaying(bool state)
 {
     is_playing_ = state;
+}
+
+const QRectF PlaylistTile::getVolumeRect() const
+{
+    int log_volume = player_->getCustomPlaylist()->getSettings().volume;
+    log_volume = VolumeMapper::linearToLogarithmic(log_volume);
+    QRectF volume_rect(getPaintRect());
+    volume_rect.setTop(volume_rect.bottom()-volume_rect.height()*(log_volume/100.0f));
+    return volume_rect;
 }
 
 } // namespace Tile

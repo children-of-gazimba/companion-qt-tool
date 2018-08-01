@@ -51,6 +51,8 @@ GraphicsView::GraphicsView(QWidget *parent)
 GraphicsView::~GraphicsView()
 {
     context_menu_->deleteLater();
+    if(scene())
+        scene()->clear();
 }
 
 const QJsonObject GraphicsView::toJsonObject(bool exclude_layouts) const

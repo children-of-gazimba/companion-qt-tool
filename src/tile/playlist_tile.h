@@ -89,7 +89,11 @@ protected:
     */
     virtual const QPixmap getPlayStatePixmap() const;
 
+    void volumeChangedEvent();
+
     void setIsPlaying(bool);
+
+    const QRectF getVolumeRect() const;
 
     CustomMediaPlayer* player_;
 
@@ -98,6 +102,8 @@ protected:
     DB::Model::SoundFileTableModel* model_;
 
     bool is_playing_;
+    bool draw_filled_volume_indicator_;
+    QTimer filled_volume_timer_;
 };
 
 } // namespace Tile
