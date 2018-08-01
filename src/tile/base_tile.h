@@ -195,12 +195,6 @@ public:
     void setActivated(bool state);
 
     /**
-     * @brief getClassName
-     * @return string identifying class
-     */
-    virtual const QString getClassName() const;
-
-    /**
      * sets the presetmodel for this Tile.
      */
     void setPresetModel(DB::Model::PresetTableModel* model);

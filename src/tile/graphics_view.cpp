@@ -296,12 +296,14 @@ bool GraphicsView::isActivated(const QUuid &tile_id)
 
 int GraphicsView::getVolume(const QUuid &tile_id) const
 {
+    QString playlist_class = Tile::PlaylistTile::staticMetaObject.className();
     foreach(QGraphicsItem* it, scene()->items()) {
         QObject* o = dynamic_cast<QObject*>(it);
         if(o) {
             BaseTile* t = qobject_cast<BaseTile*>(o);
             if(t && t->getUuid() == tile_id && t->isActivated()) {
-                if(t->getClassName().compare("PlaylistTile") == 0) {
+                QString t_class(t->metaObject()->className());
+                if(t_class.compare(playlist_class) == 0) {
                     PlaylistTile* p = (PlaylistTile*) t;
                     return p->getVolume();
                 }
@@ -313,12 +315,14 @@ int GraphicsView::getVolume(const QUuid &tile_id) const
 
 bool GraphicsView::setVolume(const QUuid &tile_id, int volume)
 {
+    QString playlist_class = Tile::PlaylistTile::staticMetaObject.className();
     foreach(QGraphicsItem* it, scene()->items()) {
         QObject* o = dynamic_cast<QObject*>(it);
         if(o) {
             BaseTile* t = qobject_cast<BaseTile*>(o);
             if(t && t->getUuid() == tile_id && t->isActivated()) {
-                if(t->getClassName().compare("PlaylistTile") == 0) {
+                QString t_class(t->metaObject()->className());
+                if(t_class.compare(playlist_class) == 0) {
                     PlaylistTile* p = (PlaylistTile*) t;
                     p->setVolume(volume);
                     return true;
