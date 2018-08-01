@@ -13,6 +13,8 @@
         <file>folder.png</file>
         <file>companion-icon.png</file>
         <file>spungify.png</file>
+        <file>invisible.png</file>
+        <file>visible.png</file>
     </qresource>
     <qresource prefix="/styles">
         <file>dark_style.css</file>

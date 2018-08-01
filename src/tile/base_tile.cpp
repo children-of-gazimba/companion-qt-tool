@@ -134,6 +134,21 @@ bool BaseTile::updateLinkFromTracker(Tracker *tracker, int target_prop)
     return true;
 }
 
+void BaseTile::setTrackableName(const QString &name)
+{
+    bool connect_tracker_notify = trackable_name_.size() == 0 && name.size() > 0;
+    bool disconnect_tracker_notify = trackable_name_.size() > 0 && name.size() == 0;
+    trackable_name_ = name;
+    if(connect_tracker_notify) {
+        connect(Resources::Lib::TRACKER_MODEL, &TrackerTableModel::trackerAdded,
+                this, &BaseTile::onTrackerAdded);
+    }
+    else if(disconnect_tracker_notify) {
+        disconnect(Resources::Lib::TRACKER_MODEL, &TrackerTableModel::trackerAdded,
+                this, &BaseTile::onTrackerAdded);
+    }
+}
+
 void BaseTile::setActivateKey(const QChar &c)
 {
     activate_key_ = c;
@@ -225,6 +240,8 @@ const QJsonObject BaseTile::toJsonObject() const
     obj["position"] = arr_pos;
     if(hasActivateKey())
         obj["activate_key"] = QString(activate_key_);
+    if(getTrackableName().size() > 0)
+        obj["trackable_name"] = getTrackableName();
     obj["uuid"] = uuid_.toString();
 
     return obj;
@@ -241,7 +258,6 @@ bool BaseTile::setFromJsonObject(const QJsonObject &obj)
         return false;
 
     QJsonArray arr_pos = obj["position"].toArray();
-
     if(obj["position"].toArray().size() != 2)
         return false;
 
@@ -258,9 +274,12 @@ bool BaseTile::setFromJsonObject(const QJsonObject &obj)
     }
 
     // set uuid
-    if(obj.contains("uuid") && obj["uuid"].isString()) {
+    if(obj.contains("uuid") && obj["uuid"].isString())
         uuid_ = QUuid(obj["uuid"].toString());
-    }
+
+    // set trackable name
+    if(obj.contains("trackable_name") && obj["trackable_name"].isString())
+        setTrackableName(obj["trackable_name"].toString());
 
     return true;
 }
@@ -440,6 +459,14 @@ void BaseTile::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 void BaseTile::dropEvent(QGraphicsSceneDragDropEvent *event)
 {
     QGraphicsItem::dropEvent(event);
+}
+
+void BaseTile::trackableSourceAddedEvent(Tracker *t)
+{
+    auto act_t = dynamic_cast<ActivationTracker*>(t);
+    if(!act_t)
+        return;
+    act_t->link(this);
 }
 
 void BaseTile::contextMenuEvent(QGraphicsSceneContextMenuEvent *e)
@@ -692,6 +719,7 @@ void BaseTile::onSetActivationTracker()
     if(hasLink(ActivationTracker::ACTIVE_STATE)) {
         current_tracker = links_[ActivationTracker::ACTIVE_STATE];
         d.setTracker(current_tracker);
+        setTrackableName(current_tracker->getName());
     }
 
     int ret = d.exec();
@@ -716,7 +744,24 @@ void BaseTile::onSetActivationTracker()
             return;
     }
 
+    setTrackableName(act_t->getName());
     act_t->link(this);
+}
+
+void BaseTile::onTrackerAdded(const QString &name)
+{
+    if(name.compare(trackable_name_) != 0)
+        return;
+
+    Tracker* current_tracker = 0;
+    if(hasLink(ActivationTracker::ACTIVE_STATE))
+        current_tracker = links_[ActivationTracker::ACTIVE_STATE];
+
+    Tracker* t = Resources::Lib::TRACKER_MODEL->getTracker(getTrackableName());
+    if(!t || t == current_tracker)
+        return;
+
+    trackableSourceAddedEvent(t);
 }
 
 qreal BaseTile::distance(const QPointF &p, const QLineF &l)

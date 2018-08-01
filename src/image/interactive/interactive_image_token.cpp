@@ -8,6 +8,7 @@
 #include <QVector2D>
 #include <QPen>
 #include <QPainterPath>
+#include <QJsonArray>
 
 #include "resources/lib.h"
 #include "tracking/tracker.h"
@@ -137,7 +138,7 @@ void InteractiveImageToken::paint(QPainter *painter, const QStyleOptionGraphicsI
         painter->drawEllipse(uncoverBoundingRect());
     }
     QFont f = painter->font();
-    f.setPixelSize(TEXT_HEIGHT);
+    f.setPixelSize(TEXT_HEIGHT-10.f);
     f.setWeight((int)(f.weight()*1.5f));
     p.setColor(QColor(Qt::white));
     painter->setPen(p);
@@ -274,6 +275,64 @@ bool InteractiveImageToken::registerLink(Tracker *tracker, int target_prop)
     return Trackable::registerLink(tracker, target_prop);
 }
 
+const QJsonObject InteractiveImageToken::toJsonObject() const
+{
+    QJsonObject obj;
+    obj["name"] = name_;
+    obj["uuid"] = uuid_.toString();
+    obj["uncover_radius"] = uncover_radius_;
+    obj["grab_radius"] = grab_radius_;
+    obj["color"] = color_.name();
+    QJsonArray arr_pos;
+    arr_pos.append(pos().x());
+    arr_pos.append(pos().y());
+    obj["position"] = arr_pos;
+    QJsonArray arr_size;
+    arr_size.append(marker_rect_.width());
+    arr_size.append(marker_rect_.height());
+    obj["size"] = arr_size;
+    if(getTrackableName().size() > 0)
+        obj["trackable_name"] = getTrackableName();
+    return obj;
+}
+
+bool InteractiveImageToken::setFromJsonObject(const QJsonObject &obj)
+{
+    if(obj.isEmpty())
+        return false;
+
+    bool well_formed = obj.contains("name") && obj["name"].isString() &&
+        obj.contains("uncover_radius") && obj["uncover_radius"].isDouble() &&
+        obj.contains("grab_radius") && obj["grab_radius"].isDouble() &&
+        obj.contains("position") && obj["position"].isArray() &&
+        obj.contains("size") && obj["size"].isArray();
+
+    if(!well_formed)
+        return false;
+
+    QJsonArray arr_pos = obj["position"].toArray();
+    if(obj["position"].toArray().size() != 2)
+        return false;
+
+    QJsonArray arr_size = obj["size"].toArray();
+    if(obj["size"].toArray().size() != 2)
+        return false;
+
+    setName(obj["name"].toString());
+    setSize(QSizeF(arr_size[0].toDouble(),arr_size[1].toDouble()));
+    setUncoverRadius(obj["uncover_radius"].toDouble());
+    setGrabRadius(obj["grab_radius"].toDouble());
+    setUncoverPos(QPointF(arr_pos[0].toDouble(),arr_pos[1].toDouble()));
+    setColor(QColor(obj["color"].toString()));
+
+    if(obj.contains("uuid") && obj["uuid"].isString())
+        uuid_ = QUuid(obj["uuid"].toString());
+    if(obj.contains("trackable_name") && obj["trackable_name"].isString())
+        setTrackableName(obj["trackable_name"].toString());
+
+    return true;
+}
+
 const QRectF InteractiveImageToken::uncoverBoundingRect() const
 {
     return uncover_rect_;//QRectF(-uncover_radius_/2.0, -uncover_radius_/2.0, uncover_radius_, uncover_radius_);
@@ -369,7 +428,12 @@ void InteractiveImageToken::setColor(const QColor &clr)
 void InteractiveImageToken::setSize(const QSizeF &s)
 {
     prepareGeometryChange();
-    marker_rect_.setSize(s);
+    marker_rect_ = QRectF(
+        -s.width()/2.0,
+        -s.height()/2.0,
+        s.width(),
+        s.height()
+    );
 }
 
 const QPointF InteractiveImageToken::centerPos() const

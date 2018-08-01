@@ -23,6 +23,7 @@ public:
 
     void openDirectory(const QString&);
     View *getView() const;
+    ImageDisplayWidget* getDisplayWidget() const;
 
 
 signals:

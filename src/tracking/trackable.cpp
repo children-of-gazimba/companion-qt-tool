@@ -1,8 +1,9 @@
 #include "trackable.h"
 
-#include "tracker.h"
-
 #include <QDebug>
+
+#include "tracker.h"
+#include "resources/lib.h"
 
 Trackable::Trackable()
     : links_()

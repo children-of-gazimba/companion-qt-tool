@@ -175,6 +175,8 @@ void CompanionWidget::onOpenProject()
             b.setDefaultButton(QMessageBox::Yes);
             if(b.exec() == QMessageBox::Yes)
                 onOpenProject();
+            else
+                return;
         }
 
         setProjectPath(file_name);
@@ -350,6 +352,7 @@ void CompanionWidget::initWidgets()
     image_browser_ = new Image::Browser(left_tabwidget_);
     image_browser_->layout()->setMargin(0);
     image_browser_->setImageDirTableModel(db_handler_->getImageDirTableModel());
+    graphics_view_->setImageDisplay(image_browser_->getDisplayWidget());
 
     left_tabwidget_->addTab(left_v_splitter_, tr("Sounds"));
     left_tabwidget_->addTab(image_browser_, tr("Images"));

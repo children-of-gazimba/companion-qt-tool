@@ -20,6 +20,8 @@ InteractiveImageShapeWidget::InteractiveImageShapeWidget(QWidget *parent)
     , uncover_box_(0)
     , fog_visibility_box_(0)
     , collapsible_widgets_()
+    , content_modifying_widgets_()
+    , block_modified_event_(false)
 {
     initWidgets();
     initLayout();
@@ -39,11 +41,15 @@ InteractiveImageShapeWidget::InteractiveImageShapeWidget(InteractiveImageShape *
     , uncover_box_(0)
     , fog_visibility_box_(0)
     , collapsible_widgets_()
+    , content_modifying_widgets_()
+    , block_modified_event_(false)
 {
     initWidgets();
     initLayout();
+    blockContentModifiedEvent(shape->getName().size() > 0);
     updateUI();
     hideCollapsibleWidgets();
+    blockContentModifiedEvent(false);
     connect(shape_, &InteractiveImageShape::destroyed,
             this, &InteractiveImageShapeWidget::deleteLater);
 }
@@ -200,6 +206,15 @@ void InteractiveImageShapeWidget::updateUI()
     }
 }
 
+void InteractiveImageShapeWidget::blockContentModifiedEvent(bool blocked)
+{
+    if(blocked == block_modified_event_)
+        return;
+    block_modified_event_ = blocked;
+    foreach(auto w, content_modifying_widgets_)
+        w->blockSignals(block_modified_event_);
+}
+
 void InteractiveImageShapeWidget::initWidgets()
 {
     title_label_ = new QLabel(tr("UNNAMED SHAPE"), this);
@@ -212,6 +227,7 @@ void InteractiveImageShapeWidget::initWidgets()
     name_edit_->setPlaceholderText(tr("<name here>"));
     connect(name_edit_, &QLineEdit::textChanged,
             this, [=](){contentsModifiedEvent();});
+    content_modifying_widgets_.append(name_edit_);
 
     delete_button_ = new QPushButton(tr("delete"), this);
     connect(delete_button_, &QPushButton::clicked,
@@ -229,10 +245,12 @@ void InteractiveImageShapeWidget::initWidgets()
     uncover_box_ = new QCheckBox(tr("is fog uncover shape"), this);
     connect(uncover_box_, &QCheckBox::clicked,
             this, [=](){contentsModifiedEvent();});
+    content_modifying_widgets_.append(uncover_box_);
 
     fog_visibility_box_ = new QCheckBox(tr("merged outline is visible in fog"), this);
     connect(fog_visibility_box_, &QCheckBox::clicked,
             this, [=](){contentsModifiedEvent();});
+    content_modifying_widgets_.append(fog_visibility_box_);
 
     tracker_add_button_ = new QPushButton(tr("add activation tracker"), this);
     connect(tracker_add_button_, &QPushButton::clicked,

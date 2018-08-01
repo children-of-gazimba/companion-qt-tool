@@ -32,6 +32,11 @@ void View::setItem(ImageItem* it)
     setItem((QGraphicsItem*) it);
 }
 
+void View::setItem(InteractiveImage *it)
+{
+    setItem((QGraphicsItem*) it);
+}
+
 QGraphicsItem *View::getItem() const
 {
     return item_;
@@ -55,11 +60,22 @@ QMenu *View::getMenuBarExtension()
 
 void View::setItem(QGraphicsItem* item)
 {
+    if(isImageInteractive()) {
+        auto iit = qgraphicsitem_cast<InteractiveImage*>(item_);
+        emit iit->destroyed();
+        QCoreApplication::processEvents();
+    }
     clear();
     scene()->addItem(item);
     scene()->setSceneRect(item->boundingRect());
     scaleContentsToViewport();
     item_ = item;
+    if(isImageInteractive()) {
+        emit interactiveEnabled(true);
+        auto iit = qgraphicsitem_cast<InteractiveImage*>(item_);
+        connect(iit, &InteractiveImage::newContentsLoaded,
+                this, &View::onNewContentsLoaded);
+    }
     emit itemSet();
 }
 
@@ -86,13 +102,22 @@ void View::onMakeInteractive()
         QString path = it->getPath();
         auto interactive_img = new InteractiveImage(path, it->boundingRect().size().toSize());
         setItem(interactive_img);
-        emit interactiveEnabled(true);
+        connect(interactive_img, &InteractiveImage::newContentsLoaded,
+                this, &View::onNewContentsLoaded);
     }
+}
+
+void View::onNewContentsLoaded()
+{
+    scene()->setSceneRect(item_->boundingRect());
+    scaleContentsToViewport();
 }
 
 void View::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
+    if(item_)
+        scene()->setSceneRect(item_->boundingRect());
     scaleContentsToViewport();
 }
 

@@ -3,6 +3,7 @@
 
 #include <QGraphicsObject>
 #include <QUuid>
+#include <QJsonObject>
 
 #include "tracking/trackable.h"
 
@@ -65,6 +66,17 @@ public:
      * See BC.
      */
     virtual bool registerLink(Tracker *tracker, int target_prop);
+
+    /**
+     * Returns a QJsonObject holding all information about the token
+    */
+    virtual const QJsonObject toJsonObject() const;
+
+    /**
+     * Set all values held by JSON object.
+     * Returns success of parsing JsonObject.
+    */
+    virtual bool setFromJsonObject(const QJsonObject& obj);
 
     /*
     * Returns a boundingRect for the current uncover area.
@@ -185,7 +197,6 @@ protected:
     State state_;
     QUuid uuid_;
     float uncover_radius_;
-    float uncover_indicator_radius;
     QString name_;
     QColor color_;
 

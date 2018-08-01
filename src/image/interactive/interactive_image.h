@@ -5,6 +5,7 @@
 #include <QImage>
 #include <QMap>
 #include <QSet>
+#include <QJsonObject>
 
 #include "interactive_image_token.h"
 #include "interactive_image_shape.h"
@@ -32,6 +33,17 @@ public:
      * See BC.
     */
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+
+    /**
+     * Returns a QJsonObject holding all information about the token
+    */
+    virtual const QJsonObject toJsonObject() const;
+
+    /**
+     * Set all values held by JSON object.
+     * Returns success of parsing JsonObject.
+    */
+    virtual bool setFromJsonObject(const QJsonObject& obj);
 
     /*
     * Returns the Token referenced by given uuid,
@@ -80,6 +92,7 @@ public:
 signals:
     void tokenAdded(InteractiveImageToken* it);
     void shapeAdded(InteractiveImageShape* sh);
+    void newContentsLoaded();
 
 public slots:
     void loadImage();
@@ -97,8 +110,11 @@ protected slots:
     void onUncoverRadiusChanged();
     void onTokenDeleted(QObject*);
     void onShapeDeleted(QObject*);
+    void onSaveMapAs();
+    void onOpenMap();
 
-protected:    
+protected:
+    void clearContents();
     void linkToken(InteractiveImageToken* it);
     void clearAllPaths();
     void scheduleCalcResultImage();
@@ -120,6 +136,7 @@ protected:
 
     void initContextMenu();
 
+    QString src_image_path_;
     QImage* result_image_;
     QSize result_size_;
     QImage* src_image_;

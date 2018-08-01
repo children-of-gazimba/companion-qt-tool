@@ -8,6 +8,7 @@
 #include <QMenu>
 
 class ImageItem;
+class InteractiveImage;
 
 namespace Image {
 
@@ -19,6 +20,7 @@ public:
     virtual  ~View();
 
     void setItem(ImageItem*);
+    void setItem(InteractiveImage*);
     QGraphicsItem *getItem() const;
 
     bool isImageInteractive() const;
@@ -33,6 +35,9 @@ public slots:
     void clear();
     void scaleContentsToViewport();
     void onMakeInteractive();
+
+private slots:
+    void onNewContentsLoaded();
 
 private:
     void setItem(QGraphicsItem*);

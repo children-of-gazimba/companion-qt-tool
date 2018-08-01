@@ -7,6 +7,7 @@
 
 #include "list.h"
 #include "view.h"
+#include "image_display_widget.h"
 #include "db/model/image_dir_table_model.h"
 
 namespace Image {
@@ -21,6 +22,7 @@ public:
     DB::Model::ImageDirTableModel* getImageDirTableModel();
 
     View *getView() const;
+    ImageDisplayWidget* getDisplayWidget() const;
 
 signals:
 

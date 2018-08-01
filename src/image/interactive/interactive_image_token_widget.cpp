@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 #include <QDebug>
 #include <QColorDialog>
+#include <QCoreApplication>
 
 #include "resources/lib.h"
 
@@ -26,7 +27,8 @@ InteractiveImageTokenWidget::InteractiveImageTokenWidget(QWidget *parent)
     , token_color_label_(0)
     , token_color_button_(0)
     , collapsible_widgets_()
-
+    , content_modifying_widgets_()
+    , block_modified_event_(false)
 {
     initWidgets();
     initLayout();
@@ -51,11 +53,15 @@ InteractiveImageTokenWidget::InteractiveImageTokenWidget(InteractiveImageToken *
     , token_color_label_(0)
     , token_color_button_(0)
     , collapsible_widgets_()
+    , content_modifying_widgets_()
+    , block_modified_event_(false)
 {
     initWidgets();
     initLayout();
+    blockContentModifiedEvent(token->getName().size() > 0);
     updateUI();
     hideCollapsibleWidgets();
+    blockContentModifiedEvent(false);
     connect(token_, &InteractiveImageToken::destroyed,
             this, &InteractiveImageTokenWidget::deleteLater);
 }
@@ -170,6 +176,9 @@ void InteractiveImageTokenWidget::showCollapsibleWidgets()
 
 void InteractiveImageTokenWidget::contentsModifiedEvent()
 {
+    if(block_modified_event_)
+        return;
+
     bool tracking_enabled = tracker_picker_->currentText().size() > 0;
     link_select_->setEnabled(tracking_enabled);
     grab_select_->setEnabled(tracking_enabled);
@@ -182,16 +191,19 @@ void InteractiveImageTokenWidget::contentsModifiedEvent()
     token_->setUncoverRadius(uncover_radius_slider_->value());
 
     token_->setShowGrabIndicator(true);
-    token_->setGrabRadius(grab_radius_slider_->value());
+    if(grab_radius_slider_->isEnabled())
+        token_->setGrabRadius(grab_radius_slider_->value());
 }
 
 void InteractiveImageTokenWidget::updateUI()
 {
     if(token_) {
-        if(token_->getName().size() > 0)
+        if(token_->getName().size() > 0) {
             title_label_->setText(token_->getName());
-        else
+        }
+        else {
             title_label_->setText(tr("UNNAMED TOKEN"));
+        }
 
         name_edit_->setText(token_->getName());
         tracker_picker_->setCurrentTracker(token_->getTrackableName());
@@ -208,6 +220,15 @@ void InteractiveImageTokenWidget::updateUI()
     }
 }
 
+void InteractiveImageTokenWidget::blockContentModifiedEvent(bool blocked)
+{
+    if(blocked == block_modified_event_)
+        return;
+    block_modified_event_ = blocked;
+    foreach(auto w, content_modifying_widgets_)
+        w->blockSignals(block_modified_event_);
+}
+
 void InteractiveImageTokenWidget::initWidgets()
 {
     title_label_ = new QLabel(tr("Unnamed Token"), this);
@@ -220,12 +241,14 @@ void InteractiveImageTokenWidget::initWidgets()
     name_edit_->setPlaceholderText(tr("<name here>"));
     connect(name_edit_, &QLineEdit::textChanged,
             this, [=](){contentsModifiedEvent();});
+    content_modifying_widgets_.append(name_edit_);
 
     tracker_label_ = new QLabel(tr("Tracking Source"), this);
 
     tracker_picker_ = new TrackerPicker(this);
     connect(tracker_picker_, &TrackerPicker::currentTextChanged,
             this, [=](const QString&){contentsModifiedEvent();});
+    content_modifying_widgets_.append(tracker_picker_);
 
     delete_button_ = new QPushButton(tr("delete"), this);
     connect(delete_button_, &QPushButton::clicked,
@@ -244,18 +267,21 @@ void InteractiveImageTokenWidget::initWidgets()
     link_select_->setEnabled(false);
     connect(link_select_, &QRadioButton::clicked,
             this, [=](){contentsModifiedEvent();});
+    content_modifying_widgets_.append(link_select_);
 
     grab_select_ = new QRadioButton(tr("grab"), this);
     grab_select_->setEnabled(false);
     connect(grab_select_, &QRadioButton::clicked,
             this, [=](){contentsModifiedEvent();});
+    content_modifying_widgets_.append(grab_select_);
 
     grab_radius_slider_ = new QSlider(Qt::Orientation::Horizontal, this);
     grab_radius_slider_->setMinimum(1);
     grab_radius_slider_->setMaximum(1000);
     grab_radius_slider_->setEnabled(false);
     connect(grab_radius_slider_, &QSlider::valueChanged,
-            this, [=]() { contentsModifiedEvent();});
+            this, [=]() {contentsModifiedEvent();});
+    content_modifying_widgets_.append(grab_radius_slider_);
 
     uncover_radius_slider_ = new QSlider(Qt::Orientation::Horizontal, this);
     uncover_radius_slider_->setMinimum(1);
@@ -263,7 +289,8 @@ void InteractiveImageTokenWidget::initWidgets()
     if(token_)
         uncover_radius_slider_->setValue(token_->getUncoverRadius());
     connect(uncover_radius_slider_, &QSlider::valueChanged,
-            this, [=](){ contentsModifiedEvent();});
+            this, [=](){contentsModifiedEvent();});
+    content_modifying_widgets_.append(uncover_radius_slider_);
 
 
     token_color_label_ = new QLabel(this);

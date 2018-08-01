@@ -39,6 +39,7 @@ private:
     void showCollapsibleWidgets();
     void contentsModifiedEvent();
     void updateUI();
+    void blockContentModifiedEvent(bool blocked);
 
     void initWidgets();
     void initLayout();
@@ -59,6 +60,8 @@ private:
     QLabel *token_color_label_;
     QPushButton *token_color_button_;
     QList<QWidget*> collapsible_widgets_;
+    QList<QWidget*> content_modifying_widgets_;
+    bool block_modified_event_;
 };
 
 #endif // INTERACTIVE_IMAGE_TOKEN_WIDGET_H
