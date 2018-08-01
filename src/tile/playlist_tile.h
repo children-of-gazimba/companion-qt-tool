@@ -73,7 +73,7 @@ protected slots:
     virtual void onConfigurePlaylist();
     /* */
     void closePlaylistSettings();
-    void savePlaylistSettings(Playlist::Settings* settings);
+    void savePlaylistSettings(const Playlist::Settings& settings);
 
     /** slot to open contents view */
     virtual void onContents();
