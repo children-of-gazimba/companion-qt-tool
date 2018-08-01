@@ -314,9 +314,9 @@ void PlaylistTile::changedCustomPlayerActivation(bool state)
 
 void PlaylistTile::onConfigurePlaylist()
 {
-    Playlist::Settings s = playlist_->getSettings();
-    s.name = getName();
     if(!playlist_settings_widget_) {
+        Playlist::Settings s = playlist_->getSettings();
+        s.name = getName();
         playlist_settings_widget_ = new Playlist::SettingsWidget(s);
         playlist_settings_widget_->setWindowTitle(tr("Playback Settings"));
         playlist_settings_widget_->move(QCursor::pos() - QPoint(170,170));

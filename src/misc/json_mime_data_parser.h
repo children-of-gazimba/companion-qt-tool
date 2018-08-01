@@ -76,7 +76,7 @@ public:
     static const QJsonObject toJsonObject(DB::SoundFileRecord*);
 
     /* Creates JsonObject from given Playlist::Settings */
-    static const QJsonObject toJsonObject(Playlist::Settings*);
+    static const QJsonObject toJsonObject(const Playlist::Settings&);
 
     static Playlist::Settings* toPlaylistSettings(const QJsonObject&);
 
