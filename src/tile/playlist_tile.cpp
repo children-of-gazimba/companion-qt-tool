@@ -245,12 +245,6 @@ bool PlaylistTile::setFromJsonObject(const QJsonObject &obj)
     return true;
 }
 
-const QString PlaylistTile::getClassName() const
-{
-    return "PlaylistPlayerTile";
-}
-
-
 void PlaylistTile::setMedia(const QMediaContent &c)
 {
     player_->setMedia(c);

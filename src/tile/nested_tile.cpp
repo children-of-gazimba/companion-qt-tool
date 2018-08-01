@@ -165,11 +165,6 @@ bool NestedTile::setFromJsonObject(const QJsonObject &obj)
     return true;
 }
 
-const QString NestedTile::getClassName() const
-{
-    return "NestedTile";
-}
-
 void NestedTile::clearTiles()
 {
     foreach(QGraphicsItem* it, scene_->items()) {

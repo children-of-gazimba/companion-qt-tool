@@ -328,11 +328,6 @@ void BaseTile::setActivated(bool state)
     onActivate();
 }
 
-const QString BaseTile::getClassName() const
-{
-    return QString("Tile");
-}
-
 void BaseTile::setPresetModel(DB::Model::PresetTableModel *model)
 {
     preset_model_ = model;

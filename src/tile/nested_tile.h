@@ -29,11 +29,6 @@ public:
     */
     bool setFromJsonObject(const QJsonObject& obj);
 
-    /**
-     * @brief see BC
-     */
-    QString const getClassName() const;
-
     void clearTiles();
 
 

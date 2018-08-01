@@ -46,11 +46,6 @@ public:
     */
     virtual bool setFromJsonObject(const QJsonObject& obj);
 
-    /**
-     * @brief see BC
-     */
-    QString const getClassName() const;
-
 public slots:
     virtual void setMedia(const QMediaContent& c);
     virtual void play();
