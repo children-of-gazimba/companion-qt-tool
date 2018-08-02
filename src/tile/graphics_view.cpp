@@ -107,6 +107,8 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
     if(!sc_obj.contains("tiles") || !sc_obj["tiles"].isArray())
         return false;
 
+    clear();
+
     // scene rect
     QJsonObject rc_obj = sc_obj["scene_rect"].toObject();
     if(rc_obj.contains("x") && rc_obj.contains("y") && rc_obj.contains("width") && rc_obj.contains("height")) {
@@ -119,8 +121,6 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
         scene()->setSceneRect(scene_rect);
         //qDebug() << scene()->sceneRect();
     }
-
-    clearTiles();
 
     QString pl_class = PlaylistTile::staticMetaObject.className();
     QString nested_class = NestedTile::staticMetaObject.className();
@@ -236,6 +236,16 @@ void GraphicsView::setPresetModel(DB::Model::PresetTableModel *m)
 DB::Model::PresetTableModel *GraphicsView::getPresetModel()
 {
     return preset_model_;
+}
+
+void GraphicsView::clear()
+{
+    if(!scene())
+        return;
+    while(scene() != main_scene_)
+        popScene();
+    clearTiles();
+    scene()->clear();
 }
 
 BaseTile *GraphicsView::getTile(const QUuid &uuid) const

@@ -60,11 +60,6 @@ QMenu *View::getMenuBarExtension()
 
 void View::setItem(QGraphicsItem* item)
 {
-    if(isImageInteractive()) {
-        auto iit = qgraphicsitem_cast<InteractiveImage*>(item_);
-        emit iit->destroyed();
-        QCoreApplication::processEvents();
-    }
     clear();
     scene()->addItem(item);
     scene()->setSceneRect(item->boundingRect());
@@ -81,8 +76,14 @@ void View::setItem(QGraphicsItem* item)
 
 void View::clear()
 {
+    if(isImageInteractive()) {
+        auto iit = qgraphicsitem_cast<InteractiveImage*>(item_);
+        emit iit->destroyed();
+        QCoreApplication::processEvents();
+    }
+    item_ = 0;
     scene()->clear();
-    scene()->setSceneRect(QRectF(0,0,0,0));
+    //scene()->setSceneRect(QRectF(0,0,0,0));
 }
 
 void View::scaleContentsToViewport()

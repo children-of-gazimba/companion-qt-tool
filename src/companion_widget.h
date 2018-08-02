@@ -50,6 +50,7 @@ private slots:
     void onSaveProjectAs();
     void onSaveProject();
     void onOpenProject();
+    void onCloseProject();
     void onSaveViewAsLayout();
     void onLoadLayout();
     void onStartSpotifyControlWidget();
@@ -58,6 +59,7 @@ private slots:
     void onLayoutAdded(const QString& name);
 
 private:
+    void clearAll();
     void setProjectPath(QString const& path);
 
     void initWidgets();
