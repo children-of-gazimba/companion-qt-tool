@@ -19,6 +19,10 @@ Browser::Browser(QWidget *parent)
     initLayout();
 }
 
+Browser::~Browser()
+{
+}
+
 void Browser::setImageDirTableModel(DB::Model::ImageDirTableModel* model)
 {
     model_ = model;

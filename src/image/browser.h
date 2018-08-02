@@ -17,6 +17,7 @@ class Browser : public QWidget
     Q_OBJECT
 public:
     explicit Browser(QWidget *parent = 0);
+    virtual ~Browser();
 
     void setImageDirTableModel(DB::Model::ImageDirTableModel*);
     DB::Model::ImageDirTableModel* getImageDirTableModel();

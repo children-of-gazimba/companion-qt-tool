@@ -55,6 +55,8 @@ public:
     void setPresetModel(DB::Model::PresetTableModel* m);
     DB::Model::PresetTableModel* getPresetModel();
 
+    void clear();
+
     /**
      * Returns the tile with given uuid or 0 if doesn't exist.
     */

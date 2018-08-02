@@ -134,12 +134,12 @@ void CompanionWidget::onOpenProject()
 {
     if(project_name_.size() > 0 || graphics_view_->getLayoutNames().size() > 0) {
         QMessageBox b;
-        b.setText(tr("Opening a new project will discard any unsaved changes."));
-        b.setInformativeText(tr("Do you wish to save the current project before proceeding?"));
+        b.setText(tr("You are about to open another project. All unsaved work will be lost."));
+        b.setInformativeText(tr("Do you want to continue?"));
         b.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         b.setDefaultButton(QMessageBox::Yes);
-        if(b.exec() == QMessageBox::Yes)
-            onSaveProject();
+        if(b.exec() == QMessageBox::No)
+            return;
     }
 
     QString file_name = QFileDialog::getOpenFileName(
@@ -164,6 +164,7 @@ void CompanionWidget::onOpenProject()
                 return;
         }
 
+        clearAll();
         QJsonDocument doc = QJsonDocument::fromJson(json_file.readAll());
 
         // graphics view could not be set from json
@@ -181,6 +182,18 @@ void CompanionWidget::onOpenProject()
 
         setProjectPath(file_name);
     }
+}
+
+void CompanionWidget::onCloseProject()
+{
+    QMessageBox b;
+    b.setText(tr("You are about to close the current project. All unsaved work will be lost."));
+    b.setInformativeText(tr("Do you want to continue?"));
+    b.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    b.setDefaultButton(QMessageBox::No);
+    if(b.exec() == QMessageBox::No)
+        return;
+    clearAll();
 }
 
 void CompanionWidget::onSaveViewAsLayout()
@@ -289,6 +302,13 @@ void CompanionWidget::onLayoutAdded(const QString &name)
     b.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     if(b.exec() == QMessageBox::Yes)
         onSaveProject();
+}
+
+void CompanionWidget::clearAll()
+{
+    graphics_view_->clear();
+    image_browser_->getView()->clear();
+    setProjectPath("");
 }
 
 void CompanionWidget::setProjectPath(const QString &path)
@@ -404,6 +424,9 @@ void CompanionWidget::initActions()
     actions_["Delete Database Contents..."] = new QAction(tr("Delete Database Contents..."), this);
     actions_["Delete Database Contents..."]->setToolTip(tr("Deletes all contents from application database."));
 
+    actions_["Close Project"] = new QAction(tr("Close Project"), this);
+    actions_["Close Project"]->setToolTip(tr("Closes the current project, clearing the canvas and clearing image display."));
+
     actions_["Save Project As..."] = new QAction(tr("Save Project As..."), this);
     actions_["Save Project As..."]->setToolTip(tr("Saves the current work state to a file."));
     actions_["Save Project As..."]->setShortcut(QKeySequence(tr("Ctrl+Shift+S")));
@@ -449,6 +472,8 @@ void CompanionWidget::initActions()
             sound_file_importer_, SLOT(startBrowseFolder(bool)));
     connect(actions_["Delete Database Contents..."], SIGNAL(triggered()),
             this, SLOT(onDeleteDatabase()));
+    connect(actions_["Close Project"], SIGNAL(triggered()),
+            this, SLOT(onCloseProject()));
     connect(actions_["Save Project As..."], SIGNAL(triggered()),
             this, SLOT(onSaveProjectAs()));
     connect(actions_["Save Project"], SIGNAL(triggered()),
@@ -476,6 +501,8 @@ void CompanionWidget::initMenu()
     QMenu* file_menu = main_menu_->addMenu(tr("File"));
     file_menu->addAction(actions_["Open Project..."]);
     file_menu->addAction(actions_["Load Layout..."]);
+    file_menu->addSeparator();
+    file_menu->addAction(actions_["Close Project"]);
     file_menu->addSeparator();
     file_menu->addAction(actions_["Save Project"]);
     file_menu->addAction(actions_["Save Project As..."]);
