@@ -26,10 +26,6 @@ ListView::ListView(QList<DB::SoundFileRecord*> const& sound_files, QWidget *pare
     model_->setHorizontalHeaderItem(0, new QStandardItem("Name"));
     model_->setHorizontalHeaderItem(1, new QStandardItem("Path"));
 
-    setMouseTracking(true);
-    connect(this, &ListView::entered,
-            this, &ListView::onEntered);
-
     setSoundFiles(sound_files);
 
     setModel(model_);
@@ -191,15 +187,6 @@ void ListView::addSoundFile(int id, const QString &name, const QString &path)
     model_->appendRow(items);
     QModelIndex idx = model_->index(model_->rowCount()-1, 0);
     model_->setData(idx, QVariant(id), Qt::UserRole);
-}
-
-void ListView::onEntered(const QModelIndex &idx)
-{
-    /*qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
-    qDebug() << "  > " << idx;
-    qDebug() << "  > " << indexWidget(idx);
-    if(idx.isValid())
-        setIndexWidget(idx, new QPushButton(idx.data().toString()));*/
 }
 
 void ListView::performDrag()

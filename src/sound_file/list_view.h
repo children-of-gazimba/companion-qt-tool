@@ -42,7 +42,6 @@ public slots:
 
 private slots:
     void addSoundFile(int id, QString const& name, QString const& path);
-    void onEntered(const QModelIndex&);
 
 protected:
     void performDrag();
