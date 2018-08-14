@@ -19,31 +19,10 @@ PlaybackView::PlaybackView(const QList<DB::SoundFileRecord *> &sound_files, QWid
     , skip_select_(false)
     , playable_index_()
     , play_icon_()
+    , context_menu_(0)
 {
-    model_ = new Misc::StandardItemModel(this);
-    model_->setColumnCount(2);
-    model_->setHorizontalHeaderItem(0, new QStandardItem("Path"));
-    model_->setHorizontalHeaderItem(1, new QStandardItem("Name"));
-
-    setMouseTracking(true);
-    connect(this, &PlaybackView::entered,
-            this, &PlaybackView::onEntered);
-
+    init();
     setSoundFiles(sound_files);
-
-    setModel(model_);
-    setAcceptDrops(true);
-    setEditable(false);
-    //setSelectionMode(QAbstractItemView::MultiSelection);
-    setSelectionMode(QAbstractItemView::ExtendedSelection);
-    setSelectionBehavior(QAbstractItemView::SelectRows);
-    horizontalHeader()->hide();
-    verticalHeader()->hide();
-    play_icon_ = QIcon(*Resources::Lib::PX_PLAY);
-    setColumnWidth(0, verticalHeader()->defaultSectionSize());
-    horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
-    horizontalHeader()->setStretchLastSection(true);
-    setShowGrid(false);
 }
 
 PlaybackView::PlaybackView(QWidget *parent)
@@ -53,29 +32,9 @@ PlaybackView::PlaybackView(QWidget *parent)
     , skip_select_(false)
     , playable_index_()
     , play_icon_()
+    , context_menu_(0)
 {
-    model_ = new Misc::StandardItemModel(this);
-    model_->setColumnCount(2);
-    model_->setHorizontalHeaderItem(0, new QStandardItem("Path"));
-    model_->setHorizontalHeaderItem(1, new QStandardItem("Name"));
-
-    setMouseTracking(true);
-    connect(this, &PlaybackView::entered,
-            this, &PlaybackView::onEntered);
-
-    setModel(model_);
-    setAcceptDrops(true);
-    setEditable(false);
-    //setSelectionMode(QAbstractItemView::MultiSelection);
-    setSelectionMode(QAbstractItemView::ExtendedSelection);
-    setSelectionBehavior(QAbstractItemView::SelectRows);
-    horizontalHeader()->hide();
-    verticalHeader()->hide();
-    play_icon_ = QIcon(*Resources::Lib::PX_PLAY);
-    setColumnWidth(0, verticalHeader()->defaultSectionSize());
-    horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
-    horizontalHeader()->setStretchLastSection(true);
-    setShowGrid(false);
+    init();
 }
 
 PlaybackView::~PlaybackView()
@@ -110,6 +69,8 @@ QItemSelectionModel::SelectionFlags PlaybackView::selectionCommand(const QModelI
 
 void PlaybackView::mousePressEvent(QMouseEvent *event)
 {
+    if(state() == QAbstractItemView::DragSelectingState)
+        setState(QAbstractItemView::NoState);
     QModelIndex idx = indexAt(event->pos());
     if(idx.row() == -1 && idx.column() == -1)
         selectionModel()->clear();
@@ -122,10 +83,19 @@ void PlaybackView::mouseMoveEvent(QMouseEvent *event)
 {
     if (event->buttons() & Qt::LeftButton) {
         int distance = (event->pos() - start_pos_).manhattanLength();
-        if (distance >= QApplication::startDragDistance())
+        if (distance >= QApplication::startDragDistance()) {
             performDrag();
+            return;
+        }
     }
     QTableView::mouseMoveEvent(event);
+}
+
+void PlaybackView::mouseReleaseEvent(QMouseEvent *event)
+{
+    if(state() == QAbstractItemView::DragSelectingState)
+        setState(QAbstractItemView::NoState);
+    QTableView::mouseReleaseEvent(event);
 }
 
 void PlaybackView::dragEnterEvent(QDragEnterEvent *event)
@@ -250,6 +220,23 @@ void PlaybackView::onEntered(const QModelIndex &idx)
     }
 }
 
+void PlaybackView::showCustomContextMenu(const QPoint &p)
+{
+    context_menu_->exec(mapToGlobal(p));
+}
+
+void PlaybackView::onDeleteAction()
+{
+    QModelIndexList selection = this->selectionModel()->selectedIndexes();
+    if(selection.size() == 0)
+        return;
+
+    int row = selection.first().row();
+    int id = model_->data(model_->index(row, 0), Qt::UserRole).toInt();
+    model_->removeRow(row);
+    emit deleteSoundFileRequested(id);
+}
+
 void PlaybackView::performDrag()
 {
     QList<DB::TableRecord*> records;
@@ -286,4 +273,50 @@ void PlaybackView::performDrag()
 
     // will block until drag done
     drag->exec(Qt::CopyAction);
+}
+
+void PlaybackView::initContextMenu()
+{
+    setContextMenuPolicy(Qt::CustomContextMenu);
+
+    context_menu_ = new QMenu(this);
+
+    connect(this, &PlaybackView::customContextMenuRequested,
+            this, &PlaybackView::showCustomContextMenu);
+
+    QList<QAction*> actions;
+    actions.append(new QAction(tr("Delete"), context_menu_));
+    connect(actions.back(), SIGNAL(triggered()),
+            this, SLOT(onDeleteAction()));
+
+    context_menu_->addActions(actions);
+}
+
+void PlaybackView::init()
+{
+    model_ = new Misc::StandardItemModel(this);
+    model_->setColumnCount(2);
+    model_->setHorizontalHeaderItem(0, new QStandardItem("Path"));
+    model_->setHorizontalHeaderItem(1, new QStandardItem("Name"));
+
+    play_icon_ = QIcon(*Resources::Lib::PX_PLAY);
+
+    setMouseTracking(true);
+    connect(this, &PlaybackView::entered,
+            this, &PlaybackView::onEntered);
+
+    setModel(model_);
+    setAcceptDrops(false);
+    setEditable(false);
+    setSelectionMode(QAbstractItemView::ExtendedSelection);
+    setSelectionBehavior(QAbstractItemView::SelectRows);
+    setColumnWidth(0, verticalHeader()->defaultSectionSize());
+    setShowGrid(false);
+
+    verticalHeader()->hide();
+    horizontalHeader()->hide();
+    horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+    horizontalHeader()->setStretchLastSection(true);
+
+    initContextMenu();
 }

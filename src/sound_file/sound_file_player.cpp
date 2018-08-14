@@ -17,6 +17,7 @@ SoundFilePlayer::SoundFilePlayer(QWidget *parent)
     , is_playing_(false)
     , play_icon_()
     , pause_icon_()
+    ,ignore_progress_change_(false)
 {
     initWidgets();
     initLayout();
@@ -77,6 +78,7 @@ void SoundFilePlayer::onPlayButtonClicked()
 void SoundFilePlayer::onPlaybackPositionChanged(qint64 v)
 {
     int p = qRound((v / (float) player_->duration()) * 100);
+    ignore_progress_change_ = true;
     progress_->setValue(p);
     current_time_->setText(timeString(v));
 }
@@ -84,6 +86,16 @@ void SoundFilePlayer::onPlaybackPositionChanged(qint64 v)
 void SoundFilePlayer::onPlaybackDurationChanged(qint64 v)
 {
     total_time_->setText(timeString(v));
+}
+
+void SoundFilePlayer::onProgressChanged(int v)
+{
+    if(ignore_progress_change_) {
+        ignore_progress_change_ = false;
+        return;
+    }
+    qint64 p = qRound((v * player_->duration()) / 100.0f);
+    player_->setPosition(p);
 }
 
 void SoundFilePlayer::resetPlayer()
@@ -117,9 +129,14 @@ void SoundFilePlayer::initWidgets()
     connect(play_button_, &QPushButton::clicked,
             this, &SoundFilePlayer::onPlayButtonClicked);
 
-    current_sound_ = new QLabel(tr("[select a track]"), this);
     progress_ = new QSlider(Qt::Horizontal, this);
     progress_->setMinimumSize(progress_->sizeHint());
+    connect(progress_, &QSlider::valueChanged,
+            this, &SoundFilePlayer::onProgressChanged);
+
+    current_sound_ = new QLabel(tr("[select a track]"), this);
+    current_sound_->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+
     current_time_ = new QLabel("0:00", this);
     current_time_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     total_time_ = new QLabel("0:00", this);
@@ -130,9 +147,7 @@ void SoundFilePlayer::initLayout()
 {
     QHBoxLayout* l = new QHBoxLayout;
     l->addWidget(play_button_, 0);
-    l->addStretch(1);
-    l->addWidget(current_sound_);
-    l->addStretch(1);
+    l->addWidget(current_sound_, 3, Qt::AlignHCenter | Qt::AlignVCenter);
     l->addWidget(current_time_, -1, Qt::AlignRight | Qt::AlignVCenter);
     l->addWidget(progress_, 3);
     l->addWidget(total_time_, -1, Qt::AlignLeft | Qt::AlignVCenter);

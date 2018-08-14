@@ -17,7 +17,7 @@
 
 #include "misc/drop_group_box.h"
 #include "resources/importer.h"
-#include "sound_file/master_playback_view.h"
+#include "sound_file/playback_view.h"
 #include "db/handler.h"
 #include "category/tree_view.h"
 #include "tile/graphics_view.h"
@@ -81,7 +81,7 @@ private:
     QMenu* main_menu_;
 
     // WIDGETS
-    MasterPlaybackView* sound_file_view_;
+    PlaybackView* sound_file_view_;
     SoundFilePlayer* global_player_;
     Category::TreeView* category_view_;
     Preset::PresetView* preset_view_;

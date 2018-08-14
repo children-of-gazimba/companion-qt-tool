@@ -29,6 +29,7 @@ protected slots:
     void onPlayButtonClicked();
     void onPlaybackPositionChanged(qint64 v);
     void onPlaybackDurationChanged(qint64 v);
+    void onProgressChanged(int v);
 
 protected:
     void resetPlayer();
@@ -48,6 +49,7 @@ protected:
     bool is_playing_;
     QIcon play_icon_;
     QIcon pause_icon_;
+    bool ignore_progress_change_;
 };
 
 #endif // SOUND_FILE_PLAYER_H

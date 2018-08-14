@@ -327,13 +327,13 @@ void CompanionWidget::setProjectPath(const QString &path)
 
 void CompanionWidget::initWidgets()
 {
-    sound_file_view_ = new MasterPlaybackView(
+    sound_file_view_ = new PlaybackView(
         db_handler_->getSoundFileTableModel()->getSoundFiles(),
         this
     );
 
     global_player_ = new SoundFilePlayer(this);
-    connect(sound_file_view_, &MasterPlaybackView::play,
+    connect(sound_file_view_, &PlaybackView::play,
             this, [=](const DB::SoundFileRecord& rec) {
         global_player_->setSoundFile(rec, true);
     });
@@ -375,6 +375,7 @@ void CompanionWidget::initWidgets()
     container_layout->addWidget(sound_file_view_, 10);
     container_layout->addWidget(global_player_, -1);
     container_layout->setContentsMargins(0,0,0,0);
+    container_layout->setSpacing(0);
     sound_container->setLayout(container_layout);
 
     left_v_splitter_ = new QSplitter(Qt::Vertical, left_tabwidget_);
