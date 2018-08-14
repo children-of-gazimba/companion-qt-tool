@@ -17,7 +17,7 @@
 
 #include "misc/drop_group_box.h"
 #include "resources/importer.h"
-#include "sound_file/master_view.h"
+#include "sound_file/master_playback_view.h"
 #include "db/handler.h"
 #include "category/tree_view.h"
 #include "tile/graphics_view.h"
@@ -26,6 +26,7 @@
 #include "spotify/spotify_control_panel.h"
 #include "new_web/socket_host_widget.h"
 #include "tuio/tuio_control_panel.h"
+#include "sound_file/sound_file_player.h"
 
 class CompanionWidget : public QWidget
 {
@@ -80,7 +81,8 @@ private:
     QMenu* main_menu_;
 
     // WIDGETS
-    SoundFile::MasterView* sound_file_view_;
+    MasterPlaybackView* sound_file_view_;
+    SoundFilePlayer* global_player_;
     Category::TreeView* category_view_;
     Preset::PresetView* preset_view_;
 

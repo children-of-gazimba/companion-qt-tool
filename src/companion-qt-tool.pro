@@ -101,7 +101,10 @@ SOURCES += main.cpp \
     tracking/activation_tracker.cpp \
     tracking/tracker_picker_dialog.cpp \
     tile/map_tile.cpp \
-    misc/volume_mapper.cpp
+    misc/volume_mapper.cpp \
+    sound_file/playback_view.cpp \
+    sound_file/master_playback_view.cpp \
+    sound_file/sound_file_player.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -183,7 +186,10 @@ HEADERS  += main_window.h \
     tracking/activation_tracker.h \
     tracking/tracker_picker_dialog.h \
     tile/map_tile.h \
-    misc/volume_mapper.h
+    misc/volume_mapper.h \
+    sound_file/playback_view.h \
+    sound_file/master_playback_view.h \
+    sound_file/sound_file_player.h
 
 RESOURCES += \
     _RES/resources.qrc

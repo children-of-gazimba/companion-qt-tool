@@ -21,6 +21,7 @@ CompanionWidget::CompanionWidget(QWidget *parent)
     , actions_()
     , main_menu_(0)
     , sound_file_view_(0)
+    , global_player_(0)
     , category_view_(0)
     , preset_view_(0)
     , graphics_view_(0)
@@ -326,10 +327,16 @@ void CompanionWidget::setProjectPath(const QString &path)
 
 void CompanionWidget::initWidgets()
 {
-    sound_file_view_ = new SoundFile::MasterView(
+    sound_file_view_ = new MasterPlaybackView(
         db_handler_->getSoundFileTableModel()->getSoundFiles(),
         this
     );
+
+    global_player_ = new SoundFilePlayer(this);
+    connect(sound_file_view_, &MasterPlaybackView::play,
+            this, [=](const DB::SoundFileRecord& rec) {
+        global_player_->setSoundFile(rec, true);
+    });
 
     progress_bar_ = new QProgressBar;
     progress_bar_->setMaximum(100);
@@ -363,9 +370,16 @@ void CompanionWidget::initWidgets()
 
     left_tabwidget_ = new QTabWidget(this);
 
+    QWidget* sound_container = new QWidget(this);
+    QVBoxLayout* container_layout = new QVBoxLayout;
+    container_layout->addWidget(sound_file_view_, 10);
+    container_layout->addWidget(global_player_, -1);
+    container_layout->setContentsMargins(0,0,0,0);
+    sound_container->setLayout(container_layout);
+
     left_v_splitter_ = new QSplitter(Qt::Vertical, left_tabwidget_);
     left_v_splitter_->addWidget(category_view_);
-    left_v_splitter_->addWidget(sound_file_view_);
+    left_v_splitter_->addWidget(sound_container);
     left_v_splitter_->setStretchFactor(0, 2);
     left_v_splitter_->setStretchFactor(1, 8);
 
