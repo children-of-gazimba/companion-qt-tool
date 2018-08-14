@@ -7,6 +7,7 @@
 #include <QPixmap>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QPushButton>
 
 #include "resources/lib.h"
 #include "misc/json_mime_data_parser.h"
@@ -18,11 +19,16 @@ ListView::ListView(QList<DB::SoundFileRecord*> const& sound_files, QWidget *pare
     , start_pos_()
     , model_(0)
     , skip_select_(false)
+    , playable_index_()
 {
     model_ = new Misc::StandardItemModel(this);
     model_->setColumnCount(2);
     model_->setHorizontalHeaderItem(0, new QStandardItem("Name"));
     model_->setHorizontalHeaderItem(1, new QStandardItem("Path"));
+
+    setMouseTracking(true);
+    connect(this, &ListView::entered,
+            this, &ListView::onEntered);
 
     setSoundFiles(sound_files);
 
@@ -36,6 +42,8 @@ ListView::ListView(QWidget *parent)
     : QListView(parent)
     , start_pos_()
     , model_(0)
+    , skip_select_(false)
+    , playable_index_()
 {
     model_ = new Misc::StandardItemModel(this);
     model_->setColumnCount(2);
@@ -183,6 +191,15 @@ void ListView::addSoundFile(int id, const QString &name, const QString &path)
     model_->appendRow(items);
     QModelIndex idx = model_->index(model_->rowCount()-1, 0);
     model_->setData(idx, QVariant(id), Qt::UserRole);
+}
+
+void ListView::onEntered(const QModelIndex &idx)
+{
+    /*qDebug().nospace() << Q_FUNC_INFO << " @ line " << __LINE__;
+    qDebug() << "  > " << idx;
+    qDebug() << "  > " << indexWidget(idx);
+    if(idx.isValid())
+        setIndexWidget(idx, new QPushButton(idx.data().toString()));*/
 }
 
 void ListView::performDrag()

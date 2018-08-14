@@ -39,7 +39,6 @@ SOURCES += main.cpp \
     misc/standard_item_model.cpp \
     misc/char_input_dialog.cpp \
     sound_file/list_view.cpp \
-    sound_file/master_view.cpp \
     sound_file/list_view_dialog.cpp \
     tile/graphics_view.cpp \
     playlist/settings_widget.cpp \
@@ -101,7 +100,9 @@ SOURCES += main.cpp \
     tracking/activation_tracker.cpp \
     tracking/tracker_picker_dialog.cpp \
     tile/map_tile.cpp \
-    misc/volume_mapper.cpp
+    misc/volume_mapper.cpp \
+    sound_file/playback_view.cpp \
+    sound_file/sound_file_player.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -120,7 +121,6 @@ HEADERS  += main_window.h \
     misc/json_mime_data_parser.h \
     misc/standard_item_model.h \
     sound_file/list_view.h \
-    sound_file/master_view.h \
     sound_file/list_view_dialog.h \
     tile/graphics_view.h \
     playlist/settings.h \
@@ -183,7 +183,9 @@ HEADERS  += main_window.h \
     tracking/activation_tracker.h \
     tracking/tracker_picker_dialog.h \
     tile/map_tile.h \
-    misc/volume_mapper.h
+    misc/volume_mapper.h \
+    sound_file/playback_view.h \
+    sound_file/sound_file_player.h
 
 RESOURCES += \
     _RES/resources.qrc
