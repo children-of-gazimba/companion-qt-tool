@@ -41,6 +41,13 @@ public:
     */
     QList<SoundFileRecord*> const getSoundFileRecordsByCategoryId(int category_id = -1);
 
+    /*
+     * Gets a list of SoundFileRecords,
+     * associated with Tag referenced by given id.
+    */
+    QList<SoundFileRecord*> const getSoundFileRecordsByTagId(int tag_id = -1);
+
+
 signals:
     void progressChanged(int);
 

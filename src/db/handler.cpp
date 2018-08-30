@@ -102,6 +102,19 @@ const QList<SoundFileRecord *> Handler::getSoundFileRecordsByCategoryId(int cate
     return records;
 }
 
+const QList<SoundFileRecord *> Handler::getSoundFileRecordsByTagId(int tag_id)
+{
+    if(tag_id == -1)
+        return getSoundFileTableModel()->getSoundFiles();
+
+    QList<SoundFileRecord*> records;
+
+    foreach(int s_id, api_->getRelatedIds(SOUND_FILE, TAG, tag_id))
+        records.append(getSoundFileTableModel()->getSoundFileById(s_id));
+
+    return records;
+}
+
 void Handler::deleteAll()
 {
     api_->deleteAll();

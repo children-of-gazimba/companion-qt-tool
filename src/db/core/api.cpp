@@ -79,6 +79,16 @@ void Api::insertSoundFileCategory(int sound_file_id, int category_id)
     insertQuery(SOUND_FILE_CATEGORY, value_block);
 }
 
+void Api::insertSoundFileTag(int sound_file_id, int tag_id)
+{
+    QString value_block  = "";
+    value_block = "(sound_file_id, tag_id) VALUES (";
+    value_block += QString::number(sound_file_id) + ",";
+    value_block += QString::number(tag_id) + ")";
+
+    insertQuery(SOUND_FILE_TAG, value_block);
+}
+
 void Api::insertResourceDir(const QFileInfo &info)
 {
     QString value_block  = "";

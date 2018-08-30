@@ -32,6 +32,7 @@ public:
     void insertSoundFile(QFileInfo const& info, ResourceDirRecord const& resource_dir);
     void insertCategory(QString const& name, int parent_id = -1);
     void insertSoundFileCategory(int sound_file_id, int category_id);
+    void insertSoundFileTag(int sound_file_id, int tag_id);
     void insertResourceDir(QFileInfo const& info);
     void insertImageDir(QFileInfo const& info);
     void insertPreset(QString const& name, QString const& json);
