@@ -15,6 +15,7 @@ Handler::Handler(DB::Core::Api* api, QObject *parent)
     , resource_dir_table_model_(0)
     , image_dir_table_model_(0)
     , preset_table_model_(0)
+    , tag_table_model_(nullptr)
 {
     if(api_ != 0) {
         getCategoryTreeModel();
@@ -79,7 +80,7 @@ Model::PresetTableModel *Handler::getPresetTableModel()
 
 Model::TagTableModel *Handler::getTagTableModel()
 {
-    if(tag_table_model_ == 0) {
+    if(tag_table_model_ == nullptr) {
         tag_table_model_ = new Model::TagTableModel(api_, this);
         tag_table_model_->select();
     }
