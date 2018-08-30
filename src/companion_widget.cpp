@@ -23,6 +23,7 @@ CompanionWidget::CompanionWidget(QWidget *parent)
     , sound_file_view_(0)
     , global_player_(0)
     , category_view_(0)
+    , tag_view_(0)
     , preset_view_(0)
     , graphics_view_(0)
     , sound_file_importer_(0)
@@ -356,6 +357,9 @@ void CompanionWidget::initWidgets()
     category_view_ = new Category::TreeView(this);
     category_view_->setCategoryTreeModel(db_handler_->getCategoryTreeModel());
 
+    tag_view_ = new TagView(this);
+    tag_view_->setTagModel(db_handler_->getTagTableModel());
+
     preset_view_ = new Preset::PresetView(this);
     preset_view_->setPresetTableModel(db_handler_->getPresetTableModel());
 
@@ -378,10 +382,17 @@ void CompanionWidget::initWidgets()
     container_layout->setSpacing(0);
     sound_container->setLayout(container_layout);
 
+    QWidget* filter_widget = new QWidget(this);
+    QVBoxLayout* filter_layout = new QVBoxLayout;
+    filter_layout->addWidget(category_view_);
+    filter_layout->addWidget(tag_view_);
+    filter_layout->setContentsMargins(0,0,0,0);
+    filter_widget->setLayout(filter_layout);
+
     left_v_splitter_ = new QSplitter(Qt::Vertical, left_tabwidget_);
-    left_v_splitter_->addWidget(category_view_);
+    left_v_splitter_->addWidget(filter_widget);
     left_v_splitter_->addWidget(sound_container);
-    left_v_splitter_->setStretchFactor(0, 2);
+    left_v_splitter_->setStretchFactor(0, 4);
     left_v_splitter_->setStretchFactor(1, 8);
 
     image_browser_ = new Image::Browser(left_tabwidget_);

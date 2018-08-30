@@ -37,6 +37,11 @@ QSqlRelationalTableModel *Api::getPresetTable()
     return getTable(PRESET);
 }
 
+QSqlRelationalTableModel *Api::getTagTable()
+{
+    return getTable(TAG);
+}
+
 void Api::insertSoundFile(const QFileInfo &info, ResourceDirRecord const& resource_dir)
 {
     QString rel_path = info.filePath();
@@ -103,6 +108,15 @@ void Api::insertPreset(const QString &name, const QString &json)
     insertQuery(PRESET, value_block);
 }
 
+void Api::insertTag(const QString &name)
+{
+    QString value_block  = "";
+    value_block = "(name) VALUES (";
+    value_block += "'" + SqliteWrapper::escape(name) + "')";
+
+    insertQuery(TAG, value_block);
+}
+
 int Api::getSoundFileId(const QString &path)
 {
     QString SELECT = "id";
@@ -138,6 +152,16 @@ int Api::getPresetId(const QString &name)
     QString SELECT = "id";
     QString WHERE = "name = '" + SqliteWrapper::escape(name) + "'";
     QList<QSqlRecord> res = selectQuery(SELECT, PRESET, WHERE);
+    if(res.size() > 0)
+        return res[0].value(0).toInt();
+    return -1;
+}
+
+int Api::getTagId(const QString &name)
+{
+    QString SELECT = "id";
+    QString WHERE = "name = '" + SqliteWrapper::escape(name) + "'";
+    QList<QSqlRecord> res = selectQuery(SELECT, TAG, WHERE);
     if(res.size() > 0)
         return res[0].value(0).toInt();
     return -1;
@@ -195,6 +219,9 @@ void Api::deleteAll()
 
     // delete presets
     deleteQuery(PRESET, "id > 0");
+
+    // delete tags
+    deleteQuery(TAG, "id > 0");
 
     // delete image_dirs
     deleteQuery(IMAGE_DIRECTORY, "id > 0");

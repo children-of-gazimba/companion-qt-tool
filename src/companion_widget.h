@@ -27,6 +27,7 @@
 #include "new_web/socket_host_widget.h"
 #include "tuio/tuio_control_panel.h"
 #include "sound_file/sound_file_player.h"
+#include "tag/tag_view.h"
 
 class CompanionWidget : public QWidget
 {
@@ -84,6 +85,7 @@ private:
     PlaybackView* sound_file_view_;
     SoundFilePlayer* global_player_;
     Category::TreeView* category_view_;
+    TagView* tag_view_;
     Preset::PresetView* preset_view_;
 
     Tile::GraphicsView* graphics_view_;

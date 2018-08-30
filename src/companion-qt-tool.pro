@@ -102,7 +102,9 @@ SOURCES += main.cpp \
     tile/map_tile.cpp \
     misc/volume_mapper.cpp \
     sound_file/playback_view.cpp \
-    sound_file/sound_file_player.cpp
+    sound_file/sound_file_player.cpp \
+    db/model/tag_table_model.cpp \
+    tag/tag_view.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -185,7 +187,9 @@ HEADERS  += main_window.h \
     tile/map_tile.h \
     misc/volume_mapper.h \
     sound_file/playback_view.h \
-    sound_file/sound_file_player.h
+    sound_file/sound_file_player.h \
+    db/model/tag_table_model.h \
+    tag/tag_view.h
 
 RESOURCES += \
     _RES/resources.qrc

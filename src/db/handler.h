@@ -12,6 +12,7 @@
 #include "model/resource_dir_table_model.h"
 #include "model/image_dir_table_model.h"
 #include "model/preset_table_model.h"
+#include "model/tag_table_model.h"
 
 namespace DB {
 
@@ -32,6 +33,7 @@ public:
     Model::ResourceDirTableModel* getResourceDirTableModel();
     Model::ImageDirTableModel* getImageDirTableModel();
     Model::PresetTableModel* getPresetTableModel();
+    Model::TagTableModel* getTagTableModel();
 
     /*
      * Gets a list of SoundFileRecords,
@@ -80,6 +82,7 @@ private:
     Model::ResourceDirTableModel* resource_dir_table_model_;
     Model::ImageDirTableModel* image_dir_table_model_;
     Model::PresetTableModel* preset_table_model_;
+    Model::TagTableModel* tag_table_model_;
 };
 
 } // namespace DB

@@ -77,6 +77,16 @@ Model::PresetTableModel *Handler::getPresetTableModel()
     return preset_table_model_;
 }
 
+Model::TagTableModel *Handler::getTagTableModel()
+{
+    if(tag_table_model_ == 0) {
+        tag_table_model_ = new Model::TagTableModel(api_, this);
+        tag_table_model_->select();
+    }
+
+    return tag_table_model_;
+}
+
 const QList<SoundFileRecord *> Handler::getSoundFileRecordsByCategoryId(int category_id)
 {
     QList<SoundFileRecord*> records;
@@ -99,6 +109,7 @@ void Handler::deleteAll()
     getSoundFileTableModel()->update();
     getResourceDirTableModel()->update();
     getPresetTableModel()->update();
+    getTagTableModel()->update();
     getImageDirTableModel()->update();
 }
 

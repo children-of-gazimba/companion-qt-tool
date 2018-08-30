@@ -1,25 +1,19 @@
-#ifndef DB_MODEL_SOUND_FILE_TABLE_MODEL_H
-#define DB_MODEL_SOUND_FILE_TABLE_MODEL_H
+#ifndef DB_MODEL_TAG_TABLE_MODEL_H
+#define DB_MODEL_TAG_TABLE_MODEL_H
 
 #include <QAbstractTableModel>
-#include <QTableView>
 #include "db/core/api.h"
 #include "db/table_records.h"
 
 namespace DB {
 namespace Model {
 
-/*
- * Class derived from QAbstractTableModel.
- * Builds a tablemodel based on the sound_file db table of this application.
- * Provides convenience functions for accessing & managing SoundFileRecords maintained by it.
-*/
-class SoundFileTableModel : public QAbstractTableModel
+class TagTableModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    SoundFileTableModel(Core::Api* api, QObject* parent = 0);
-    ~SoundFileTableModel();
+    explicit TagTableModel(Core::Api* api, QObject *parent = 0);
+    ~TagTableModel();
 
     //// inheritted functions (from pure virtual BC) - see docs for description
 
@@ -60,77 +54,69 @@ public:
     void select();
 
     /*
-     * Gets the row of SoundFileRecord.
+     * Gets the row of TagRecord.
      * Returns -1 if none found
     */
-    int getRowBySoundFile(DB::SoundFileRecord* rec);
+    int getRowByTag(DB::TagRecord* rec);
 
     /*
-     * Gets SoundFileRecord based on path.
+     * Gets TagRecord based on ID.
      * Returns 0 if none found.
     */
-    SoundFileRecord* getSoundFileByPath(QString const& path);
+    TagRecord* getTagById(int id);
 
     /*
-     * Gets SoundFileRecord based on ID.
+     * Gets TagRecord based on name.
      * Returns 0 if none found.
     */
-    SoundFileRecord* getSoundFileById(int id);
+    TagRecord* getTagByName(QString const& name);
 
     /*
-     * Gets SoundFileRecord based on row.
+    * Gets TagRecord based on row.
+    * Returns 0 if none found.
+    */
+    TagRecord* getTagByRow(int row);
+
+    /*
+     * Gets last TagRecord in the model.
      * Returns 0 if none found.
     */
-    SoundFileRecord* getSoundFileByRow(int row);
+    TagRecord* getLastTagRecord();
 
     /*
-     * gets all SoundFileRecords with relative path
-     * equal to rel_path.
+    * Adds a TagRecord to this model
     */
-    QList<SoundFileRecord*> const getSoundFilesByRelativePath(QString const& rel_path);
+    void addTagRecord(const QString& name);
 
     /*
-     * Gets last SoundFileRecord in the model.
-     * Returns 0 if none found.
+    * Returns all TagRecords held by this model
     */
-    SoundFileRecord* getLastSoundFileRecord();
+    QList<DB::TagRecord*> const& getTags() const;
 
-    /*
-    * Adds a SoundFileRecord to this model
-    */
-    void addSoundFileRecord(
-        const QFileInfo& info,
-        const ResourceDirRecord& resource_dir
-    );
 
-    /*
-    * Returns all SoundFileRecords held by this model
-    */
-    QList<DB::SoundFileRecord*> const& getSoundFiles() const;
+signals:   
+   /* triggered and processed before TagRecord gets deleted */
+   void aboutToBeDeleted(DB::TagRecord*);
+
+   /* triggered and processed before TagRecords get deleted */
+   void aboutToBeDeleted(const QList<DB::TagRecord*>&);
 
 public slots:
-    void deleteSoundFile(int id);
-
-signals:
-    /* triggered and processed before SoundFileRecord gets deleted */
-    void aboutToBeDeleted(DB::SoundFileRecord*);
-
-    /* triggered and processed before SoundFileRecords get deleted */
-    void aboutToBeDeleted(const QList<DB::SoundFileRecord*>&);
+    void deleteTag(int id);
 
 private:
     /* validates existance of given QModelIndex for this model **/
     bool indexIsValid(const QModelIndex&) const;
 
-    /* Clears all SoundFileRecords from records **/
+    /* Clears all TagRecords from records **/
     void clear();
 
     Core::Api* api_;
     QSqlRelationalTableModel* source_model_;
-    QList<SoundFileRecord*> records_;
+    QList<TagRecord*> records_;
 };
 
-} // namespace Model
+} // namepace Model
 } // namespace DB
 
-#endif // DB_MODEL_SOUND_FILE_TABLE_MODEL_H
+#endif // DB_MODEL_TAG_TABLE_MODEL_H

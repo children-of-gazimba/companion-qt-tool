@@ -15,6 +15,7 @@ enum TableIndex {
     SOUND_FILE_CATEGORY,
     RESOURCE_DIRECTORY,
     TAG,
+    SOUND_FILE_TAG,
     IMAGE_FILE_TAG,
     IMAGE_DIRECTORY,
     PRESET
@@ -230,7 +231,7 @@ struct ImageDirRecord : TableRecord {
     }
 };
 
-/* Row in ImageTag table */
+/* Row in Tag table */
 struct TagRecord : TableRecord {
     TagRecord(int i, QString const& n)
         : TableRecord(TAG, i, n)
