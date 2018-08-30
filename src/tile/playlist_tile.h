@@ -46,11 +46,6 @@ public:
     */
     virtual bool setFromJsonObject(const QJsonObject& obj);
 
-    /**
-     * @brief see BC
-     */
-    QString const getClassName() const;
-
 public slots:
     virtual void setMedia(const QMediaContent& c);
     virtual void play();
@@ -73,7 +68,7 @@ protected slots:
     virtual void onConfigurePlaylist();
     /* */
     void closePlaylistSettings();
-    void savePlaylistSettings(Playlist::Settings* settings);
+    void savePlaylistSettings(const Playlist::Settings& settings);
 
     /** slot to open contents view */
     virtual void onContents();
@@ -94,7 +89,11 @@ protected:
     */
     virtual const QPixmap getPlayStatePixmap() const;
 
+    void volumeChangedEvent();
+
     void setIsPlaying(bool);
+
+    const QRectF getVolumeRect() const;
 
     CustomMediaPlayer* player_;
 
@@ -103,6 +102,8 @@ protected:
     DB::Model::SoundFileTableModel* model_;
 
     bool is_playing_;
+    bool draw_filled_volume_indicator_;
+    QTimer filled_volume_timer_;
 };
 
 } // namespace Tile

@@ -29,6 +29,10 @@ void Lib::init()
 #else
     DARK_STYLE = loadFileToString(":/styles/dark_style.css");
 #endif
+    if(!TRACKER_MODEL)
+        TRACKER_MODEL = new TrackerTableModel;
+    if(PX_COMPANION == 0)
+        PX_COMPANION = new QPixmap(IMG_COMPANION);
     if(PX_CRACKED_STONE == 0)
         PX_CRACKED_STONE = new QPixmap(IMG_CRACKED_STONE_PATH);
     if(PX_CRACKED_STONE_INV == 0)
@@ -45,6 +49,10 @@ void Lib::init()
         PX_FOLDER = new QPixmap(IMG_FOLDER_PATH);
     if(PX_SPUNGIFY == 0)
         PX_SPUNGIFY = new QPixmap(IMG_SPUNGIFY_PATH);
+    if(PX_VISIBLE == 0)
+        PX_VISIBLE = new QPixmap(IMG_VISIBLE_PATH);
+    if(PX_INVISIBLE == 0)
+        PX_INVISIBLE = new QPixmap(IMG_INVISIBLE_PATH);
     if(PX_0_KEY == 0)
         PX_0_KEY = new QPixmap(IMG_KEY_0_PATH);
     if(PX_1_KEY == 0)
@@ -121,6 +129,10 @@ void Lib::init()
 
 void Lib::cleanup()
 {
+    if(TRACKER_MODEL)
+        TRACKER_MODEL->deleteLater();
+    if(PX_COMPANION != 0)
+        delete PX_COMPANION;
     if(PX_CRACKED_STONE != 0)
         delete PX_CRACKED_STONE;
     if(PX_CRACKED_STONE_INV != 0)
@@ -137,6 +149,10 @@ void Lib::cleanup()
         delete PX_FOLDER;
     if(PX_SPUNGIFY != 0)
         delete PX_SPUNGIFY;
+    if(PX_VISIBLE != 0)
+        delete PX_VISIBLE;
+    if(PX_INVISIBLE != 0)
+        delete PX_INVISIBLE;
     if(PX_0_KEY != 0)
         delete PX_0_KEY;
     if(PX_1_KEY != 0)
@@ -210,6 +226,8 @@ void Lib::cleanup()
     if(PX_Z_KEY != 0)
         delete PX_Z_KEY;
 
+    TRACKER_MODEL = nullptr;
+    PX_COMPANION = 0;
     PX_CRACKED_STONE = 0;
     PX_CRACKED_STONE_INV = 0;
     PX_PLAY = 0;
@@ -218,6 +236,8 @@ void Lib::cleanup()
     PX_SOUND_FILE_DRAG = 0;
     PX_FOLDER = 0;
     PX_SPUNGIFY = 0;
+    PX_VISIBLE = 0;
+    PX_INVISIBLE = 0;
     PX_0_KEY = 0;
     PX_1_KEY = 0;
     PX_2_KEY = 0;
@@ -351,6 +371,11 @@ QPixmap *Lib::getKeyPixmap(const QChar &k)
     }
 }
 
+/**
+ * Global models
+*/
+TrackerTableModel* Lib::TRACKER_MODEL = nullptr;
+
 /*
 * DATABASE
 */
@@ -362,6 +387,7 @@ QString Lib::DEFAULT_PROJECT_PATH = "../../companion-shared-files";
 /*
 * ICONS
 */
+QString Lib::IMG_COMPANION = ":/images/companion-icon.png";
 QString Lib::IMG_SOUND_FILE_DRAG_PATH = ":/images/dick.png";
 QString Lib::IMG_PLAY_PATH = ":/images/icon_play.png";
 QString Lib::IMG_PAUSE_PATH = ":/images/icon_pause.png";
@@ -370,6 +396,8 @@ QString Lib::IMG_CRACKED_STONE_PATH = ":/images/cracked_stone.jpg";
 QString Lib::IMG_CRACKED_STONE_INV_PATH = ":/images/cracked_stone_inv.jpg";
 QString Lib::IMG_FOLDER_PATH = ":/images/folder.png";
 QString Lib::IMG_SPUNGIFY_PATH = ":/images/spungify.png";
+QString Lib::IMG_VISIBLE_PATH = ":/images/visible.png";
+QString Lib::IMG_INVISIBLE_PATH = ":/images/invisible.png";
 
 // keys
 QString Lib::IMG_KEY_0_PATH = ":/keys/0_key.png";
@@ -409,6 +437,7 @@ QString Lib::IMG_KEY_X_PATH = ":/keys/X_key.png";
 QString Lib::IMG_KEY_Y_PATH = ":/keys/Y_key.png";
 QString Lib::IMG_KEY_Z_PATH = ":/keys/Z_key.png";
 
+QPixmap* Lib::PX_COMPANION = 0;
 QPixmap* Lib::PX_CRACKED_STONE = 0;
 QPixmap* Lib::PX_CRACKED_STONE_INV = 0;
 QPixmap* Lib::PX_PLAY = 0;
@@ -417,6 +446,8 @@ QPixmap* Lib::PX_STOP = 0;
 QPixmap* Lib::PX_SOUND_FILE_DRAG = 0;
 QPixmap* Lib::PX_FOLDER = 0;
 QPixmap* Lib::PX_SPUNGIFY = 0;
+QPixmap* Lib::PX_VISIBLE = 0;
+QPixmap* Lib::PX_INVISIBLE = 0;
 QPixmap* Lib::PX_0_KEY = 0;
 QPixmap* Lib::PX_1_KEY = 0;
 QPixmap* Lib::PX_2_KEY = 0;

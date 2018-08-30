@@ -9,6 +9,9 @@
 #include <QStandardItemModel>
 #include <QWidget>
 
+#include "image_display_widget.h"
+#include "view.h"
+
 namespace Image {
 
 class List : public QWidget
@@ -16,8 +19,12 @@ class List : public QWidget
     Q_OBJECT
 public:
     explicit List(QWidget *parent = 0);
+    virtual ~List();
 
     void openDirectory(const QString&);
+    View *getView() const;
+    ImageDisplayWidget* getDisplayWidget() const;
+
 
 signals:
     void newDirectory(const QString&);
@@ -40,7 +47,7 @@ private:
 
     QStandardItemModel* model_;
     QListView* file_view_;
-    View* image_view_;
+    ImageDisplayWidget* presentation_view_;
     QPushButton* open_button_;
     QLineEdit* line_edit_;
 };

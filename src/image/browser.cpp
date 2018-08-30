@@ -19,6 +19,10 @@ Browser::Browser(QWidget *parent)
     initLayout();
 }
 
+Browser::~Browser()
+{
+}
+
 void Browser::setImageDirTableModel(DB::Model::ImageDirTableModel* model)
 {
     model_ = model;
@@ -28,6 +32,16 @@ void Browser::setImageDirTableModel(DB::Model::ImageDirTableModel* model)
 DB::Model::ImageDirTableModel *Browser::getImageDirTableModel()
 {
     return model_;
+}
+
+View *Browser::getView() const
+{
+    return list_view_->getView();
+}
+
+ImageDisplayWidget *Browser::getDisplayWidget() const
+{
+    return list_view_->getDisplayWidget();
 }
 
 void Browser::onNewDirectory(const QString & name)

@@ -14,6 +14,8 @@
 
 #include "resources/lib.h"
 #include "misc/char_input_dialog.h"
+#include "tracking/activation_tracker.h"
+#include "tracking/tracker_picker_dialog.h"
 
 #define OFFSET 10
 #define TEXT_HEIGHT 25
@@ -107,6 +109,46 @@ void BaseTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
     painter->setFont(old_font);
 }
 
+const QList<int> BaseTile::supportedTargetProperties() const
+{
+    QList<int> p;
+    p.append(ActivationTracker::ACTIVE_STATE);
+    return p;
+}
+
+bool BaseTile::updateGrabFromTracker(Tracker *tracker, int target_prop)
+{
+    Q_UNUSED(tracker);
+    Q_UNUSED(target_prop);
+    return false;
+}
+
+bool BaseTile::updateLinkFromTracker(Tracker *tracker, int target_prop)
+{
+    if(!Trackable::updateLinkFromTracker(tracker, target_prop))
+        return false;
+    auto act_t = dynamic_cast<ActivationTracker*>(tracker);
+    if(!act_t)
+        return false;
+    setActivated(act_t->getActiveState());
+    return true;
+}
+
+void BaseTile::setTrackableName(const QString &name)
+{
+    bool connect_tracker_notify = trackable_name_.size() == 0 && name.size() > 0;
+    bool disconnect_tracker_notify = trackable_name_.size() > 0 && name.size() == 0;
+    trackable_name_ = name;
+    if(connect_tracker_notify) {
+        connect(Resources::Lib::TRACKER_MODEL, &TrackerTableModel::trackerAdded,
+                this, &BaseTile::onTrackerAdded);
+    }
+    else if(disconnect_tracker_notify) {
+        disconnect(Resources::Lib::TRACKER_MODEL, &TrackerTableModel::trackerAdded,
+                this, &BaseTile::onTrackerAdded);
+    }
+}
+
 void BaseTile::setActivateKey(const QChar &c)
 {
     activate_key_ = c;
@@ -198,6 +240,8 @@ const QJsonObject BaseTile::toJsonObject() const
     obj["position"] = arr_pos;
     if(hasActivateKey())
         obj["activate_key"] = QString(activate_key_);
+    if(getTrackableName().size() > 0)
+        obj["trackable_name"] = getTrackableName();
     obj["uuid"] = uuid_.toString();
 
     return obj;
@@ -214,7 +258,6 @@ bool BaseTile::setFromJsonObject(const QJsonObject &obj)
         return false;
 
     QJsonArray arr_pos = obj["position"].toArray();
-
     if(obj["position"].toArray().size() != 2)
         return false;
 
@@ -231,9 +274,12 @@ bool BaseTile::setFromJsonObject(const QJsonObject &obj)
     }
 
     // set uuid
-    if(obj.contains("uuid") && obj["uuid"].isString()) {
+    if(obj.contains("uuid") && obj["uuid"].isString())
         uuid_ = QUuid(obj["uuid"].toString());
-    }
+
+    // set trackable name
+    if(obj.contains("trackable_name") && obj["trackable_name"].isString())
+        setTrackableName(obj["trackable_name"].toString());
 
     return true;
 }
@@ -275,9 +321,11 @@ bool BaseTile::isActivated() const
     return is_activated_;
 }
 
-const QString BaseTile::getClassName() const
+void BaseTile::setActivated(bool state)
 {
-    return QString("Tile");
+    if(state == is_activated_)
+        return;
+    onActivate();
 }
 
 void BaseTile::setPresetModel(DB::Model::PresetTableModel *model)
@@ -406,6 +454,14 @@ void BaseTile::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 void BaseTile::dropEvent(QGraphicsSceneDragDropEvent *event)
 {
     QGraphicsItem::dropEvent(event);
+}
+
+void BaseTile::trackableSourceAddedEvent(Tracker *t)
+{
+    auto act_t = dynamic_cast<ActivationTracker*>(t);
+    if(!act_t)
+        return;
+    act_t->link(this);
 }
 
 void BaseTile::contextMenuEvent(QGraphicsSceneContextMenuEvent *e)
@@ -651,6 +707,58 @@ void BaseTile::onSetKey()
     }
 }
 
+void BaseTile::onSetActivationTracker()
+{
+    TrackerPickerDialog d(ActivationTracker::ACTIVE_STATE);
+    Tracker* current_tracker = 0;
+    if(hasLink(ActivationTracker::ACTIVE_STATE)) {
+        current_tracker = links_[ActivationTracker::ACTIVE_STATE];
+        d.setTracker(current_tracker);
+        setTrackableName(current_tracker->getName());
+    }
+
+    int ret = d.exec();
+    if(ret != QDialog::Accepted)
+        return;
+
+    Tracker* t = d.getTracker();
+    if(!t || t == current_tracker)
+        return;
+
+    auto act_t = dynamic_cast<ActivationTracker*>(t);
+    if(!act_t)
+        return;
+
+    if(current_tracker) {
+        QMessageBox b;
+        b.setText(tr("You are about to override the current activation tracker '")+current_tracker->getName()+tr("'."));
+        b.setInformativeText(tr("Do you wish to proceed?"));
+        b.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        b.setDefaultButton(QMessageBox::No);
+        if(b.exec() != QMessageBox::Yes)
+            return;
+    }
+
+    setTrackableName(act_t->getName());
+    act_t->link(this);
+}
+
+void BaseTile::onTrackerAdded(const QString &name)
+{
+    if(name.compare(trackable_name_) != 0)
+        return;
+
+    Tracker* current_tracker = 0;
+    if(hasLink(ActivationTracker::ACTIVE_STATE))
+        current_tracker = links_[ActivationTracker::ACTIVE_STATE];
+
+    Tracker* t = Resources::Lib::TRACKER_MODEL->getTracker(getTrackableName());
+    if(!t || t == current_tracker)
+        return;
+
+    trackableSourceAddedEvent(t);
+}
+
 qreal BaseTile::distance(const QPointF &p, const QLineF &l)
 {
     // transform to loocal coordinates system (0,0) - (lx, ly)
@@ -733,25 +841,28 @@ void BaseTile::createContextMenu()
 
     // create delete action
     QAction* delete_action = new QAction(tr("Delete"), this);
-
     connect(delete_action, SIGNAL(triggered()),
             this, SLOT(onDelete()));
 
     // change activate button
     QAction* activate_button_action = new QAction(tr("Set Key..."), this);
-
     connect(activate_button_action, SIGNAL(triggered()),
             this, SLOT(onSetKey()));
 
     // create delete action
     QAction* save_as_preset_action = new QAction(tr("Save As Preset"), this);
-
     connect(save_as_preset_action, SIGNAL(triggered()),
             this, SLOT(onSaveAsPreset()));
+
+    // create activation trigger
+    QAction* activate_tracker_action = new QAction(tr("Set Activate Tracker..."), this);
+    connect(activate_tracker_action, &QAction::triggered,
+            this, &BaseTile::onSetActivationTracker);
 
     // create context menu
     //context_menu_->addAction(activate_action_);
     context_menu_->addAction(activate_button_action);
+    context_menu_->addAction(activate_tracker_action);
     context_menu_->addMenu(size_menu);
     context_menu_->addSeparator();
     context_menu_->addAction(save_as_preset_action);

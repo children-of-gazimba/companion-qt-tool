@@ -29,17 +29,8 @@ public:
     */
     bool setFromJsonObject(const QJsonObject& obj);
 
-    /**
-     * @brief see BC
-     */
-    QString const getClassName() const;
-
-    /**
-     * @brief see BC
-     */
-    const QPixmap getOverlayPixmap() const;
-
     void clearTiles();
+
 
 public slots:
     /* See BC */

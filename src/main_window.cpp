@@ -6,6 +6,7 @@
 #include <QKeySequence>
 
 #include "resources/lib.h"
+#include <qtuiocursor_p.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)

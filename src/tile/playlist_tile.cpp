@@ -7,6 +7,7 @@
 #include <QJsonArray>
 
 #include "sound_file/list_view_dialog.h"
+#include "misc/volume_mapper.h"
 
 namespace Tile {
 
@@ -17,13 +18,22 @@ PlaylistTile::PlaylistTile(QGraphicsItem *parent)
     , playlist_(0)
     , model_(0)
     , is_playing_(false)
+    , draw_filled_volume_indicator_(false)
+    , filled_volume_timer_()
 {
     player_ = new CustomMediaPlayer(this);
     //connect(player_, SIGNAL(stateChanged(QMediaPlayer::State)),
     //        this, SLOT(changePlayerState(QMediaPlayer::State)));
 
     connect(player_, SIGNAL(toggledPlayerActivation(bool)),
-            this, SLOT(changedCustomPlayerActivation(bool)) );
+            this, SLOT(changedCustomPlayerActivation(bool)));
+
+    filled_volume_timer_.setSingleShot(true);
+    connect(&filled_volume_timer_, &QTimer::timeout,
+            this, [=]() {
+        prepareGeometryChange();
+        draw_filled_volume_indicator_ = false;
+    });
 
     playlist_ = new Playlist::MediaPlaylist("Playlist");
     player_->setPlaylist(playlist_);
@@ -32,8 +42,9 @@ PlaylistTile::PlaylistTile(QGraphicsItem *parent)
 
 PlaylistTile::~PlaylistTile()
 {
-    delete playlist_;
-    playlist_ = 0;
+    playlist_->deleteLater();
+    if(playlist_settings_widget_)
+        playlist_settings_widget_->deleteLater();
 }
 
 
@@ -43,6 +54,18 @@ void PlaylistTile::paint(QPainter *painter, const QStyleOptionGraphicsItem* opti
 
     QRectF p_rect(getPaintRect());
     if(p_rect.width() > 0 && p_rect.height() > 0) {
+        // draw current volume
+        QRectF volume_rect(getVolumeRect());
+        QLineF volume_line(volume_rect.topLeft(), volume_rect.topRight());
+        qreal op = painter->opacity();
+        painter->setOpacity(0.5);
+        painter->setPen(QPen(QBrush(Qt::green), 5));
+        painter->drawLine(volume_line);
+        if(draw_filled_volume_indicator_)
+            painter->fillRect(volume_rect, Qt::green);
+        painter->setOpacity(op);
+
+        // draw play state
         painter->drawPixmap(
             (int) p_rect.x(),
             (int)p_rect.y(),
@@ -93,25 +116,24 @@ void PlaylistTile::receiveExternalData(const QMimeData *data)
 void PlaylistTile::receiveWheelEvent(QWheelEvent *event)
 {
     Playlist::MediaPlaylist* pl = player_->getCustomPlaylist();
-    Playlist::Settings* settings = pl->getSettings();
+    Playlist::Settings settings = pl->getSettings();
 
-    int volume = settings->volume;
+    int log_volume = VolumeMapper::linearToLogarithmic(settings.volume);
     if (event->delta() < 0) {
-        volume -= 3;
-        if (volume < 0) {
-            volume = 0;
-        }
+        log_volume -= 3;
+        if (log_volume < 0)
+            log_volume = 0;
     }
     else if(event->delta() >= 0) {
-        volume += 3;
-        if (volume > 100){
-            volume = 100;
-        }
+        log_volume += 3;
+        if (log_volume > 100)
+            log_volume = 100;
     }
 
-    settings->volume = volume;
-    if (pl->setSettings(settings)) {
-        emit wheelChangedVolume(volume);
+    int new_volume = VolumeMapper::logarithmicToLinear(log_volume);
+    if(new_volume != settings.volume) {
+        setVolume(new_volume);
+        emit wheelChangedVolume(settings.volume);
     }
 }
 
@@ -233,23 +255,17 @@ bool PlaylistTile::setFromJsonObject(const QJsonObject &obj)
             return false;
         //to do: no pointer needed
         Playlist::Settings* settings = Misc::JsonMimeDataParser::toPlaylistSettings(s_obj);
-        bool success = playlist_->setSettings(settings);
-        if(!success) {
+        if(!settings) {
             qDebug() << "FAILURE: Could not set Playlist Settings from JSON";
             qDebug() << " > " << s_obj;
         }
-        settings = 0;
+        playlist_->setSettings(*settings);
         delete settings;
+        settings = 0;
     }
 
     return true;
 }
-
-const QString PlaylistTile::getClassName() const
-{
-    return "PlaylistPlayerTile";
-}
-
 
 void PlaylistTile::setMedia(const QMediaContent &c)
 {
@@ -286,7 +302,11 @@ void PlaylistTile::onActivate()
 
 void PlaylistTile::setVolume(int volume)
 {
-    player_->setVolume(volume);
+    Playlist::Settings settings = player_->getCustomPlaylist()->getSettings();
+    settings.volume = volume;
+    player_->getCustomPlaylist()->setSettings(settings);
+    volumeChangedEvent();
+    //player_->setVolume(volume);
 }
 
 int PlaylistTile::getVolume() const
@@ -314,26 +334,22 @@ void PlaylistTile::changedCustomPlayerActivation(bool state)
 
 void PlaylistTile::onConfigurePlaylist()
 {
-    // TODO: life cycle management
-    playlist_settings_widget_ = new Playlist::SettingsWidget(playlist_);
-    playlist_settings_widget_->setObjectName("PlaylistSettingsWidget");
-    //QPoint widget_size = QPoint(playlist_settings_widget_->geometry().size().width()/2,
-    //                            playlist_settings_widget_->geometry().size().height()/2);
-    //QPoint widget_pos = QCursor::pos() - widget_size;
-    playlist_settings_widget_->move(QCursor::pos() - QPoint(170,170));
-    playlist_settings_widget_->show();
-
-    connect(playlist_settings_widget_, SIGNAL(closed()),
-            this, SLOT(closePlaylistSettings()));
-
-    connect(playlist_settings_widget_, SIGNAL(saved(Playlist::Settings*)),
-            this, SLOT(savePlaylistSettings(Playlist::Settings*)));
-
-    connect(playlist_settings_widget_, SIGNAL(volumeSettingsChanged(int)),
-            player_, SLOT(mediaVolumeChanged(int)) );
-
-    connect(this, SIGNAL(wheelChangedVolume(int)),
-            player_, SLOT(mediaVolumeChanged(int)));
+    Playlist::Settings s = playlist_->getSettings();
+    s.name = getName();
+    if(!playlist_settings_widget_) {
+        playlist_settings_widget_ = new Playlist::SettingsWidget(s);
+        playlist_settings_widget_->setWindowTitle(tr("Playback Settings"));
+        playlist_settings_widget_->move(QCursor::pos() - QPoint(170,170));
+        connect(playlist_settings_widget_, &Playlist::SettingsWidget::closed,
+                this, &PlaylistTile::closePlaylistSettings);
+        connect(playlist_settings_widget_, &Playlist::SettingsWidget::saved,
+                this, &PlaylistTile::savePlaylistSettings);
+        connect(playlist_settings_widget_, &Playlist::SettingsWidget::volumeSettingsChanged,
+                this, &PlaylistTile::setVolume);
+        connect(this, &PlaylistTile::wheelChangedVolume,
+                playlist_settings_widget_, &Playlist::SettingsWidget::onExternalVolumeChanged);
+    }
+    playlist_settings_widget_->popOpen();
 }
 
 void PlaylistTile::onContents()
@@ -360,42 +376,23 @@ void PlaylistTile::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
 
 void PlaylistTile::closePlaylistSettings()
 {
-    playlist_settings_widget_->hide();
-
-    disconnect(playlist_settings_widget_,SIGNAL(volumeSettingsChanged(int)),
-               player_,SLOT(mediaVolumeChanged(int)) );
-
-    disconnect(playlist_settings_widget_, SIGNAL(closed() ),
-            this, SLOT(closePlaylistSettings() ));
-
-    disconnect(playlist_settings_widget_, SIGNAL( saved(Playlist::Settings*) ),
-            this, SLOT(savePlaylistSettings(Playlist::Settings*) ));
-
     playlist_settings_widget_->deleteLater();
+    playlist_settings_widget_ = 0;
 }
 
-void PlaylistTile::savePlaylistSettings(Playlist::Settings* settings)
+void PlaylistTile::savePlaylistSettings(const Playlist::Settings &settings)
 {
-    if(settings->name.size() > 0 && name_.compare(settings->name) != 0)
-        setName(settings->name);
-    if(settings->image_path.size() > 0)
-        loadOverlayPixmap(settings->image_path);
+    if(settings.name.size() > 0 && name_.compare(settings.name) != 0)
+        setName(settings.name);
+    if(settings.image_path.size() > 0)
+        loadOverlayPixmap(settings.image_path);
     else
         clearOverlayPixmap();
 
     playlist_->setSettings(settings);
     playlist_settings_widget_->hide();
-
-    disconnect(playlist_settings_widget_,SIGNAL(volumeSettingsChanged(int)),
-               player_,SLOT(mediaVolumeChanged(int)) );
-
-    disconnect(playlist_settings_widget_, SIGNAL(closed() ),
-            this, SLOT(closePlaylistSettings() ));
-
-    disconnect(playlist_settings_widget_, SIGNAL( saved(Playlist::Settings*)),
-            this, SLOT(savePlaylistSettings(Playlist::Settings*)));
-
     playlist_settings_widget_->deleteLater();
+    playlist_settings_widget_ = nullptr;
 }
 
 void PlaylistTile::createContextMenu()
@@ -426,10 +423,25 @@ const QPixmap PlaylistTile::getPlayStatePixmap() const
         return *Resources::Lib::PX_PLAY;
 }
 
+void PlaylistTile::volumeChangedEvent()
+{
+    prepareGeometryChange();
+    draw_filled_volume_indicator_ = true;
+    filled_volume_timer_.start(2500);
+}
+
 void PlaylistTile::setIsPlaying(bool state)
 {
-    is_activated_ = state;
     is_playing_ = state;
+}
+
+const QRectF PlaylistTile::getVolumeRect() const
+{
+    int log_volume = player_->getCustomPlaylist()->getSettings().volume;
+    log_volume = VolumeMapper::linearToLogarithmic(log_volume);
+    QRectF volume_rect(getPaintRect());
+    volume_rect.setTop(volume_rect.bottom()-volume_rect.height()*(log_volume/100.0f));
+    return volume_rect;
 }
 
 } // namespace Tile
