@@ -7,6 +7,8 @@
 #include <QUuid>
 #include <QStack>
 #include <QMenu>
+#include <QPushButton>
+#include <QLabel>
 
 #include "db/model/sound_file_table_model.h"
 #include "db/model/preset_table_model.h"
@@ -101,7 +103,7 @@ public:
     /**
      * pushes a scene onto the scene stack and shows it.
     */
-    void pushScene(QGraphicsScene*);
+    void pushScene(QGraphicsScene* s, QString const& name);
 
     /*
      * pops a scene from the scene stack and shows the next.
@@ -227,6 +229,12 @@ private:
     void mousePressEvent(QMouseEvent *event);
 
     /**
+     * Returns a string with html formatting
+     * to encapsulate the current scene stack.
+    */
+    QString const getScenePathHTML() const;
+
+    /**
      * Remove all tiles from view.
      */
     void clearTiles();
@@ -236,15 +244,24 @@ private:
      */
     void initContextMenu();
 
+    /**
+     * initializes path widget.
+    */
+    void initWidgets();
+
     DB::Model::SoundFileTableModel* sound_model_;
     DB::Model::PresetTableModel* preset_model_;
     QGraphicsScene* main_scene_;
     QStack<QGraphicsScene*> scene_stack_;
+    QMap<QGraphicsScene*, QString> scene_names_;
     QMenu* context_menu_;
     QPoint click_pos_;
     QMap<QString, QJsonObject> layouts_;
     Image::View* image_view_;
     ImageDisplayWidget* image_widget_;
+    QPushButton* back_button_;
+    QLabel* path_label_;
+    QWidget* path_widget_;
 };
 
 } // namespace Tile

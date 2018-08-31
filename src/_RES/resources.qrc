@@ -15,6 +15,7 @@
         <file>spungify.png</file>
         <file>invisible.png</file>
         <file>visible.png</file>
+        <file>back_button_round.png</file>
     </qresource>
     <qresource prefix="/styles">
         <file>dark_style.css</file>
