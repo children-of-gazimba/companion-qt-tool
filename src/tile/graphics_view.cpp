@@ -6,12 +6,14 @@
 #include <QMimeData>
 #include <QJsonValue>
 #include <QMessageBox>
+#include <QHBoxLayout>
 
 #include "playlist_tile.h"
 #include "nested_tile.h"
 #include "spotify_tile.h"
 #include "map_tile.h"
 #include "misc/json_mime_data_parser.h"
+#include "resources/lib.h"
 
 namespace Tile {
 
@@ -20,14 +22,19 @@ GraphicsView::GraphicsView(QGraphicsScene *scene, QWidget *parent)
     , sound_model_(0)
     , main_scene_(scene)
     , scene_stack_()
+    , scene_names_()
     , context_menu_(0)
     , click_pos_()
     , layouts_()
     , image_widget_(0)
+    , back_button_(0)
+    , path_label_(0)
+    , path_widget_(0)
 {
-    pushScene(main_scene_);
+    pushScene(main_scene_, "MAIN");
     setAcceptDrops(true);
     setFocusPolicy(Qt::ClickFocus);
+    initWidgets();
     initContextMenu();
 }
 
@@ -36,15 +43,20 @@ GraphicsView::GraphicsView(QWidget *parent)
     , sound_model_(0)
     , main_scene_(0)
     , scene_stack_()
+    , scene_names_()
     , context_menu_(0)
     , click_pos_()
     , layouts_()
     , image_widget_(0)
+    , back_button_(0)
+    , path_label_(0)
+    , path_widget_(0)
 {
     main_scene_ = new QGraphicsScene(QRectF(0,0,100,100),this);
-    pushScene(main_scene_);
+    pushScene(main_scene_, "MAIN");
     setAcceptDrops(true);
     setFocusPolicy(Qt::ClickFocus);
+    initWidgets();
     initContextMenu();
 }
 
@@ -355,17 +367,28 @@ ImageDisplayWidget *GraphicsView::getImageDisplay() const
     return image_widget_;
 }
 
-void GraphicsView::pushScene(QGraphicsScene* scene)
+void GraphicsView::pushScene(QGraphicsScene* scene, QString const& name)
 {
     scene_stack_.push(scene);
+    scene->setSceneRect(main_scene_->sceneRect());
+    scene_names_[scene] = name;
     setScene(scene);
+    if(scene_stack_.size() > 1) {
+        path_label_->setText(getScenePathHTML());
+        path_widget_->adjustSize();
+        path_widget_->show();
+    }
 }
 
 void GraphicsView::popScene()
 {
     if(scene_stack_.size() > 1) {
-        scene_stack_.pop();
+        scene_names_.remove(scene_stack_.pop());
         setScene(scene_stack_.top());
+        path_label_->setText(getScenePathHTML());
+        path_widget_->adjustSize();
+        if(scene_stack_.size() == 1)
+            path_widget_->hide();
     }
 }
 
@@ -815,6 +838,23 @@ void GraphicsView::mousePressEvent(QMouseEvent *event)
     }
 }
 
+const QString GraphicsView::getScenePathHTML() const
+{
+    QString path = "";
+    int i = 0;
+    foreach(auto s, scene_stack_) {
+        if(i != 0)
+            path += " > ";
+        if(i == scene_stack_.size() - 1)
+            path += "<b>";
+        path += scene_names_[s];
+        if(i == scene_stack_.size() - 1)
+            path += "</b>";
+        ++i;
+    }
+    return path;
+}
+
 void GraphicsView::clearTiles()
 {
     foreach(QGraphicsItem* it, scene()->items()) {
@@ -854,6 +894,40 @@ void GraphicsView::initContextMenu()
     create_empty->addAction(empty_map);
 
     context_menu_->addMenu(create_empty);
+}
+
+void GraphicsView::initWidgets()
+{
+    QHBoxLayout* path_layout = new QHBoxLayout;
+    path_layout->setContentsMargins(0,0,0,0);
+    path_widget_ = new QWidget(this);
+    path_widget_->move(5,5);
+    path_widget_->setLayout(path_layout);
+    path_widget_->hide();
+
+    back_button_ = new QPushButton(path_widget_);
+    back_button_->setFixedSize(50,50);
+    back_button_->setMask(QRegion(back_button_->geometry(), QRegion::Ellipse));
+    back_button_->setIcon(QIcon(*Resources::Lib::PX_BACK_BUTTON));
+    QSize button_size(back_button_->geometry().size());
+    button_size.setHeight(button_size.height()*0.66);
+    button_size.setWidth(button_size.height());
+    back_button_->setIconSize(button_size);
+    back_button_->setStyleSheet("QPushButton {"
+                                "   border: none; "
+                                "   opacity: 0.8; "
+                                "}"
+                                ""
+                                "QPushButton:pressed {"
+                                "   background-color: rgba(50, 152, 253, 40);"
+                                "}"
+                                "");
+    path_layout->addWidget(back_button_);
+    connect(back_button_, &QPushButton::clicked,
+            this, &GraphicsView::popScene);
+
+    path_label_ = new QLabel(path_widget_);
+    path_layout->addWidget(path_label_);
 }
 
 } // namespace Tile
