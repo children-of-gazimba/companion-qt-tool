@@ -31,6 +31,7 @@ public:
 
     void clearTiles();
 
+    void addTiles(QList<BaseTile*> const& tiles);
 
 public slots:
     /* See BC */

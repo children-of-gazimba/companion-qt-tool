@@ -324,6 +324,8 @@ void SpotifyTile::onWebImageChanged()
 void SpotifyTile::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
 {
     if(mode_ != MOVE && e->button() == Qt::LeftButton) {
+        if(e->modifiers() & Qt::ControlModifier)
+            return BaseTile::mouseReleaseEvent(e);
         if(is_playing_)
             stop();
         else

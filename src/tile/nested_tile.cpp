@@ -176,6 +176,16 @@ void NestedTile::clearTiles()
     }
 }
 
+void NestedTile::addTiles(const QList<BaseTile *> &tiles)
+{
+    // TODO: ensure layout
+    foreach(auto t, tiles) {
+        if(t == this)
+            continue;
+        scene_->addItem(t);
+    }
+}
+
 void NestedTile::onActivate()
 {
     foreach(QGraphicsItem* it, scene_->items()) {
@@ -208,9 +218,11 @@ void NestedTile::onConfigure()
 
 void NestedTile::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
 {
-    if(mode_ != MOVE && e->button() == Qt::LeftButton)
+    if(mode_ != MOVE && e->button() == Qt::LeftButton) {
+        if(e->modifiers() & Qt::ControlModifier)
+            return BaseTile::mouseReleaseEvent(e);
         onActivate();
-
+    }
     BaseTile::mouseReleaseEvent(e);
 }
 

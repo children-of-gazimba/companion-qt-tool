@@ -44,7 +44,7 @@ protected:
     enum ItemMode {
         IDLE,
         HOVER,
-        SELECTED,
+        ACTIVATED,
         MOVE
     };
 
@@ -204,6 +204,27 @@ public:
      */
     DB::Model::PresetTableModel* getPresetModel();
 
+    /**
+     * Get alternative selection state to work around
+     * default graphics item selection.
+     * This is necessary because selection gets confused
+     * by other on click behavior.
+    */
+    bool getIsSelected() const;
+
+    /**
+     * Set alternative selection state to work around
+     * default graphics item selection.
+     * This is necessary because selection gets confused
+     * by other on click behavior.
+    */
+    void setIsSelected(bool state);
+
+    /**
+     * Selects or deselects tile based on current state.
+    */
+    void toggleSelection();
+
 signals:
     void mousePressed(QGraphicsSceneMouseEvent* e);
     void mouseReleased(QGraphicsSceneMouseEvent* e);
@@ -328,6 +349,7 @@ protected:
     QUuid uuid_;
     bool is_activated_;
     DB::Model::PresetTableModel* preset_model_;
+    bool is_selected_;
 };
 
 } // namespace Tile

@@ -39,6 +39,7 @@ BaseTile::BaseTile(QGraphicsItem* parent)
     , uuid_()
     , is_activated_(false)
     , preset_model_(0)
+    , is_selected_(false)
 {    
     long_click_timer_ = new QTimer(this);
     connect(long_click_timer_, SIGNAL(timeout()),
@@ -80,7 +81,10 @@ void BaseTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
     setDefaultOpacity();
 
     // paint bounding box
-    painter->fillRect(boundingRect(), QBrush(QColor(55,55,56)));
+    QBrush b(QColor(55,55,56));
+    if(is_selected_)
+        b.setColor(QColor(50,152,253));
+    painter->fillRect(boundingRect(), b);
     painter->setPen(QColor(84,85,86));
     painter->drawRect(boundingRect());
 
@@ -338,6 +342,25 @@ DB::Model::PresetTableModel* BaseTile::getPresetModel()
     return preset_model_;
 }
 
+bool BaseTile::getIsSelected() const
+{
+    return is_selected_;
+}
+
+void BaseTile::setIsSelected(bool state)
+{
+    if(state == is_selected_)
+        return;
+    prepareGeometryChange();
+    is_selected_ = state;
+}
+
+void BaseTile::toggleSelection()
+{
+    prepareGeometryChange();
+    is_selected_ = !is_selected_;
+}
+
 void BaseTile::onActivate()
 {
     is_activated_ = !is_activated_;
@@ -348,8 +371,13 @@ void BaseTile::onActivate()
 void BaseTile::mousePressEvent(QGraphicsSceneMouseEvent* e)
 {
     if(e->button() == Qt::LeftButton) {
-        setMode(SELECTED);
-        long_click_timer_->start(long_click_duration_);
+        if(e->modifiers() & Qt::ControlModifier) {
+            toggleSelection();
+        }
+        else {
+            setMode(ACTIVATED);
+            long_click_timer_->start(long_click_duration_);
+        }
     }
     else if(e->button() == Qt::RightButton) {
         // qDebug() << "right button";
@@ -595,7 +623,7 @@ const QBrush BaseTile::getBackgroundBrush() const
     QBrush b(Qt::gray);
 
     switch(mode_) {
-        case SELECTED:
+        case ACTIVATED:
             b.setColor(Qt::green);
             break;
 
@@ -611,7 +639,7 @@ const QPixmap BaseTile::getOverlayPixmap() const
     if (overlay_pixmap_ != 0)
         return *overlay_pixmap_;
 
-    if(mode_ == SELECTED)
+    if(mode_ == ACTIVATED)
         return *Resources::Lib::PX_CRACKED_STONE_INV;
     else
         return *Resources::Lib::PX_CRACKED_STONE;
@@ -641,8 +669,8 @@ void BaseTile::setDefaultOpacity()
 
 void BaseTile::setMode(BaseTile::ItemMode mode)
 {
+    prepareGeometryChange();
     mode_ = mode;
-    update(boundingRect());
 }
 
 void BaseTile::setSmallSize()
