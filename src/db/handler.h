@@ -47,6 +47,12 @@ public:
     */
     QList<SoundFileRecord*> const getSoundFileRecordsByTagId(int tag_id = -1);
 
+    /*
+     * Gets a list of SoundFileRecords,
+     * associated with Tag referenced by given id.
+    */
+    QList<TagRecord*> const getTagRecordsBySoundFileId(int sound_file_id);
+
 
 signals:
     void progressChanged(int);
@@ -71,6 +77,16 @@ public slots:
      * Add SoundFileCategory relation to DB
     */
     void addSoundFileCategory(int sound_file_id, int category_id);
+
+    /*
+     * Add SoundFileTag relation to DB
+    */
+    void addSoundFileTag(int sound_file_id, int tag_id);
+
+    /*
+     * Delete SoundFileTag relation from DB
+    */
+    void deleteSoundFileTag(int sound_file_id, int tag_id);
 
     /*
      * Inserts new SoundFiles based on list given.

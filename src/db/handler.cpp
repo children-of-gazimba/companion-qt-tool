@@ -116,6 +116,19 @@ const QList<SoundFileRecord *> Handler::getSoundFileRecordsByTagId(int tag_id)
     return records;
 }
 
+const QList<TagRecord *> Handler::getTagRecordsBySoundFileId(int sound_file_id)
+{
+    if( sound_file_id < 0)
+        return QList<TagRecord*>();
+
+    QList<TagRecord*> records;
+
+    foreach(int t_id, api_->getRelatedIds(TAG, SOUND_FILE, sound_file_id))
+        records.append(getTagTableModel()->getTagById(t_id));
+
+    return records;
+}
+
 void Handler::deleteAll()
 {
     api_->deleteAll();
@@ -144,6 +157,16 @@ void Handler::addCategory(QString name, CategoryRecord *parent)
 void Handler::addSoundFileCategory(int sound_file_id, int category_id)
 {
     api_->insertSoundFileCategory(sound_file_id, category_id);
+}
+
+void Handler::addSoundFileTag(int sound_file_id, int tag_id)
+{
+    api_->insertSoundFileTag(sound_file_id, tag_id);
+}
+
+void Handler::deleteSoundFileTag(int sound_file_id, int tag_id)
+{
+    api_->deleteSoundFileTag(sound_file_id, tag_id);
 }
 
 void Handler::insertSoundFilesAndCategories(const QList<Resources::SoundFile>& sound_files)
