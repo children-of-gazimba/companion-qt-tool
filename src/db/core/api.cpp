@@ -1,5 +1,7 @@
 #include "api.h"
 
+#include <QtDebug>
+
 namespace DB {
 namespace Core {
 
@@ -86,7 +88,11 @@ void Api::insertSoundFileTag(int sound_file_id, int tag_id)
     value_block += QString::number(sound_file_id) + ",";
     value_block += QString::number(tag_id) + ")";
 
-    insertQuery(SOUND_FILE_TAG, value_block);
+    if (!soundFileTagExists(sound_file_id, tag_id)) {
+        insertQuery(SOUND_FILE_TAG, value_block);
+    } else {
+        qDebug() << "doenst exist";
+    }
 }
 
 void Api::insertResourceDir(const QFileInfo &info)
@@ -125,6 +131,16 @@ void Api::insertTag(const QString &name)
     value_block += "'" + SqliteWrapper::escape(name) + "')";
 
     insertQuery(TAG, value_block);
+}
+
+void Api::deleteSoundFileTag(int sound_file_id, int tag_id)
+{
+    if (soundFileTagExists(sound_file_id, tag_id)) {
+        deleteQuery(SOUND_FILE_TAG, "sound_file_id = " + QString::number(sound_file_id) + " AND "
+                                    "tag_id = " + QString::number(tag_id));
+    } else {
+        qDebug() << "doenst exist";
+    }
 }
 
 int Api::getSoundFileId(const QString &path)
@@ -193,6 +209,14 @@ bool Api::soundFileCategoryExists(int sound_file_id, int category_id)
     return selectQuery("Count(*)", SOUND_FILE_CATEGORY, where)[0].value(0).toInt() > 0;
 }
 
+bool Api::soundFileTagExists(int sound_file_id, int tag_id)
+{
+    QString where = "sound_file_id = " + QString::number(sound_file_id) + " and ";
+    where += "tag_id = " + QString::number(tag_id) + "";
+
+    return selectQuery("Count(*)", SOUND_FILE_TAG, where)[0].value(0).toInt() > 0;
+}
+
 const QList<int> Api::getRelatedIds(TableIndex get_table, TableIndex have_table, int have_id)
 {
     QList<int> ids;
@@ -245,6 +269,9 @@ TableIndex Api::getRelationTable(TableIndex first, TableIndex second)
     if(first == SOUND_FILE || first == CATEGORY) {
         if(second == SOUND_FILE || second == CATEGORY)
             return SOUND_FILE_CATEGORY;
+    } else if(first == SOUND_FILE || first == TAG) {
+        if(second == SOUND_FILE || second == TAG)
+            return SOUND_FILE_TAG;
     }
 
     return NONE;

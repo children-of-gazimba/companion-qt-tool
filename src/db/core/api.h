@@ -38,6 +38,8 @@ public:
     void insertPreset(QString const& name, QString const& json);
     void insertTag(QString const& name);
 
+    void deleteSoundFileTag(int sound_file_id, int tag_id);
+
     int getSoundFileId(QString const& path);
     int getResourceDirId(QString const& path);
     int getImageDirId(QString const& path);
@@ -46,6 +48,7 @@ public:
 
     bool soundFileExists(QString const& path, QString const& name);
     bool soundFileCategoryExists(int sound_file_id, int category_id);
+    bool soundFileTagExists(int sound_file_id, int tag_id);
 
     /*
      * Gets a list of ids from table referenced by 'get_table'
