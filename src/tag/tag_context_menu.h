@@ -17,7 +17,7 @@ public:
 
     void setTagModel(DB::Model::TagTableModel *model);
     void addTagAction(DB::TagRecord *tag, Qt::CheckState = Qt::CheckState::Unchecked);
-
+    void deleteTagAction(DB::TagRecord *tag);
 
     void updateSelectedRecords(QList<DB::SoundFileRecord*> selected_records);
 signals:
@@ -32,6 +32,7 @@ private:
 
     QList<DB::SoundFileRecord*> selected_records_;
     QMap<DB::TagRecord*,TagAction*> tag_actions_;
+    QMap<DB::TagRecord*, QList<DB::SoundFileRecord*>> sf_per_tag_;
     DB::Handler *db_handler_;
     DB::Model::TagTableModel *tag_model_;
 

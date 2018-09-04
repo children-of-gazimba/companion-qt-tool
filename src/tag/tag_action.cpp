@@ -11,7 +11,7 @@ TagAction::TagAction(DB::TagRecord* tag, QWidget *parent)
 
 TagAction::~TagAction()
 {
-
+    check_box_->deleteLater();
 }
 
 void TagAction::setCheckState(Qt::CheckState state)
@@ -19,9 +19,9 @@ void TagAction::setCheckState(Qt::CheckState state)
     check_box_->setCheckState(state);
 }
 
-const DB::TagRecord &TagAction::getTag() const
+DB::TagRecord* TagAction::getTag() const
 {
-    return *tag_;
+    return tag_;
 }
 
 
@@ -35,6 +35,6 @@ void TagAction::init()
     connect(check_box_, &QCheckBox::stateChanged,
             this, [=](int state){
 
-        emit toggledTag(tag_, (Qt::CheckState) state);
+        emit toggledTag(tag_, static_cast<Qt::CheckState>(state));
     });
 }

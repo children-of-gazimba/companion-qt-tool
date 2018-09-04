@@ -6,6 +6,7 @@ TagContextMenu::TagContextMenu(DB::Handler *db_handler, QWidget *parent)
     : QMenu(tr("Assign Tags"),parent)
     , selected_records_()
     , tag_actions_()
+    , sf_per_tag_()
     , db_handler_(db_handler)
     , tag_model_(nullptr)
 {
@@ -22,14 +23,35 @@ void TagContextMenu::addTagAction(DB::TagRecord *tag, Qt::CheckState state)
 {
     TagAction* ta = new TagAction(tag, this);
     ta->setCheckState(state);
-
+    connect(ta, &TagAction::toggledTag,
+            this, &TagContextMenu::onToggleTag);
     tag_actions_.insert(tag,ta);
     this->addAction(ta);
 }
 
+void TagContextMenu::deleteTagAction(DB::TagRecord *tag)
+{
+    TagAction *t = tag_actions_[tag];
+    tag_actions_.remove(tag);
+    t->deleteLater();
+}
+
 void TagContextMenu::updateSelectedRecords(QList<DB::SoundFileRecord *> selected_records)
 {
+    sf_per_tag_.clear();
+
     selected_records_ = selected_records;
+    QList<DB::TagRecord*> tags = tag_model_->getTags();
+
+    // check associations between soundfiles and tags
+    foreach(auto tag, tags){
+        sf_per_tag_[tag] = QList<DB::SoundFileRecord*>();
+    }
+    foreach (auto sf, selected_records_){
+        foreach (auto tag, db_handler_->getTagRecordsBySoundFileId(sf->id)){
+            sf_per_tag_[tag].append(sf);
+        }
+    }
 }
 
 void TagContextMenu::onToggleTag(DB::TagRecord* tag, Qt::CheckState state)
@@ -43,61 +65,38 @@ void TagContextMenu::onToggleTag(DB::TagRecord* tag, Qt::CheckState state)
     }
     qDebug() << " selected sound files with length:" << selected_records_.length();
     foreach(auto sf, selected_records_){
-        qDebug() << "sf:" << sf->name;
+//        qDebug() << "sf:" << sf->name;
         if(db_handler_->getSoundFileTableModel()->getSoundFileById(sf->id) == nullptr){
             continue;
         }
-
-        if (state == Qt::CheckState::Checked){
+        if (state == Qt::CheckState::Checked && !sf_per_tag_[tag].contains(sf)){
             db_handler_->addSoundFileTag(sf->id, tag->id);
-        } else {
+            sf_per_tag_[tag].append(sf);
+        } else if(state == Qt::CheckState::Unchecked && sf_per_tag_[tag].contains(sf))  {
             db_handler_->deleteSoundFileTag(sf->id, tag->id);
+            sf_per_tag_[tag].removeOne(sf);
         }
-
     }
 }
 
 void TagContextMenu::onAboutToShow()
 {
     QList<DB::TagRecord*> tags = tag_model_->getTags();
-
-    // check associations between soundfiles and tags
-    QMap<DB::TagRecord*, QList<DB::SoundFileRecord*>> sf_per_tag;
-    foreach(auto tag, tags){
-        sf_per_tag[tag] = QList<DB::SoundFileRecord*>();
-    }
-    foreach (auto sf, selected_records_){
-        foreach (auto tag, db_handler_->getTagRecordsBySoundFileId(sf->id)){
-            sf_per_tag[tag].append(sf);
-        }
-    }
-
     // check which tag checkboxes need to be checked
     QMap<DB::TagRecord*, Qt::CheckState> tag_states;
-    foreach(auto t, sf_per_tag.keys()){
-        if (sf_per_tag[t].length() == selected_records_.length()){
+    foreach(auto t, sf_per_tag_.keys()){
+        if (sf_per_tag_[t].length() == selected_records_.length()){
             tag_states.insert(t, Qt::CheckState::Checked);
-        } else if (sf_per_tag[t].length() == 0){
+        } else if (sf_per_tag_[t].length() == 0){
             tag_states.insert(t, Qt::CheckState::Unchecked);
         } else{
             tag_states.insert(t, Qt::CheckState::PartiallyChecked);
         }
     }
 
-    // update tag actions checkbox state
+    // create tag actions
     foreach (DB::TagRecord* tag, tags) {
-        TagAction* ta = tag_actions_.value(tag, nullptr);
-        if (ta != nullptr){
-            tag_actions_.value(tag)->setCheckState(tag_states[tag]);
-        } else {
-            addTagAction(tag, Qt::CheckState::Unchecked);
-        }
-    }
-
-    // connect actions to toggle signal
-    foreach(auto ta, tag_actions_){
-        connect(ta, &TagAction::toggledTag,
-                this, &TagContextMenu::onToggleTag);
+        addTagAction(tag, tag_states[tag]);
     }
 }
 
@@ -105,9 +104,6 @@ void TagContextMenu::onAboutToShow()
 void TagContextMenu::init()
 {
     QList<DB::TagRecord*> tags = tag_model_->getTags();
-    foreach(auto tag, tags){
-        addTagAction(tag, Qt::CheckState::Unchecked);
-    }
 
     connect(this, &QMenu::aboutToShow,
             this, &TagContextMenu::onAboutToShow);
@@ -115,10 +111,8 @@ void TagContextMenu::init()
 
 void TagContextMenu::closeEvent(QCloseEvent* e)
 {
-    qDebug() << "disconnect and close";
-    foreach(auto ta, tag_actions_){
-        disconnect(ta, &TagAction::toggledTag,
-                   this, &TagContextMenu::onToggleTag);
+    foreach(auto t, tag_actions_.keys()){
+        deleteTagAction(t);
     }
 
     QMenu::closeEvent(e);

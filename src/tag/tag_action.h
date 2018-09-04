@@ -15,7 +15,7 @@ public:
     virtual ~TagAction();
 
     void setCheckState(Qt::CheckState state);
-    DB::TagRecord const& getTag() const;
+    DB::TagRecord* getTag() const;
 
 signals:
     void toggledTag(DB::TagRecord* tag, Qt::CheckState state);
