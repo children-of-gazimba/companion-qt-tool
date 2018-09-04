@@ -9,6 +9,9 @@
 #include <QPushButton>
 #include <QMenu>
 
+#include <tag/tag_context_menu.h>
+#include "db/handler.h"
+
 #include "db/table_records.h"
 #include "misc/standard_item_model.h"
 
@@ -16,8 +19,7 @@ class PlaybackView : public QTableView
 {
     Q_OBJECT
 public:
-    explicit PlaybackView(QList<DB::SoundFileRecord*> const& sound_files, QWidget *parent = nullptr);
-    explicit PlaybackView(QWidget *parent = nullptr);
+    explicit PlaybackView(DB::Handler *db_handler, QWidget *parent = nullptr);
     virtual ~PlaybackView();
 
     void setSoundFiles(QList<DB::SoundFileRecord*> const&);
@@ -52,9 +54,12 @@ private slots:
     void addSoundFile(int id, QString const& name, QString const& path);
     void onEntered(const QModelIndex&);
     void showCustomContextMenu(const QPoint&);
-    void onDeleteAction();
+    void onDelete();
+    void onModifiyTags();
 
 protected:
+    QList<DB::SoundFileRecord *> const getSelectedRecords() const;
+
     void performDrag();
     void initContextMenu();
     void init();
@@ -65,6 +70,9 @@ protected:
     QPersistentModelIndex playable_index_;
     QIcon play_icon_;
     QMenu* context_menu_;
+    TagContextMenu* tag_menu_;
+    DB::Handler* db_handler_;
+
 };
 
 #endif // PLAYBACK_VIEW_H

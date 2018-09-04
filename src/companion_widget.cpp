@@ -329,7 +329,7 @@ void CompanionWidget::setProjectPath(const QString &path)
 void CompanionWidget::initWidgets()
 {
     sound_file_view_ = new PlaybackView(
-        db_handler_->getSoundFileTableModel()->getSoundFiles(),
+        db_handler_,
         this
     );
 

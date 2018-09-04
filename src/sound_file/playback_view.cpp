@@ -8,33 +8,30 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QHeaderView>
+#include <QMessageBox>
+#include <QWidgetAction>
+#include <QCheckBox>
+#include <QLineEdit>
 
 #include "resources/lib.h"
 #include "misc/json_mime_data_parser.h"
 
-PlaybackView::PlaybackView(const QList<DB::SoundFileRecord *> &sound_files, QWidget *parent)
-    : QTableView(parent)
-    , start_pos_()
-    , model_(0)
-    , skip_select_(false)
-    , playable_index_()
-    , play_icon_()
-    , context_menu_(0)
-{
-    init();
-    setSoundFiles(sound_files);
-}
 
-PlaybackView::PlaybackView(QWidget *parent)
+
+PlaybackView::PlaybackView(DB::Handler *db_handler, QWidget *parent)
     : QTableView(parent)
     , start_pos_()
-    , model_(0)
+    , model_(nullptr)
     , skip_select_(false)
     , playable_index_()
     , play_icon_()
-    , context_menu_(0)
+    , context_menu_(nullptr)
+    , tag_menu_(nullptr)
+    , db_handler_(db_handler)
 {
+    //setTagModel(db_handler_->getTagTableModel());
     init();
+    setSoundFiles(db_handler_->getSoundFileTableModel()->getSoundFiles());
 }
 
 PlaybackView::~PlaybackView()
@@ -61,7 +58,7 @@ bool PlaybackView::getEditable()
 
 QItemSelectionModel::SelectionFlags PlaybackView::selectionCommand(const QModelIndex &index, const QEvent *event) const
 {
-    if (event != 0 && event->type() == QEvent::MouseMove)
+    if (event != nullptr && event->type() == QEvent::MouseMove)
         return QItemSelectionModel::Select;
     else
         return QAbstractItemView::selectionCommand(index, event);
@@ -173,7 +170,7 @@ void PlaybackView::onPlayButtonClicked()
 
 void PlaybackView::addSoundFile(DB::SoundFileRecord *rec)
 {
-     addSoundFile(rec->id, rec->name, rec->path);
+    addSoundFile(rec->id, rec->name, rec->path);
 }
 
 void PlaybackView::onSoundFileAboutToBeDeleted(DB::SoundFileRecord *)
@@ -215,17 +212,20 @@ void PlaybackView::onEntered(const QModelIndex &idx)
                 this, &PlaybackView::onPlayButtonClicked);
         setIndexWidget(b_idx, button);
         if(playable_index_.isValid() && playable_index_ != b_idx)
-            setIndexWidget(playable_index_, 0);
+            setIndexWidget(playable_index_, nullptr);
         playable_index_ = QPersistentModelIndex(b_idx);
     }
 }
 
 void PlaybackView::showCustomContextMenu(const QPoint &p)
 {
+    qDebug() << "recalc available tag actions";
+    QList<DB::SoundFileRecord*> selected_records = getSelectedRecords();
+    tag_menu_->updateSelectedRecords(selected_records);
     context_menu_->exec(mapToGlobal(p));
 }
 
-void PlaybackView::onDeleteAction()
+void PlaybackView::onDelete()
 {
     QModelIndexList selection = this->selectionModel()->selectedIndexes();
     if(selection.size() == 0)
@@ -237,9 +237,16 @@ void PlaybackView::onDeleteAction()
     emit deleteSoundFileRequested(id);
 }
 
-void PlaybackView::performDrag()
+void PlaybackView::onModifiyTags()
 {
-    QList<DB::TableRecord*> records;
+    QMessageBox b;
+    b.setText("To do add tag system");
+    b.exec();
+}
+
+QList<DB::SoundFileRecord *> const PlaybackView::getSelectedRecords() const
+{
+    QList<DB::SoundFileRecord*> records;
     QSet<int> rows;
     foreach(QModelIndex idx, selectionModel()->selectedIndexes()) {
         if(rows.contains(idx.row()))
@@ -250,6 +257,15 @@ void PlaybackView::performDrag()
         temp_rec->name = model_->data(model_->index(idx.row(), 1)).toString();
         records.append(temp_rec);
         rows.insert(idx.row());
+    }
+    return records;
+}
+
+void PlaybackView::performDrag()
+{
+    QList<DB::TableRecord*> records;
+    foreach(auto sf, getSelectedRecords()){
+        records.append(sf);
     }
 
     if(records.size() == 0)
@@ -280,17 +296,26 @@ void PlaybackView::initContextMenu()
     setContextMenuPolicy(Qt::CustomContextMenu);
 
     context_menu_ = new QMenu(this);
+    tag_menu_ = new TagContextMenu(db_handler_, this);
 
     connect(this, &PlaybackView::customContextMenuRequested,
             this, &PlaybackView::showCustomContextMenu);
 
     QList<QAction*> actions;
+
+    actions.append(new QAction(tr("Modify Tags"), context_menu_));
+    connect(actions.back(), SIGNAL(triggered()),
+            this, SLOT(onModifiyTags()));
+
     actions.append(new QAction(tr("Delete"), context_menu_));
     connect(actions.back(), SIGNAL(triggered()),
-            this, SLOT(onDeleteAction()));
+            this, SLOT(onDelete()));
 
     context_menu_->addActions(actions);
+    context_menu_->addSeparator();
+    context_menu_->addMenu(tag_menu_);
 }
+
 
 void PlaybackView::init()
 {
