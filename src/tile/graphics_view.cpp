@@ -280,8 +280,8 @@ const QList<BaseTile *> GraphicsView::getSelectedTiles() const
 {
     QList<BaseTile*> selected_tiles;
     foreach(auto it, items()) {
-        auto tile = qgraphicsitem_cast<BaseTile*>(it);
-        if(tile) {
+        BaseTile* tile = qgraphicsitem_cast<BaseTile*>(it);
+        if(tile && tile->getIsSelected()) {
             selected_tiles.append(tile);
         }
     }
