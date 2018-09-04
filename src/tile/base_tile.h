@@ -280,6 +280,7 @@ protected:
     virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *e);
     virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent* e);
     virtual void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+    virtual void dragLeaveEvent(QGraphicsSceneDragDropEvent *event);
     virtual void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
     virtual void dropEvent(QGraphicsSceneDragDropEvent *event);
 

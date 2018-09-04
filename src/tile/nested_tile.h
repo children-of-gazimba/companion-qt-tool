@@ -2,6 +2,8 @@
 #define TWO_D_NESTED_TILE_H
 
 #include <QGraphicsView>
+#include <QTimer>
+#include <QPropertyAnimation>
 
 #include "base_tile.h"
 #include "graphics_view.h"
@@ -12,6 +14,8 @@ namespace Tile {
 class NestedTile : public BaseTile
 {
     Q_OBJECT
+
+    Q_PROPERTY(int progress MEMBER progress_ READ getProgress WRITE setProgress)
 
 public:
     NestedTile(GraphicsView* master_view, QGraphicsItem *parent=0);
@@ -33,6 +37,17 @@ public:
 
     void addTiles(QList<BaseTile*> const& tiles);
 
+    /**
+     * Hand mime data such as drop data to tile.
+     * This class only prints the mime text.
+     * Override for derived class behavior.
+    */
+    virtual void receiveExternalData(const QMimeData* data);
+
+    void setProgress(int v);
+
+    int getProgress() const;
+
 public slots:
     /* See BC */
     virtual void onActivate();
@@ -49,6 +64,8 @@ protected:
      * BC overrides
     */
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* e);
+    virtual void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+    virtual void dragLeaveEvent(QGraphicsSceneDragDropEvent *event);
 
     /**
      * creates context menu
@@ -62,6 +79,9 @@ protected:
 
     GraphicsView* master_view_;
     QGraphicsScene* scene_;
+    QTimer enter_timer_;
+    int progress_;
+    QPropertyAnimation* progress_animation_;
 };
 
 } // namespace Tile

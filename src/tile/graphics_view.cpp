@@ -676,9 +676,9 @@ const QJsonObject GraphicsView::sanitizeLayout(const QJsonObject& obj) const
 
 void GraphicsView::dragEnterEvent(QDragEnterEvent *event)
 {
-    //qDebug() << "GraphicView: drag Enter Event ";
+    QGraphicsView::dragEnterEvent(event);
     GraphicsView *source = qobject_cast<GraphicsView*>(event->source());
-    if (/*event->source() &&*/ source != this) {
+    if (source != this) {
         event->setDropAction(Qt::CopyAction);
         event->accept();
     }
@@ -686,9 +686,9 @@ void GraphicsView::dragEnterEvent(QDragEnterEvent *event)
 
 void GraphicsView::dragMoveEvent(QDragMoveEvent *event)
 {
-    //qDebug() << "GraphicView: drag Enter Move";
+    QGraphicsView::dragMoveEvent(event);
     GraphicsView *source = qobject_cast<GraphicsView*>(event->source());
-    if (/*event->source() &&*/ source != this) {
+    if (source != this) {
         event->setDropAction(Qt::CopyAction);
         event->accept();
     }

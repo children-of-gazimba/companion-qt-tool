@@ -482,12 +482,21 @@ void BaseTile::hoverLeaveEvent(QGraphicsSceneHoverEvent* e)
 
 void BaseTile::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 {
-    QGraphicsItem::dragEnterEvent(event);
+    //QGraphicsItem::dragEnterEvent(event);
+    event->setDropAction(Qt::CopyAction);
+    event->accept();
+}
+
+void BaseTile::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
+{
+    QGraphicsItem::dragLeaveEvent(event);
 }
 
 void BaseTile::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 {
     QGraphicsItem::dragMoveEvent(event);
+    event->setDropAction(Qt::CopyAction);
+    event->accept();
 }
 
 void BaseTile::dropEvent(QGraphicsSceneDragDropEvent *event)
