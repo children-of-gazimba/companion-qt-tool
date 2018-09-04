@@ -610,14 +610,28 @@ void GraphicsView::onEmptyMapTile()
 void GraphicsView::onNestSelectedTiles()
 {
     QList<BaseTile*> selected_tiles = getSelectedTiles();
-    foreach(auto tile, selected_tiles) {
-        tile->setIsSelected(false);
-        scene()->removeItem(tile);
-    }
     BaseTile* new_tile = createEmptyNestedTile(click_pos_);
     NestedTile* new_nested = qgraphicsitem_cast<NestedTile*>(new_tile);
-    if(new_nested)
-        new_nested->addTiles(selected_tiles);
+    if(new_nested) {
+        int animation_duration = 300;
+        QMap<BaseTile*, QPointF> prev_pos;
+        QMap<BaseTile*, qreal> prev_size;
+        foreach(auto tile, selected_tiles) {
+            prev_pos[tile] = tile->pos();
+            tile->setPosAnimated(new_nested->pos(), animation_duration);
+            prev_size[tile] = tile->getSize();
+            tile->setSizeAnimated(0, animation_duration);
+            tile->setIsSelected(false);
+        }
+        QTimer::singleShot(animation_duration+50, this, [=](){
+            foreach(auto tile, selected_tiles) {
+                scene()->removeItem(tile);
+                tile->setPos(prev_pos[tile]);
+                tile->setSize(prev_size[tile]);
+            }
+            new_nested->addTiles(selected_tiles);
+        });
+    }
 }
 
 const QJsonObject GraphicsView::sanitizeLayout(const QJsonObject& obj) const

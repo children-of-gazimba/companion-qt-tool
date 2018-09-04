@@ -115,12 +115,17 @@ public:
      * Animated change of tile size.
      * (will preserve non overlapping state with other tiles)
     */
-    virtual void setSizeAnimated(qreal size);
+    virtual void setSizeAnimated(qreal size, int duration = 300);
 
     /**
      * Change size of tile taking into account any overlapping with other Tiles.
     */
     virtual void setSizeLayoutAware(qreal size);
+
+    /**
+     * Animated change of tile pos.
+    */
+    virtual void setPosAnimated(const QPointF& p, int duration = 300);
 
     /**
      * Set name of tile.

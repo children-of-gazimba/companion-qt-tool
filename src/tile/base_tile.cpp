@@ -165,10 +165,11 @@ const QChar &BaseTile::getActivateKey() const
 
 void BaseTile::setSize(qreal size)
 {
+    prepareGeometryChange();
     size_ = size;
-    QRectF r(boundingRect());
+    /*QRectF r(boundingRect());
     if(r.width() > 5 && scene())
-        scene()->update(scene()->sceneRect());
+        scene()->update(scene()->sceneRect());*/
 }
 
 qreal BaseTile::getSize() const
@@ -176,7 +177,7 @@ qreal BaseTile::getSize() const
     return size_;
 }
 
-void BaseTile::setSizeAnimated(qreal size)
+void BaseTile::setSizeAnimated(qreal size, int duration)
 {
     qreal prev_size = size_;
 
@@ -185,9 +186,9 @@ void BaseTile::setSizeAnimated(qreal size)
     QPropertyAnimation* anim = new QPropertyAnimation(this, "size");
     anim->setStartValue(prev_size);
     anim->setEndValue(size);
-    anim->setDuration(300);
-    anim->start(QAbstractAnimation::DeleteWhenStopped);
+    anim->setDuration(duration);
     anim->setEasingCurve(QEasingCurve::InOutQuad);
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void BaseTile::setSizeLayoutAware(qreal size)
@@ -197,6 +198,16 @@ void BaseTile::setSizeLayoutAware(qreal size)
     fixOverlapsAfterResize(prev_size);
 
     scene()->update(scene()->sceneRect());
+}
+
+void BaseTile::setPosAnimated(const QPointF& p, int duration)
+{
+    QPropertyAnimation* anim = new QPropertyAnimation(this, "pos");
+    anim->setStartValue(pos());
+    anim->setEndValue(p);
+    anim->setDuration(duration);
+    anim->setEasingCurve(QEasingCurve::InOutQuad);
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void BaseTile::setName(const QString &str)
