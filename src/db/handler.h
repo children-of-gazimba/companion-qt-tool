@@ -53,6 +53,11 @@ public:
     */
     QList<TagRecord*> const getTagRecordsBySoundFileId(int sound_file_id);
 
+    /*
+     * Check if sound file tag entry exists
+    */
+    bool soundFileTagExists(int sound_file_id, int tag_id);
+
 
 signals:
     void progressChanged(int);

@@ -129,6 +129,11 @@ const QList<TagRecord *> Handler::getTagRecordsBySoundFileId(int sound_file_id)
     return records;
 }
 
+bool Handler::soundFileTagExists(int sound_file_id, int tag_id)
+{
+    return api_->soundFileTagExists(sound_file_id, tag_id);
+}
+
 void Handler::deleteAll()
 {
     api_->deleteAll();

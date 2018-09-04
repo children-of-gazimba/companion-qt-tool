@@ -1,7 +1,5 @@
 #include "api.h"
 
-#include <QtDebug>
-
 namespace DB {
 namespace Core {
 
@@ -88,11 +86,7 @@ void Api::insertSoundFileTag(int sound_file_id, int tag_id)
     value_block += QString::number(sound_file_id) + ",";
     value_block += QString::number(tag_id) + ")";
 
-    if (!soundFileTagExists(sound_file_id, tag_id)) {
-        insertQuery(SOUND_FILE_TAG, value_block);
-    } else {
-        qDebug() << "doenst exist";
-    }
+    insertQuery(SOUND_FILE_TAG, value_block);
 }
 
 void Api::insertResourceDir(const QFileInfo &info)
@@ -135,12 +129,8 @@ void Api::insertTag(const QString &name)
 
 void Api::deleteSoundFileTag(int sound_file_id, int tag_id)
 {
-    if (soundFileTagExists(sound_file_id, tag_id)) {
-        deleteQuery(SOUND_FILE_TAG, "sound_file_id = " + QString::number(sound_file_id) + " AND "
-                                    "tag_id = " + QString::number(tag_id));
-    } else {
-        qDebug() << "doenst exist";
-    }
+    deleteQuery(SOUND_FILE_TAG, "sound_file_id = " + QString::number(sound_file_id) + " AND "
+                                "tag_id = " + QString::number(tag_id));
 }
 
 int Api::getSoundFileId(const QString &path)
