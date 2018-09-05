@@ -7,14 +7,13 @@
 #include <QUuid>
 #include <QStack>
 #include <QMenu>
-#include <QPushButton>
-#include <QLabel>
 
 #include "db/model/sound_file_table_model.h"
 #include "db/model/preset_table_model.h"
 #include "base_tile.h"
 #include "image/view.h"
 #include "image/image_display_widget.h"
+#include "nested_path_widget.h"
 
 // TODO: rename namespace to Tile
 namespace Tile {
@@ -278,9 +277,7 @@ private:
     QMap<QString, QJsonObject> layouts_;
     Image::View* image_view_;
     ImageDisplayWidget* image_widget_;
-    QPushButton* back_button_;
-    QLabel* path_label_;
-    QWidget* path_widget_;
+    NestedPathWidget* nested_path_widget_;
 };
 
 } // namespace Tile

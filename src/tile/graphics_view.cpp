@@ -28,9 +28,7 @@ GraphicsView::GraphicsView(QGraphicsScene *scene, QWidget *parent)
     , click_pos_()
     , layouts_()
     , image_widget_(0)
-    , back_button_(0)
-    , path_label_(0)
-    , path_widget_(0)
+    , nested_path_widget_(0)
 {
     pushScene(main_scene_, "MAIN");
     setAcceptDrops(true);
@@ -50,9 +48,7 @@ GraphicsView::GraphicsView(QWidget *parent)
     , click_pos_()
     , layouts_()
     , image_widget_(0)
-    , back_button_(0)
-    , path_label_(0)
-    , path_widget_(0)
+    , nested_path_widget_(0)
 {
     main_scene_ = new QGraphicsScene(QRectF(0,0,100,100),this);
     pushScene(main_scene_, "MAIN");
@@ -131,9 +127,7 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
         scene_rect.setY((qreal) rc_obj["y"].toDouble());
         scene_rect.setWidth((qreal) rc_obj["width"].toDouble());
         scene_rect.setHeight((qreal) rc_obj["height"].toDouble());
-        //setSceneRect(scene_rect);
         scene()->setSceneRect(scene_rect);
-        //qDebug() << scene()->sceneRect();
     }
 
     QString pl_class = PlaylistTile::staticMetaObject.className();
@@ -394,9 +388,8 @@ void GraphicsView::pushScene(QGraphicsScene* scene, QString const& name)
     scene_names_[scene] = name;
     setScene(scene);
     if(scene_stack_.size() > 1) {
-        path_label_->setText(getScenePathHTML());
-        path_widget_->adjustSize();
-        path_widget_->show();
+        nested_path_widget_->setPathText(scene_stack_, scene_names_);
+        nested_path_widget_->show();
     }
 }
 
@@ -405,10 +398,9 @@ void GraphicsView::popScene()
     if(scene_stack_.size() > 1) {
         scene_names_.remove(scene_stack_.pop());
         setScene(scene_stack_.top());
-        path_label_->setText(getScenePathHTML());
-        path_widget_->adjustSize();
+        nested_path_widget_->setPathText(scene_stack_, scene_names_);
         if(scene_stack_.size() == 1)
-            path_widget_->hide();
+            nested_path_widget_->hide();
     }
 }
 
@@ -560,7 +552,6 @@ void GraphicsView::resizeEvent(QResizeEvent *e)
             r.setHeight(e->size().height());
         }
         scene()->setSceneRect(r);
-        //setSceneRect(r);
     }
 }
 
@@ -975,36 +966,12 @@ void GraphicsView::initContextMenu()
 
 void GraphicsView::initWidgets()
 {
-    QHBoxLayout* path_layout = new QHBoxLayout;
-    path_layout->setContentsMargins(0,0,0,0);
-    path_widget_ = new QWidget(this);
-    path_widget_->move(5,5);
-    path_widget_->setLayout(path_layout);
-    path_widget_->hide();
-
-    back_button_ = new QPushButton(path_widget_);
-    back_button_->setFixedSize(50,50);
-    back_button_->setMask(QRegion(back_button_->geometry(), QRegion::Ellipse));
-    back_button_->setIcon(QIcon(*Resources::Lib::PX_BACK_BUTTON));
-    QSize button_size(back_button_->geometry().size());
-    button_size.setHeight(button_size.height()*0.66);
-    button_size.setWidth(button_size.height());
-    back_button_->setIconSize(button_size);
-    back_button_->setStyleSheet("QPushButton {"
-                                "   border: none; "
-                                "   opacity: 0.8; "
-                                "}"
-                                ""
-                                "QPushButton:pressed {"
-                                "   background-color: rgba(50, 152, 253, 40);"
-                                "}"
-                                "");
-    path_layout->addWidget(back_button_);
-    connect(back_button_, &QPushButton::clicked,
+    // do not add to layout to create as overlay
+    nested_path_widget_ = new NestedPathWidget(this);
+    nested_path_widget_->move(5,5);
+    nested_path_widget_->hide();
+    connect(nested_path_widget_, &NestedPathWidget::backButtonClicked,
             this, &GraphicsView::popScene);
-
-    path_label_ = new QLabel(path_widget_);
-    path_layout->addWidget(path_label_);
 }
 
 } // namespace Tile
