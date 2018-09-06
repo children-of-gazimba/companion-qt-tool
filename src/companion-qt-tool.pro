@@ -15,7 +15,8 @@ QT       += core \
             widgets \
             sql \
             network \
-            networkauth  #\
+            networkauth \
+            concurrent
             #webenginewidgets
 
 include(../sockets/src/companion-qt-sockets.pri)
@@ -101,7 +102,9 @@ SOURCES += main.cpp \
     tracking/activation_tracker.cpp \
     tracking/tracker_picker_dialog.cpp \
     tile/map_tile.cpp \
-    misc/volume_mapper.cpp
+    misc/volume_mapper.cpp \
+    image/models/image_directory_model.cpp \
+    image/thumbnail_list.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -183,7 +186,9 @@ HEADERS  += main_window.h \
     tracking/activation_tracker.h \
     tracking/tracker_picker_dialog.h \
     tile/map_tile.h \
-    misc/volume_mapper.h
+    misc/volume_mapper.h \
+    image/models/image_directory_model.h \
+    image/thumbnail_list.h
 
 RESOURCES += \
     _RES/resources.qrc
