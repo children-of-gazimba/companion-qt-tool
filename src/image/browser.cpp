@@ -90,10 +90,7 @@ void Browser::initWidgets()
     connect(recent_directories_, SIGNAL(clicked(const QModelIndex&)),
             this, SLOT(onRecentDirClicked(const QModelIndex&)));
 
-//    list_view_ = new List(v_splitter_);
-//    list_view_->layout()->setMargin(0);
-
-    list_view_ = new ThumbnailList(v_splitter_);
+    list_view_ = new List(v_splitter_);
     list_view_->layout()->setMargin(0);
 
     connect(list_view_, SIGNAL(newDirectory(const QString&)),
