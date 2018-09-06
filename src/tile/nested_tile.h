@@ -15,7 +15,7 @@ class NestedTile : public BaseTile
 {
     Q_OBJECT
 
-    Q_PROPERTY(int progress MEMBER progress_ READ getProgress WRITE setProgress)
+    Q_PROPERTY(qreal progress MEMBER progress_ READ getProgress WRITE setProgress)
 
 public:
     NestedTile(GraphicsView* master_view, QGraphicsItem *parent=0);
@@ -44,9 +44,9 @@ public:
     */
     virtual void receiveExternalData(const QMimeData* data);
 
-    void setProgress(int v);
+    void setProgress(qreal v);
 
-    int getProgress() const;
+    qreal getProgress() const;
 
 public slots:
     /* See BC */
@@ -80,7 +80,7 @@ protected:
     GraphicsView* master_view_;
     QGraphicsScene* scene_;
     QTimer enter_timer_;
-    int progress_;
+    qreal progress_;
     QPropertyAnimation* progress_animation_;
 };
 

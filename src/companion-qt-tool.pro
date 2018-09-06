@@ -103,7 +103,8 @@ SOURCES += main.cpp \
     misc/volume_mapper.cpp \
     sound_file/playback_view.cpp \
     sound_file/sound_file_player.cpp \
-    tile/nested_path_widget.cpp
+    tile/nested_path_widget.cpp \
+    misc/progress_button.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -187,7 +188,8 @@ HEADERS  += main_window.h \
     misc/volume_mapper.h \
     sound_file/playback_view.h \
     sound_file/sound_file_player.h \
-    tile/nested_path_widget.h
+    tile/nested_path_widget.h \
+    misc/progress_button.h
 
 RESOURCES += \
     _RES/resources.qrc

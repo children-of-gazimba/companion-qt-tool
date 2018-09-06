@@ -8,6 +8,10 @@
 #include <QStack>
 #include <QMap>
 #include <QGraphicsScene>
+#include <QPropertyAnimation>
+#include <QTimer>
+
+#include "misc/progress_button.h"
 
 class NestedPathWidget : public QWidget
 {
@@ -25,11 +29,20 @@ signals:
 public slots:
 
 private:
+    void startBackProgress();
+    void resetBackProgress();
+
+    void dragEnterEvent(QDragEnterEvent* e);
+    void dropEvent(QDropEvent *e);
+    void dragLeaveEvent(QDragLeaveEvent* e);
+
     void initWidgets();
     void initLayout();
 
-    QPushButton* back_button_;
+    ProgressButton* back_button_;
     QLabel* path_label_;
+    QTimer back_timer_;
+    QPropertyAnimation* progress_animation_;
 };
 
 #endif // NESTED_PATH_WIDGET_H
