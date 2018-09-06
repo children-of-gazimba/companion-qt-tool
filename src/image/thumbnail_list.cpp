@@ -13,7 +13,7 @@
 
 ThumbnailList::ThumbnailList(QWidget *parent)
     : QWidget(parent)
-    , gridsize_(0)
+    , gridsize_(1)
     , view_mode_(ViewMode::List)
     , model_(Q_NULLPTR)
     , file_view_(Q_NULLPTR)
@@ -34,36 +34,25 @@ void ThumbnailList::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
 
-    QSize size(file_view_->size().width(), file_view_->size().height());
-    if(gridsize_ == 0) {
+    QSize file_view_size(file_view_->size().width(), file_view_->size().height());
+    if(gridsize_ == 1) {
 
         if(view_mode_ != ViewMode::List) {
             view_mode_ = ViewMode::List;
             file_view_->setViewMode(QListView::ListMode);
+            model_->toggleFileNames();
         }
 
-//        if(file_view_->width() < 200) {
-//            QSize icon_size(file_view_->size().width(), file_view_->size().width());
-//            file_view_->setGridSize(icon_size);
-//            file_view_->setIconSize(icon_size);
-//        } else {
-//            QSize icon_size(file_view_->size().width(), 200);
-//            file_view_->setGridSize(icon_size);
-//            file_view_->setIconSize(icon_size);
-//        }
-
-        qDebug() << "resize list mode";
     } else {
 
         if(view_mode_!= ViewMode::Grid) {
             view_mode_ = ViewMode::Grid;
             file_view_->setViewMode(QListView::IconMode);
+            model_->toggleFileNames();
         }
 
-        QSize icon_size(file_view_->size().width() / gridsize_, file_view_->size().width() / gridsize_);
+        QSize icon_size((file_view_size.width() / gridsize_) - 10, (file_view_size.width() / gridsize_) -10);
         file_view_->setIconSize(icon_size);
-
-        qDebug() << "resize grid mode";
     }
 
 }
@@ -115,19 +104,26 @@ void ThumbnailList::onImageSelected(const QModelIndex &idx)
 void ThumbnailList::onChangeGridsize(int value)
 {
     gridsize_ = value;
-    if (gridsize_ == 0) {
+    if (gridsize_ == 1) {
         if(view_mode_ != ViewMode::List) {
             view_mode_ = ViewMode::List;
             file_view_->setViewMode(QListView::ListMode);
+            model_->toggleFileNames();
         }
 
-        QSize icon_size(file_view_->size().width(), file_view_->size().width());
+        QSize icon_size;
+        if(file_view_->size().width() > 200)
+            icon_size = QSize(100, 100);
+        else
+            icon_size = QSize(file_view_->size().width(), file_view_->size().width());
+
         file_view_->setIconSize(icon_size);
 
     } else {
         if(view_mode_!= ViewMode::Grid) {
             view_mode_ = ViewMode::Grid;
             file_view_->setViewMode(QListView::IconMode);
+            model_->toggleFileNames();
         }
 
         QSize icon_size(file_view_->size().width() / gridsize_, file_view_->size().width() / gridsize_);
@@ -153,15 +149,6 @@ void ThumbnailList::initWidgets()
     file_view_->setResizeMode(QListView::Adjust);
     file_view_->setIconSize(QSize(100, 100));
     file_view_->setEditTriggers(QListView::NoEditTriggers);
-//    connect(file_view_, SIGNAL(clicked(const QModelIndex&)),
-//            this, SLOT(onImageSelected(const QModelIndex&)));
-
-//    connect(file_view_, &QListView::clicked,
-//            this, [=] (const QModelIndex &idx) {
-//        qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
-//        qDebug() << "  >" << model_->data(idx, Qt::DecorationRole);
-//    });
-
     connect(file_view_, &QListView::clicked,
             this, &ThumbnailList::onImageSelected);
 
@@ -172,7 +159,7 @@ void ThumbnailList::initWidgets()
     grid_icon_label_->setPixmap(QPixmap(":/icons/ic_view_module_24px.svg"));
 
     gridsize_slider_ = new QSlider(Qt::Horizontal, this);
-    gridsize_slider_->setMinimum(0);
+    gridsize_slider_->setMinimum(1);
     gridsize_slider_->setMaximum(4);
     gridsize_slider_->setTickInterval(1);
     gridsize_slider_->setValue(gridsize_);

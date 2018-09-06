@@ -11,6 +11,8 @@ ImageDirectoryModel::ImageDirectoryModel(QObject* parent)
     , pixmap_cache_()
     , thumbnail_size_(200)
     , display_mode_(ThumbnailMode::Full)
+    , show_filenames(true)
+
 {
     initialize();
 }
@@ -22,6 +24,7 @@ ImageDirectoryModel::ImageDirectoryModel(int thumbnail_size, QObject* parent)
     , pixmap_cache_()
     , thumbnail_size_(thumbnail_size)
     , display_mode_(ThumbnailMode::Full)
+    , show_filenames(true)
 {
     initialize();
 }
@@ -33,6 +36,7 @@ ImageDirectoryModel::ImageDirectoryModel(int thumbnail_size, ThumbnailMode mode,
     , pixmap_cache_()
     , thumbnail_size_(thumbnail_size)
     , display_mode_(mode)
+    , show_filenames(true)
 {
     initialize();
 }
@@ -85,16 +89,23 @@ QVariant ImageDirectoryModel::data(const QModelIndex& index, int role) const
         }
 
     } else if (role == Qt::ToolTipRole) {
-
         return QVariant("<html><head></head><body><div>"+info.fileName()+"</div></body></html>");
-
     } else if (role == Qt::UserRole) {
         return QVariant(info.filePath());
     } else if (role == Qt::DisplayRole) {
-//        return QVariant("foo");
+
+        if(show_filenames)
+            return QVariant(info.fileName());
+        else
+            return QVariant();
     }
 
     return QVariant();
+}
+
+void ImageDirectoryModel::toggleFileNames()
+{
+    show_filenames = !show_filenames;
 }
 
 

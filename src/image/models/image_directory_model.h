@@ -45,6 +45,8 @@ class ImageDirectoryModel: public QFileSystemModel
 
         QVariant data(const QModelIndex& index, int role) const override;
 
+        void toggleFileNames();
+
     signals:
         void thumbnailLoaded(const QString &);
 
@@ -92,6 +94,7 @@ class ImageDirectoryModel: public QFileSystemModel
 
         int thumbnail_size_;
         ThumbnailMode display_mode_;
+        bool show_filenames;
 };
 
 #endif // IMAGEMODEL_H
