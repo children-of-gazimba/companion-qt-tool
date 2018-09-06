@@ -365,12 +365,13 @@ void PlaylistTile::onContents()
 void PlaylistTile::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
 {
     if(mode_ != MOVE && e->button() == Qt::LeftButton) {
+        if(e->modifiers() & Qt::ControlModifier)
+            return BaseTile::mouseReleaseEvent(e);
         if(is_playing_)
             stop();
         else
             play();
     }
-
     BaseTile::mouseReleaseEvent(e);
 }
 
