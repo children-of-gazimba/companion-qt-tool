@@ -6,6 +6,7 @@
 #include <QSplitter>
 
 #include "list.h"
+#include "thumbnail_list.h"
 #include "view.h"
 #include "image_display_widget.h"
 #include "db/model/image_dir_table_model.h"
@@ -38,7 +39,8 @@ private:
     void initLayout();
 
     QTreeView* recent_directories_;
-    List* list_view_;
+//    List* list_view_;
+    ThumbnailList *list_view_;
     QSplitter* v_splitter_;
     DB::Model::ImageDirTableModel* model_;
 };

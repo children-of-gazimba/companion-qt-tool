@@ -61,4 +61,8 @@
     <qresource prefix="/config">
         <file>spotify_credentials.json</file>
     </qresource>
+    <qresource prefix="/icons">
+        <file>ic_view_list_24px.svg</file>
+        <file>ic_view_module_24px.svg</file>
+    </qresource>
 </RCC>
