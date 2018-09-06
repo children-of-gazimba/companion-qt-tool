@@ -284,6 +284,11 @@ protected:
     virtual void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
     virtual void dropEvent(QGraphicsSceneDragDropEvent *event);
 
+    /**
+     * creates a drag from this tile
+    */
+    virtual void performDrag();
+
     /** Called whenever a tracker matching trackable name has been added */
     virtual void trackableSourceAddedEvent(Tracker*);
 
@@ -356,6 +361,7 @@ protected:
     bool is_activated_;
     DB::Model::PresetTableModel* preset_model_;
     bool is_selected_;
+    bool ctrl_clicked_;
 };
 
 } // namespace Tile

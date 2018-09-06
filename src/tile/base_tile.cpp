@@ -11,6 +11,7 @@
 #include <cmath>
 #include <QJsonDocument>
 #include <QMessageBox>
+#include <QDrag>
 
 #include "resources/lib.h"
 #include "misc/char_input_dialog.h"
@@ -40,10 +41,12 @@ BaseTile::BaseTile(QGraphicsItem* parent)
     , is_activated_(false)
     , preset_model_(0)
     , is_selected_(false)
+    , ctrl_clicked_(false)
 {    
     long_click_timer_ = new QTimer(this);
     connect(long_click_timer_, SIGNAL(timeout()),
             this, SLOT(onLongClick()));
+    long_click_timer_->setSingleShot(true);
 
     setAcceptHoverEvents(true);
     setAcceptDrops(true);
@@ -384,6 +387,8 @@ void BaseTile::mousePressEvent(QGraphicsSceneMouseEvent* e)
     if(e->button() == Qt::LeftButton) {
         if(e->modifiers() & Qt::ControlModifier) {
             toggleSelection();
+            ctrl_clicked_ = true;
+            long_click_timer_->start(long_click_duration_);
         }
         else {
             setMode(ACTIVATED);
@@ -405,6 +410,7 @@ void BaseTile::mouseReleaseEvent(QGraphicsSceneMouseEvent* e)
 {
     setMode(IDLE);
     long_click_timer_->stop();
+    ctrl_clicked_ = false;
     QGraphicsItem::mouseReleaseEvent(e);
     emit mouseReleased(e);
 }
@@ -502,6 +508,34 @@ void BaseTile::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 void BaseTile::dropEvent(QGraphicsSceneDragDropEvent *event)
 {
     QGraphicsItem::dropEvent(event);
+}
+
+void BaseTile::performDrag()
+{
+    if(!scene())
+        return;
+
+    QJsonDocument doc;
+    QJsonObject obj;
+    QJsonObject obj_data = toJsonObject();
+    obj["data"] = obj_data;
+    obj["type"] = metaObject()->className();
+    doc.setObject(obj);
+
+    QMimeData* mime_data = new QMimeData;
+    mime_data->setText(QString(doc.toJson()));
+
+    // create Drag
+    QDrag *drag = new QDrag(this);
+    drag->setMimeData(mime_data);
+    drag->setPixmap(*Resources::Lib::PX_SOUND_FILE_DRAG);
+
+    scene()->removeItem(this);
+
+    // will block until drag done
+    drag->exec(Qt::CopyAction);
+
+    deleteLater();
 }
 
 void BaseTile::trackableSourceAddedEvent(Tracker *t)
@@ -710,7 +744,11 @@ void BaseTile::setLargeSize()
 
 void BaseTile::onLongClick()
 {
-    setMode(MOVE);
+    if(ctrl_clicked_)
+        performDrag();
+    else
+        setMode(MOVE);
+    long_click_timer_->stop();
 }
 
 void BaseTile::onDelete()
