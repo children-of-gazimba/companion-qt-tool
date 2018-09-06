@@ -13,6 +13,7 @@
 #include "base_tile.h"
 #include "image/view.h"
 #include "image/image_display_widget.h"
+#include "nested_path_widget.h"
 
 // TODO: rename namespace to Tile
 namespace Tile {
@@ -63,6 +64,17 @@ public:
     BaseTile* getTile(const QUuid& uuid) const;
 
     /**
+     * Returns all tiles with the alternative selection falg set to true.
+     * (See BaseTile::is_selected_).
+    */
+    QList<BaseTile*> const getSelectedTiles() const;
+
+    /**
+     * Deselects all tiles.
+    */
+    void deselectAllTiles();
+
+    /**
      * Activates tile with given ID.
      * Returns true if activation succeeded.
     */
@@ -101,7 +113,7 @@ public:
     /**
      * pushes a scene onto the scene stack and shows it.
     */
-    void pushScene(QGraphicsScene*);
+    void pushScene(QGraphicsScene* s, QString const& name);
 
     /*
      * pops a scene from the scene stack and shows the next.
@@ -118,24 +130,24 @@ public:
     /**
      * Creates an empty PlaylistTile
     */
-    void createEmptyPlaylistTile(QPoint const& p);
+    BaseTile* createEmptyPlaylistTile(QPoint const& p);
 
     /**
      * Creates an empty NestedTile
     */
-    void createEmptyNestedTile(QPoint const& p);
+    BaseTile* createEmptyNestedTile(QPoint const& p);
 
     /*
      * @brief Creates an empty SpotifyTile
      * @param p
      */
-    void createEmptySpotifyTile(QPoint const& p);
+    BaseTile* createEmptySpotifyTile(QPoint const& p);
 
     /*
      * @brief Creates an empty MapTile
      * @param p
      */
-    void createEmptyMapTile(QPoint const& p);
+    BaseTile* createEmptyMapTile(QPoint const& p);
 
     /**
      * returns true if this instance manages a layout with given name.
@@ -176,6 +188,11 @@ public:
     */
     const QStringList getLayoutNames() const;
 
+    /**
+     * Returns tile at given pos or nullptr if none there.
+    */
+    BaseTile* getTileAt(const QPoint& pos) const;
+
 private:
     /**
      * Handle scene size when widget resizes.
@@ -196,6 +213,7 @@ private slots:
     void onEmptyNestedTile();
     void onEmptySpotifyTile();
     void onEmptyMapTile();
+    void onNestSelectedTiles();
 
 private:
     /**
@@ -225,6 +243,13 @@ private:
     void keyReleaseEvent(QKeyEvent *event);
 
     void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+
+    /**
+     * Returns a string with html formatting
+     * to encapsulate the current scene stack.
+    */
+    QString const getScenePathHTML() const;
 
     /**
      * Remove all tiles from view.
@@ -236,15 +261,23 @@ private:
      */
     void initContextMenu();
 
+    /**
+     * initializes path widget.
+    */
+    void initWidgets();
+
     DB::Model::SoundFileTableModel* sound_model_;
     DB::Model::PresetTableModel* preset_model_;
     QGraphicsScene* main_scene_;
     QStack<QGraphicsScene*> scene_stack_;
+    QMap<QGraphicsScene*, QString> scene_names_;
     QMenu* context_menu_;
+    QAction* nest_selected_action_;
     QPoint click_pos_;
     QMap<QString, QJsonObject> layouts_;
     Image::View* image_view_;
     ImageDisplayWidget* image_widget_;
+    NestedPathWidget* nested_path_widget_;
 };
 
 } // namespace Tile

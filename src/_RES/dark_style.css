@@ -239,8 +239,20 @@ QTableView {
    color: white;
 }
 
+PlaybackView::item {
+    background-color: #373738;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+PlaybackView::item:selected {
+    background-color: rgba(50, 152, 253, 80);
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
 QTableView::item {
-   margin: 3px;
+    /*margin: 3px;*/
 }
 
 QTableView::item:hover {

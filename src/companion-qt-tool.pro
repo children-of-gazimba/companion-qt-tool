@@ -40,7 +40,6 @@ SOURCES += main.cpp \
     misc/standard_item_model.cpp \
     misc/char_input_dialog.cpp \
     sound_file/list_view.cpp \
-    sound_file/master_view.cpp \
     sound_file/list_view_dialog.cpp \
     tile/graphics_view.cpp \
     playlist/settings_widget.cpp \
@@ -104,7 +103,11 @@ SOURCES += main.cpp \
     tile/map_tile.cpp \
     misc/volume_mapper.cpp \
     image/models/image_directory_model.cpp \
-    image/thumbnail_list.cpp
+    image/thumbnail_list.cpp \
+    sound_file/playback_view.cpp \
+    sound_file/sound_file_player.cpp \
+    tile/nested_path_widget.cpp \
+    misc/progress_button.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -123,7 +126,6 @@ HEADERS  += main_window.h \
     misc/json_mime_data_parser.h \
     misc/standard_item_model.h \
     sound_file/list_view.h \
-    sound_file/master_view.h \
     sound_file/list_view_dialog.h \
     tile/graphics_view.h \
     playlist/settings.h \
@@ -188,7 +190,11 @@ HEADERS  += main_window.h \
     tile/map_tile.h \
     misc/volume_mapper.h \
     image/models/image_directory_model.h \
-    image/thumbnail_list.h
+    image/thumbnail_list.h \
+    sound_file/playback_view.h \
+    sound_file/sound_file_player.h \
+    tile/nested_path_widget.h \
+    misc/progress_button.h
 
 RESOURCES += \
     _RES/resources.qrc

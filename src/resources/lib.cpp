@@ -53,6 +53,8 @@ void Lib::init()
         PX_VISIBLE = new QPixmap(IMG_VISIBLE_PATH);
     if(PX_INVISIBLE == 0)
         PX_INVISIBLE = new QPixmap(IMG_INVISIBLE_PATH);
+    if(PX_BACK_BUTTON == 0)
+        PX_BACK_BUTTON = new QPixmap(IMG_BACK_BUTTON_PATH);
     if(PX_0_KEY == 0)
         PX_0_KEY = new QPixmap(IMG_KEY_0_PATH);
     if(PX_1_KEY == 0)
@@ -153,6 +155,8 @@ void Lib::cleanup()
         delete PX_VISIBLE;
     if(PX_INVISIBLE != 0)
         delete PX_INVISIBLE;
+    if(PX_BACK_BUTTON != 0)
+        delete PX_BACK_BUTTON;
     if(PX_0_KEY != 0)
         delete PX_0_KEY;
     if(PX_1_KEY != 0)
@@ -238,6 +242,7 @@ void Lib::cleanup()
     PX_SPUNGIFY = 0;
     PX_VISIBLE = 0;
     PX_INVISIBLE = 0;
+    PX_BACK_BUTTON = 0;
     PX_0_KEY = 0;
     PX_1_KEY = 0;
     PX_2_KEY = 0;
@@ -398,6 +403,7 @@ QString Lib::IMG_FOLDER_PATH = ":/images/folder.png";
 QString Lib::IMG_SPUNGIFY_PATH = ":/images/spungify.png";
 QString Lib::IMG_VISIBLE_PATH = ":/images/visible.png";
 QString Lib::IMG_INVISIBLE_PATH = ":/images/invisible.png";
+QString Lib::IMG_BACK_BUTTON_PATH = ":/images/back_button_round.png";
 
 // keys
 QString Lib::IMG_KEY_0_PATH = ":/keys/0_key.png";
@@ -448,6 +454,7 @@ QPixmap* Lib::PX_FOLDER = 0;
 QPixmap* Lib::PX_SPUNGIFY = 0;
 QPixmap* Lib::PX_VISIBLE = 0;
 QPixmap* Lib::PX_INVISIBLE = 0;
+QPixmap* Lib::PX_BACK_BUTTON = 0;
 QPixmap* Lib::PX_0_KEY = 0;
 QPixmap* Lib::PX_1_KEY = 0;
 QPixmap* Lib::PX_2_KEY = 0;

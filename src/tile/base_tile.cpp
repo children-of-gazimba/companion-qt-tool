@@ -11,6 +11,7 @@
 #include <cmath>
 #include <QJsonDocument>
 #include <QMessageBox>
+#include <QDrag>
 
 #include "resources/lib.h"
 #include "misc/char_input_dialog.h"
@@ -39,10 +40,13 @@ BaseTile::BaseTile(QGraphicsItem* parent)
     , uuid_()
     , is_activated_(false)
     , preset_model_(0)
+    , is_selected_(false)
+    , ctrl_clicked_(false)
 {    
     long_click_timer_ = new QTimer(this);
     connect(long_click_timer_, SIGNAL(timeout()),
             this, SLOT(onLongClick()));
+    long_click_timer_->setSingleShot(true);
 
     setAcceptHoverEvents(true);
     setAcceptDrops(true);
@@ -80,7 +84,10 @@ void BaseTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
     setDefaultOpacity();
 
     // paint bounding box
-    painter->fillRect(boundingRect(), QBrush(QColor(55,55,56)));
+    QBrush b(QColor(55,55,56));
+    if(is_selected_)
+        b.setColor(QColor(50,152,253));
+    painter->fillRect(boundingRect(), b);
     painter->setPen(QColor(84,85,86));
     painter->drawRect(boundingRect());
 
@@ -161,10 +168,11 @@ const QChar &BaseTile::getActivateKey() const
 
 void BaseTile::setSize(qreal size)
 {
+    prepareGeometryChange();
     size_ = size;
-    QRectF r(boundingRect());
+    /*QRectF r(boundingRect());
     if(r.width() > 5 && scene())
-        scene()->update(scene()->sceneRect());
+        scene()->update(scene()->sceneRect());*/
 }
 
 qreal BaseTile::getSize() const
@@ -172,7 +180,7 @@ qreal BaseTile::getSize() const
     return size_;
 }
 
-void BaseTile::setSizeAnimated(qreal size)
+void BaseTile::setSizeAnimated(qreal size, int duration)
 {
     qreal prev_size = size_;
 
@@ -181,9 +189,9 @@ void BaseTile::setSizeAnimated(qreal size)
     QPropertyAnimation* anim = new QPropertyAnimation(this, "size");
     anim->setStartValue(prev_size);
     anim->setEndValue(size);
-    anim->setDuration(300);
-    anim->start(QAbstractAnimation::DeleteWhenStopped);
+    anim->setDuration(duration);
     anim->setEasingCurve(QEasingCurve::InOutQuad);
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void BaseTile::setSizeLayoutAware(qreal size)
@@ -193,6 +201,16 @@ void BaseTile::setSizeLayoutAware(qreal size)
     fixOverlapsAfterResize(prev_size);
 
     scene()->update(scene()->sceneRect());
+}
+
+void BaseTile::setPosAnimated(const QPointF& p, int duration)
+{
+    QPropertyAnimation* anim = new QPropertyAnimation(this, "pos");
+    anim->setStartValue(pos());
+    anim->setEndValue(p);
+    anim->setDuration(duration);
+    anim->setEasingCurve(QEasingCurve::InOutQuad);
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void BaseTile::setName(const QString &str)
@@ -338,6 +356,25 @@ DB::Model::PresetTableModel* BaseTile::getPresetModel()
     return preset_model_;
 }
 
+bool BaseTile::getIsSelected() const
+{
+    return is_selected_;
+}
+
+void BaseTile::setIsSelected(bool state)
+{
+    if(state == is_selected_)
+        return;
+    prepareGeometryChange();
+    is_selected_ = state;
+}
+
+void BaseTile::toggleSelection()
+{
+    prepareGeometryChange();
+    is_selected_ = !is_selected_;
+}
+
 void BaseTile::onActivate()
 {
     is_activated_ = !is_activated_;
@@ -348,8 +385,15 @@ void BaseTile::onActivate()
 void BaseTile::mousePressEvent(QGraphicsSceneMouseEvent* e)
 {
     if(e->button() == Qt::LeftButton) {
-        setMode(SELECTED);
-        long_click_timer_->start(long_click_duration_);
+        if(e->modifiers() & Qt::ControlModifier) {
+            toggleSelection();
+            ctrl_clicked_ = true;
+            long_click_timer_->start(long_click_duration_);
+        }
+        else {
+            setMode(ACTIVATED);
+            long_click_timer_->start(long_click_duration_);
+        }
     }
     else if(e->button() == Qt::RightButton) {
         // qDebug() << "right button";
@@ -366,6 +410,7 @@ void BaseTile::mouseReleaseEvent(QGraphicsSceneMouseEvent* e)
 {
     setMode(IDLE);
     long_click_timer_->stop();
+    ctrl_clicked_ = false;
     QGraphicsItem::mouseReleaseEvent(e);
     emit mouseReleased(e);
 }
@@ -443,17 +488,54 @@ void BaseTile::hoverLeaveEvent(QGraphicsSceneHoverEvent* e)
 
 void BaseTile::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 {
-    QGraphicsItem::dragEnterEvent(event);
+    //QGraphicsItem::dragEnterEvent(event);
+    event->setDropAction(Qt::CopyAction);
+    event->accept();
+}
+
+void BaseTile::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
+{
+    QGraphicsItem::dragLeaveEvent(event);
 }
 
 void BaseTile::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 {
     QGraphicsItem::dragMoveEvent(event);
+    event->setDropAction(Qt::CopyAction);
+    event->accept();
 }
 
 void BaseTile::dropEvent(QGraphicsSceneDragDropEvent *event)
 {
     QGraphicsItem::dropEvent(event);
+}
+
+void BaseTile::performDrag()
+{
+    if(!scene())
+        return;
+
+    QJsonDocument doc;
+    QJsonObject obj;
+    QJsonObject obj_data = toJsonObject();
+    obj["data"] = obj_data;
+    obj["type"] = metaObject()->className();
+    doc.setObject(obj);
+
+    QMimeData* mime_data = new QMimeData;
+    mime_data->setText(QString(doc.toJson()));
+
+    // create Drag
+    QDrag *drag = new QDrag(this);
+    drag->setMimeData(mime_data);
+    drag->setPixmap(*Resources::Lib::PX_SOUND_FILE_DRAG);
+
+    scene()->removeItem(this);
+
+    // will block until drag done
+    drag->exec(Qt::CopyAction);
+
+    deleteLater();
 }
 
 void BaseTile::trackableSourceAddedEvent(Tracker *t)
@@ -595,7 +677,7 @@ const QBrush BaseTile::getBackgroundBrush() const
     QBrush b(Qt::gray);
 
     switch(mode_) {
-        case SELECTED:
+        case ACTIVATED:
             b.setColor(Qt::green);
             break;
 
@@ -611,7 +693,7 @@ const QPixmap BaseTile::getOverlayPixmap() const
     if (overlay_pixmap_ != 0)
         return *overlay_pixmap_;
 
-    if(mode_ == SELECTED)
+    if(mode_ == ACTIVATED)
         return *Resources::Lib::PX_CRACKED_STONE_INV;
     else
         return *Resources::Lib::PX_CRACKED_STONE;
@@ -641,8 +723,8 @@ void BaseTile::setDefaultOpacity()
 
 void BaseTile::setMode(BaseTile::ItemMode mode)
 {
+    prepareGeometryChange();
     mode_ = mode;
-    update(boundingRect());
 }
 
 void BaseTile::setSmallSize()
@@ -662,7 +744,11 @@ void BaseTile::setLargeSize()
 
 void BaseTile::onLongClick()
 {
-    setMode(MOVE);
+    if(ctrl_clicked_)
+        performDrag();
+    else
+        setMode(MOVE);
+    long_click_timer_->stop();
 }
 
 void BaseTile::onDelete()

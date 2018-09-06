@@ -162,8 +162,11 @@ void MapTile::saveChanges()
 
 void MapTile::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
 {
-    if(mode_ != MOVE && e->button() == Qt::LeftButton)
+    if(mode_ != MOVE && e->button() == Qt::LeftButton) {
+        if(e->modifiers() & Qt::ControlModifier)
+            return BaseTile::mouseReleaseEvent(e);
         onActivate();
+    }
 
     BaseTile::mouseReleaseEvent(e);
 }

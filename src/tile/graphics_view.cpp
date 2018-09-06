@@ -6,12 +6,14 @@
 #include <QMimeData>
 #include <QJsonValue>
 #include <QMessageBox>
+#include <QHBoxLayout>
 
 #include "playlist_tile.h"
 #include "nested_tile.h"
 #include "spotify_tile.h"
 #include "map_tile.h"
 #include "misc/json_mime_data_parser.h"
+#include "resources/lib.h"
 
 namespace Tile {
 
@@ -20,14 +22,18 @@ GraphicsView::GraphicsView(QGraphicsScene *scene, QWidget *parent)
     , sound_model_(0)
     , main_scene_(scene)
     , scene_stack_()
+    , scene_names_()
     , context_menu_(0)
+    , nest_selected_action_(0)
     , click_pos_()
     , layouts_()
     , image_widget_(0)
+    , nested_path_widget_(0)
 {
-    pushScene(main_scene_);
+    pushScene(main_scene_, "MAIN");
     setAcceptDrops(true);
     setFocusPolicy(Qt::ClickFocus);
+    initWidgets();
     initContextMenu();
 }
 
@@ -36,15 +42,19 @@ GraphicsView::GraphicsView(QWidget *parent)
     , sound_model_(0)
     , main_scene_(0)
     , scene_stack_()
+    , scene_names_()
     , context_menu_(0)
+    , nest_selected_action_(0)
     , click_pos_()
     , layouts_()
     , image_widget_(0)
+    , nested_path_widget_(0)
 {
     main_scene_ = new QGraphicsScene(QRectF(0,0,100,100),this);
-    pushScene(main_scene_);
+    pushScene(main_scene_, "MAIN");
     setAcceptDrops(true);
     setFocusPolicy(Qt::ClickFocus);
+    initWidgets();
     initContextMenu();
 }
 
@@ -117,9 +127,7 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
         scene_rect.setY((qreal) rc_obj["y"].toDouble());
         scene_rect.setWidth((qreal) rc_obj["width"].toDouble());
         scene_rect.setHeight((qreal) rc_obj["height"].toDouble());
-        //setSceneRect(scene_rect);
         scene()->setSceneRect(scene_rect);
-        //qDebug() << scene()->sceneRect();
     }
 
     QString pl_class = PlaylistTile::staticMetaObject.className();
@@ -262,6 +270,24 @@ BaseTile *GraphicsView::getTile(const QUuid &uuid) const
     return 0;
 }
 
+const QList<BaseTile *> GraphicsView::getSelectedTiles() const
+{
+    QList<BaseTile*> selected_tiles;
+    foreach(auto it, items()) {
+        BaseTile* tile = qgraphicsitem_cast<BaseTile*>(it);
+        if(tile && tile->getIsSelected()) {
+            selected_tiles.append(tile);
+        }
+    }
+    return selected_tiles;
+}
+
+void GraphicsView::deselectAllTiles()
+{
+    foreach(auto t, getSelectedTiles())
+        t->setIsSelected(false);
+}
+
 bool GraphicsView::activate(const QUuid &tile_id)
 {
     foreach(QGraphicsItem* it, scene()->items()) {
@@ -355,17 +381,26 @@ ImageDisplayWidget *GraphicsView::getImageDisplay() const
     return image_widget_;
 }
 
-void GraphicsView::pushScene(QGraphicsScene* scene)
+void GraphicsView::pushScene(QGraphicsScene* scene, QString const& name)
 {
     scene_stack_.push(scene);
+    scene->setSceneRect(main_scene_->sceneRect());
+    scene_names_[scene] = name;
     setScene(scene);
+    if(scene_stack_.size() > 1) {
+        nested_path_widget_->setPathText(scene_stack_, scene_names_);
+        nested_path_widget_->show();
+    }
 }
 
 void GraphicsView::popScene()
 {
     if(scene_stack_.size() > 1) {
-        scene_stack_.pop();
+        scene_names_.remove(scene_stack_.pop());
         setScene(scene_stack_.top());
+        nested_path_widget_->setPathText(scene_stack_, scene_names_);
+        if(scene_stack_.size() == 1)
+            nested_path_widget_->hide();
     }
 }
 
@@ -374,7 +409,7 @@ const QMenu *GraphicsView::getContextMenu() const
     return context_menu_;
 }
 
-void GraphicsView::createEmptyPlaylistTile(const QPoint &p)
+BaseTile* GraphicsView::createEmptyPlaylistTile(const QPoint &p)
 {
     PlaylistTile* tile = new PlaylistTile;
     tile->setPresetModel(preset_model_);
@@ -388,9 +423,11 @@ void GraphicsView::createEmptyPlaylistTile(const QPoint &p)
     // add to scene
     scene()->addItem(tile);
     tile->setSmallSize();
+
+    return tile;
 }
 
-void GraphicsView::createEmptyNestedTile(const QPoint &p)
+BaseTile* GraphicsView::createEmptyNestedTile(const QPoint &p)
 {
     NestedTile* tile = new NestedTile(this);
     tile->setPresetModel(preset_model_);
@@ -403,9 +440,11 @@ void GraphicsView::createEmptyNestedTile(const QPoint &p)
     // add to scene
     scene()->addItem(tile);
     tile->setSmallSize();
+
+    return tile;
 }
 
-void GraphicsView::createEmptySpotifyTile(const QPoint &p)
+BaseTile* GraphicsView::createEmptySpotifyTile(const QPoint &p)
 {
     SpotifyTile* tile = new SpotifyTile;
     tile->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -418,9 +457,11 @@ void GraphicsView::createEmptySpotifyTile(const QPoint &p)
     // add to scene
     scene()->addItem(tile);
     tile->setSmallSize();
+
+    return tile;
 }
 
-void GraphicsView::createEmptyMapTile(const QPoint &p)
+BaseTile* GraphicsView::createEmptyMapTile(const QPoint &p)
 {
     MapTile* tile = new MapTile;
     tile->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -434,6 +475,8 @@ void GraphicsView::createEmptyMapTile(const QPoint &p)
     // add to scene
     scene()->addItem(tile);
     tile->setSmallSize();
+
+    return tile;
 }
 
 bool GraphicsView::hasLayout(const QString& name) const
@@ -489,6 +532,14 @@ const QStringList GraphicsView::getLayoutNames() const
     return layouts_.keys();
 }
 
+BaseTile *GraphicsView::getTileAt(const QPoint &pos) const
+{
+    auto it = itemAt(pos);
+    if(!it)
+        return nullptr;
+    return qgraphicsitem_cast<BaseTile*>(it);
+}
+
 void GraphicsView::resizeEvent(QResizeEvent *e)
 {
     QGraphicsView::resizeEvent(e);
@@ -501,7 +552,6 @@ void GraphicsView::resizeEvent(QResizeEvent *e)
             r.setHeight(e->size().height());
         }
         scene()->setSceneRect(r);
-        //setSceneRect(r);
     }
 }
 
@@ -548,6 +598,33 @@ void GraphicsView::onEmptyMapTile()
     createEmptyMapTile(click_pos_);
 }
 
+void GraphicsView::onNestSelectedTiles()
+{
+    QList<BaseTile*> selected_tiles = getSelectedTiles();
+    BaseTile* new_tile = createEmptyNestedTile(click_pos_);
+    NestedTile* new_nested = qgraphicsitem_cast<NestedTile*>(new_tile);
+    if(new_nested) {
+        int animation_duration = 300;
+        QMap<BaseTile*, QPointF> prev_pos;
+        QMap<BaseTile*, qreal> prev_size;
+        foreach(auto tile, selected_tiles) {
+            prev_pos[tile] = tile->pos();
+            tile->setPosAnimated(new_nested->pos(), animation_duration);
+            prev_size[tile] = tile->getSize();
+            tile->setSizeAnimated(0, animation_duration);
+            tile->setIsSelected(false);
+        }
+        QTimer::singleShot(animation_duration+50, this, [=](){
+            foreach(auto tile, selected_tiles) {
+                scene()->removeItem(tile);
+                tile->setPos(prev_pos[tile]);
+                tile->setSize(prev_size[tile]);
+            }
+            new_nested->addTiles(selected_tiles);
+        });
+    }
+}
+
 const QJsonObject GraphicsView::sanitizeLayout(const QJsonObject& obj) const
 {
     if(!obj.contains("scene") || !obj["scene"].isObject())
@@ -590,9 +667,9 @@ const QJsonObject GraphicsView::sanitizeLayout(const QJsonObject& obj) const
 
 void GraphicsView::dragEnterEvent(QDragEnterEvent *event)
 {
-    //qDebug() << "GraphicView: drag Enter Event ";
+    QGraphicsView::dragEnterEvent(event);
     GraphicsView *source = qobject_cast<GraphicsView*>(event->source());
-    if (/*event->source() &&*/ source != this) {
+    if (source != this) {
         event->setDropAction(Qt::CopyAction);
         event->accept();
     }
@@ -600,9 +677,9 @@ void GraphicsView::dragEnterEvent(QDragEnterEvent *event)
 
 void GraphicsView::dragMoveEvent(QDragMoveEvent *event)
 {
-    //qDebug() << "GraphicView: drag Enter Move";
+    QGraphicsView::dragMoveEvent(event);
     GraphicsView *source = qobject_cast<GraphicsView*>(event->source());
-    if (/*event->source() &&*/ source != this) {
+    if (source != this) {
         event->setDropAction(Qt::CopyAction);
         event->accept();
     }
@@ -808,11 +885,39 @@ void GraphicsView::mousePressEvent(QMouseEvent *event)
     QGraphicsView::mousePressEvent(event);
     if(!event->isAccepted()) {
         if(event->button() == Qt::RightButton) {
+            nest_selected_action_->setEnabled(getSelectedTiles().size() > 0);
             context_menu_->popup(event->globalPos());
             click_pos_ = event->pos();
             event->accept();
         }
     }
+}
+
+void GraphicsView::mouseReleaseEvent(QMouseEvent *event)
+{
+    if(event->button() == Qt::LeftButton && !(event->modifiers() & Qt::ControlModifier)) {
+        auto tile = getTileAt(event->pos());
+        if(!tile)
+            deselectAllTiles();
+    }
+    QGraphicsView::mouseReleaseEvent(event);
+}
+
+const QString GraphicsView::getScenePathHTML() const
+{
+    QString path = "";
+    int i = 0;
+    foreach(auto s, scene_stack_) {
+        if(i != 0)
+            path += " > ";
+        if(i == scene_stack_.size() - 1)
+            path += "<b>";
+        path += scene_names_[s];
+        if(i == scene_stack_.size() - 1)
+            path += "</b>";
+        ++i;
+    }
+    return path;
 }
 
 void GraphicsView::clearTiles()
@@ -830,7 +935,7 @@ void GraphicsView::initContextMenu()
 {
     context_menu_ = new QMenu;
 
-    QMenu* create_empty = new QMenu(tr("Create Empty"));
+    QMenu* create_empty = context_menu_->addMenu(tr("Create Empty"));
 
     QAction* empty_playlist = new QAction(tr("Playlist Tile"));
     connect(empty_playlist, SIGNAL(triggered()),
@@ -853,7 +958,20 @@ void GraphicsView::initContextMenu()
     create_empty->addAction(empty_spotify);
     create_empty->addAction(empty_map);
 
-    context_menu_->addMenu(create_empty);
+    nest_selected_action_ = context_menu_->addAction(tr("Nest Selected Tiles..."));
+    connect(nest_selected_action_, &QAction::triggered,
+            this, &GraphicsView::onNestSelectedTiles);
+    nest_selected_action_->setEnabled(false);
+}
+
+void GraphicsView::initWidgets()
+{
+    // do not add to layout to create as overlay
+    nested_path_widget_ = new NestedPathWidget(this);
+    nested_path_widget_->move(5,5);
+    nested_path_widget_->hide();
+    connect(nested_path_widget_, &NestedPathWidget::backButtonClicked,
+            this, &GraphicsView::popScene);
 }
 
 } // namespace Tile

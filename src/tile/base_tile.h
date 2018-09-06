@@ -44,7 +44,7 @@ protected:
     enum ItemMode {
         IDLE,
         HOVER,
-        SELECTED,
+        ACTIVATED,
         MOVE
     };
 
@@ -115,12 +115,17 @@ public:
      * Animated change of tile size.
      * (will preserve non overlapping state with other tiles)
     */
-    virtual void setSizeAnimated(qreal size);
+    virtual void setSizeAnimated(qreal size, int duration = 300);
 
     /**
      * Change size of tile taking into account any overlapping with other Tiles.
     */
     virtual void setSizeLayoutAware(qreal size);
+
+    /**
+     * Animated change of tile pos.
+    */
+    virtual void setPosAnimated(const QPointF& p, int duration = 300);
 
     /**
      * Set name of tile.
@@ -204,6 +209,27 @@ public:
      */
     DB::Model::PresetTableModel* getPresetModel();
 
+    /**
+     * Get alternative selection state to work around
+     * default graphics item selection.
+     * This is necessary because selection gets confused
+     * by other on click behavior.
+    */
+    bool getIsSelected() const;
+
+    /**
+     * Set alternative selection state to work around
+     * default graphics item selection.
+     * This is necessary because selection gets confused
+     * by other on click behavior.
+    */
+    void setIsSelected(bool state);
+
+    /**
+     * Selects or deselects tile based on current state.
+    */
+    void toggleSelection();
+
 signals:
     void mousePressed(QGraphicsSceneMouseEvent* e);
     void mouseReleased(QGraphicsSceneMouseEvent* e);
@@ -254,8 +280,14 @@ protected:
     virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *e);
     virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent* e);
     virtual void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+    virtual void dragLeaveEvent(QGraphicsSceneDragDropEvent *event);
     virtual void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
     virtual void dropEvent(QGraphicsSceneDragDropEvent *event);
+
+    /**
+     * creates a drag from this tile
+    */
+    virtual void performDrag();
 
     /** Called whenever a tracker matching trackable name has been added */
     virtual void trackableSourceAddedEvent(Tracker*);
@@ -328,6 +360,8 @@ protected:
     QUuid uuid_;
     bool is_activated_;
     DB::Model::PresetTableModel* preset_model_;
+    bool is_selected_;
+    bool ctrl_clicked_;
 };
 
 } // namespace Tile
