@@ -7,6 +7,8 @@
 #include <QHash>
 #include <QMutex>
 #include <QPixmapCache>
+#include <QFuture>
+#include <QVector>
 
 class ImageDirectoryModel: public QFileSystemModel
 {
@@ -45,6 +47,9 @@ class ImageDirectoryModel: public QFileSystemModel
 
         QVariant data(const QModelIndex& index, int role) const override;
 
+        /**
+         * @brief Toggles returning the filenam as Qt::UserRole
+         */
         void toggleFileNames();
 
     signals:
@@ -52,10 +57,19 @@ class ImageDirectoryModel: public QFileSystemModel
 
     protected slots:
         /**
-         * @brief Emits dataChanged signal, leading
+         * @brief Emits dataChanged signal
          */
         void updateThumbnail(const QString &);
+
+        /**
+         * @brief Triggers when the rootIndex is changed
+         */
         void onRootPathChanged(const QString &);
+
+        /**
+         * @brief Triggers when a new directory was loaded
+         */
+        void onDirectoryLoaded(const QString &);
 
     protected:
         /**
@@ -77,6 +91,9 @@ class ImageDirectoryModel: public QFileSystemModel
         mutable QMutex mutex_;
         mutable QHash<QString, QDateTime> thumbnails_;
         mutable QPixmapCache pixmap_cache_;
+
+        // vector containing all active created threads
+        mutable QVector<QFuture<void>> active_threads_;
 
     private:
         /**

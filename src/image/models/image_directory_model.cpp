@@ -9,6 +9,7 @@ ImageDirectoryModel::ImageDirectoryModel(QObject* parent)
     , mutex_()
     , thumbnails_()
     , pixmap_cache_()
+    , active_threads_()
     , thumbnail_size_(200)
     , display_mode_(ThumbnailMode::Full)
     , show_filenames(true)
@@ -22,6 +23,7 @@ ImageDirectoryModel::ImageDirectoryModel(int thumbnail_size, QObject* parent)
     , mutex_()
     , thumbnails_()
     , pixmap_cache_()
+    , active_threads_()
     , thumbnail_size_(thumbnail_size)
     , display_mode_(ThumbnailMode::Full)
     , show_filenames(true)
@@ -34,6 +36,7 @@ ImageDirectoryModel::ImageDirectoryModel(int thumbnail_size, ThumbnailMode mode,
     , mutex_()
     , thumbnails_()
     , pixmap_cache_()
+    , active_threads_()
     , thumbnail_size_(thumbnail_size)
     , display_mode_(mode)
     , show_filenames(true)
@@ -44,6 +47,7 @@ ImageDirectoryModel::ImageDirectoryModel(int thumbnail_size, ThumbnailMode mode,
 ImageDirectoryModel::~ImageDirectoryModel()
 {
     QMutexLocker lock(&mutex_);
+    active_threads_.clear();
     thumbnails_.clear();
     pixmap_cache_.clear();
 }
@@ -51,8 +55,8 @@ ImageDirectoryModel::~ImageDirectoryModel()
 QVariant ImageDirectoryModel::data(const QModelIndex& index, int role) const
 {
     QFileInfo info = fileInfo(index);
-    if (role == Qt::DecorationRole) {
 
+    if (role == Qt::DecorationRole) {
         if (info.isFile() && nameFilters().contains("*." + info.suffix())) {
 
             QPixmap pixmap;
@@ -65,39 +69,46 @@ QVariant ImageDirectoryModel::data(const QModelIndex& index, int role) const
                     if (it.value() <= info.lastModified()) {
                         in_cache = pixmap_cache_.find(info.filePath(), &pixmap);
                         found = true;
-                    } else {
+                    }
+                    else {
                         found = false;
                     }
                 }
-            } else {
+            }
+            else {
                 thumbnails_.insert(info.filePath(), info.lastModified());
                 found = false;
             }
 
             if (!found) {
-                QtConcurrent::run(const_cast<ImageDirectoryModel *>(this),
-                                  &ImageDirectoryModel::loadThumbnail,
-                                  info.filePath(),
-                                  info.lastModified());
-                return QColor(Qt::red);
-            } else {
+                auto t = QtConcurrent::run(const_cast<ImageDirectoryModel *>(this),
+                                           &ImageDirectoryModel::loadThumbnail,
+                                           info.filePath(),
+                                           info.lastModified());
+                active_threads_.push_back(t);
+            }
+            else {
                 if(in_cache)
                     return QIcon(pixmap);
-                else
-                    return QColor(Qt::red);
+
+                return QColor(Qt::red);
             }
         }
 
-    } else if (role == Qt::ToolTipRole) {
+    }
+    else if (role == Qt::ToolTipRole) {
         return QVariant("<html><head></head><body><div>"+info.fileName()+"</div></body></html>");
-    } else if (role == Qt::UserRole) {
+    }
+    else if (role == Qt::UserRole) {
         return QVariant(info.filePath());
-    } else if (role == Qt::DisplayRole) {
+    }
+    else if (role == Qt::DisplayRole) {
 
-        if(show_filenames)
-            return QVariant(info.fileName());
-        else
-            return QVariant();
+        if (info.isFile() && nameFilters().contains("*." + info.suffix()))
+            if(show_filenames)
+                return QVariant(info.fileName());
+
+        return QVariant();
     }
 
     return QVariant();
@@ -118,7 +129,8 @@ void ImageDirectoryModel::loadThumbnail(const QString& path, const QDateTime &ti
     {
         qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
         qDebug() << "  >" << "Error: loading the image from file failed!";
-    } else {
+    }
+    else {
         loaded = true;
     }
 
@@ -143,12 +155,11 @@ void ImageDirectoryModel::loadThumbnail(const QString& path, const QDateTime &ti
                 if(!pixmap_cache_.insert(path, pixmap)) {
                     qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
                     qDebug() << "  >" << "Error: inserting image with path:" << path;
-                } else {
-                    qDebug() << "  >" << "Added image" << path;
                 }
             }
 
-        } else {
+        }
+        else {
             thumbnails_.erase(it);
             pixmap_cache_.remove(path);
         }
@@ -170,10 +181,12 @@ void ImageDirectoryModel::createSquareThumbnail(QPixmap &pixmap) const
         if(pixmap.width() > pixmap.height()) {
             int tb_spacing = (thumbnail_size_ - scaled.height()) / 2;
             starting_point = QPoint(0, tb_spacing);
-        } else if (pixmap.width() < pixmap.height()) {
+        }
+        else if (pixmap.width() < pixmap.height()) {
             int lr_spacing = (thumbnail_size_ - scaled.width()) / 2;
             starting_point = QPoint(lr_spacing, 0);
-        } else {
+        }
+        else {
             pixmap = scaled;
             return;
         }
@@ -196,12 +209,14 @@ void ImageDirectoryModel::createSquareThumbnail(QPixmap &pixmap) const
             scaled = pixmap.scaledToHeight(thumbnail_size_);
             int overlap = (scaled.width() - thumbnail_size_) / 2;
             cutout = QRect(overlap, 0, thumbnail_size_, thumbnail_size_);
-        } else if( pixmap.width() < pixmap.height()) {
+        }
+        else if( pixmap.width() < pixmap.height()) {
             scaled = pixmap.scaledToWidth(thumbnail_size_);
             int overlap = (scaled.height() - thumbnail_size_) / 2;
             cutout = QRect(0, overlap, thumbnail_size_, thumbnail_size_);
 
-        } else {
+        }
+        else {
             pixmap = pixmap.scaled(thumbnail_size_, thumbnail_size_);
             return;
         }
@@ -213,11 +228,15 @@ void ImageDirectoryModel::createSquareThumbnail(QPixmap &pixmap) const
 void ImageDirectoryModel::initialize()
 {
     pixmap_cache_.setCacheLimit(100000);
+
     connect(this, &ImageDirectoryModel::thumbnailLoaded,
             this, &ImageDirectoryModel::updateThumbnail , Qt::QueuedConnection);
 
     connect(this, &QFileSystemModel::rootPathChanged,
             this, &ImageDirectoryModel::onRootPathChanged);
+
+    connect(this, &QFileSystemModel::directoryLoaded,
+            this, &ImageDirectoryModel::onDirectoryLoaded);
 }
 
 bool ImageDirectoryModel::loadImageFromFile(const QString &filepath, QByteArray &to_fill) const
@@ -237,8 +256,30 @@ void ImageDirectoryModel::updateThumbnail(const QString &path)
         emit dataChanged(i, i, QVector<int>{QFileSystemModel::FileIconRole});
 }
 
-void ImageDirectoryModel::onRootPathChanged(const QString &)
+void ImageDirectoryModel::onRootPathChanged(const QString &new_path)
 {
+    Q_UNUSED(new_path);
+
+    for(auto thread: active_threads_) {
+        if (!thread.isCanceled())
+            thread.cancel();
+    }
+    active_threads_.clear();
+
+    pixmap_cache_.clear();
+    thumbnails_.clear();
+}
+
+void ImageDirectoryModel::onDirectoryLoaded(const QString &new_path)
+{
+    Q_UNUSED(new_path);
+
+    for(auto thread: active_threads_) {
+        if (!thread.isCanceled())
+            thread.cancel();
+    }
+    active_threads_.clear();
+
     pixmap_cache_.clear();
     thumbnails_.clear();
 }
