@@ -86,16 +86,11 @@ void Browser::initWidgets()
     model->setHeaderData(0, Qt::Horizontal, tr("Recent Directories"));
     recent_directories_ = new QTreeView(v_splitter_);
     recent_directories_->setModel(model);
-
     connect(recent_directories_, SIGNAL(clicked(const QModelIndex&)),
             this, SLOT(onRecentDirClicked(const QModelIndex&)));
 
-//    list_view_ = new List(v_splitter_);
-//    list_view_->layout()->setMargin(0);
-
     list_view_ = new ThumbnailList(v_splitter_);
     list_view_->layout()->setMargin(0);
-
     connect(list_view_, SIGNAL(newDirectory(const QString&)),
             this, SLOT(onNewDirectory(const QString&)));
 

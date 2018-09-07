@@ -43,7 +43,8 @@ void ThumbnailList::resizeEvent(QResizeEvent *event)
             model_->toggleFileNames();
         }
 
-    } else {
+    }
+    else {
 
         if(view_mode_!= ViewMode::Grid) {
             view_mode_ = ViewMode::Grid;
@@ -60,9 +61,7 @@ void ThumbnailList::resizeEvent(QResizeEvent *event)
 void ThumbnailList::openDirectory(const QString &dir_name)
 {
     QDir dir(dir_name);
-    if(!model_->index(dir_name).isValid())
-        model_->setRootPath(dir.path());
-
+    model_->setRootPath(dir.path());
     file_view_->setRootIndex(model_->index(dir.path()));
 }
 
@@ -80,7 +79,6 @@ void ThumbnailList::onOpen()
 {
     QString dir_name = QFileDialog::getExistingDirectory(this, tr("Open Directory"));
     if(dir_name.size() == 0) {
-        qDebug() << "nothing opened";
         return;
     }
     openDirectory(dir_name);
@@ -93,10 +91,6 @@ void ThumbnailList::onImageSelected(const QModelIndex &idx)
         return;
 
     QString path = model_->data(idx, Qt::UserRole).toString();
-
-    qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
-    qDebug() << "  >" << path;
-
     presentation_view_->getView()->setItem(new ImageItem(path));
     presentation_view_->popOpen();
 }
@@ -105,22 +99,23 @@ void ThumbnailList::onChangeGridsize(int value)
 {
     gridsize_ = value;
     if (gridsize_ == 1) {
-        if(view_mode_ != ViewMode::List) {
+        if (view_mode_ != ViewMode::List) {
             view_mode_ = ViewMode::List;
             file_view_->setViewMode(QListView::ListMode);
             model_->toggleFileNames();
         }
 
         QSize icon_size;
-        if(file_view_->size().width() > 200)
+        if (file_view_->size().width() > 200)
             icon_size = QSize(100, 100);
         else
             icon_size = QSize(file_view_->size().width(), file_view_->size().width());
 
         file_view_->setIconSize(icon_size);
 
-    } else {
-        if(view_mode_!= ViewMode::Grid) {
+    }
+    else {
+        if (view_mode_!= ViewMode::Grid) {
             view_mode_ = ViewMode::Grid;
             file_view_->setViewMode(QListView::IconMode);
             model_->toggleFileNames();
@@ -176,9 +171,8 @@ void ThumbnailList::initWidgets()
     presentation_view_ = new ImageDisplayWidget;
     presentation_view_->setMinimumSize(640, 480);
     presentation_view_->setWindowFlags(Qt::Window);
-    presentation_view_->setWindowTitle(tr("Compaion Stage"));
+    presentation_view_->setWindowTitle(tr("Companion Stage"));
     presentation_view_->hide();
-
 }
 
 void ThumbnailList::initLayout()

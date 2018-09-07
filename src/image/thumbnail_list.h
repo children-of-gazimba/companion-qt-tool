@@ -19,6 +19,9 @@ class ThumbnailList : public QWidget
         Q_OBJECT
     public:
 
+        /**
+         * @brief The ViewMode enum describes whether the QListView <file_view_> operates in List or in Icon Mode.
+         */
         enum ViewMode {List, Grid};
 
         /**
@@ -43,9 +46,7 @@ class ThumbnailList : public QWidget
 
     public slots:
         void onOpen();
-
         void onImageSelected(const QModelIndex& idx);
-
 
     private slots:
         void onChangeGridsize(int value);
