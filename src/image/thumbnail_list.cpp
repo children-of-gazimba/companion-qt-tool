@@ -8,6 +8,7 @@
 #include <QResizeEvent>
 #include <QPixmap>
 #include <QFileDialog>
+#include <QMessageBox>
 
 #include "image_item.h"
 
@@ -89,6 +90,17 @@ void ThumbnailList::onImageSelected(const QModelIndex &idx)
 {
     if(!idx.isValid())
         return;
+
+    if(!model_->isImageAvailable(idx)) {
+        QMessageBox b;
+        b.setWindowTitle(tr("Image Unavailable"));
+        b.setText("Sorry, but the selected image is unavailable for display.");
+        b.setInformativeText("This is likely due to file corruption, or unsupported format.");
+        b.setStandardButtons(QMessageBox::Ok);
+        b.setDefaultButton(QMessageBox::Ok);
+        b.exec();
+        return;
+    }
 
     QString path = model_->data(idx, Qt::UserRole).toString();
     presentation_view_->getView()->setItem(new ImageItem(path));
@@ -179,7 +191,7 @@ void ThumbnailList::initLayout()
 {
     QHBoxLayout *resize_layout = new QHBoxLayout;
     resize_layout->addWidget(list_icon_label_);
-    resize_layout->addWidget(gridsize_slider_);
+    resize_layout->addWidget(gridsize_slider_,3);
     resize_layout->addWidget(grid_icon_label_);
 
     QHBoxLayout *browse_layout = new QHBoxLayout;

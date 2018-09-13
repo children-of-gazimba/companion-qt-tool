@@ -52,6 +52,8 @@ class ImageDirectoryModel: public QFileSystemModel
          */
         void toggleFileNames();
 
+        bool isImageAvailable(const QModelIndex& index) const;
+
     signals:
         void thumbnailLoaded(const QString &);
 

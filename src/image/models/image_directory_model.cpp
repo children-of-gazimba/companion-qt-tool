@@ -4,6 +4,8 @@
 
 #include <QPainter>
 
+#include "resources/lib.h"
+
 ImageDirectoryModel::ImageDirectoryModel(QObject* parent)
     : QFileSystemModel(parent)
     , mutex_()
@@ -91,7 +93,7 @@ QVariant ImageDirectoryModel::data(const QModelIndex& index, int role) const
                 if(in_cache)
                     return QIcon(pixmap);
 
-                return QColor(Qt::red);
+                return QIcon(*Resources::Lib::PX_IMG_UNAVAILABLE);//QColor(Qt::red);
             }
         }
 
@@ -117,6 +119,22 @@ QVariant ImageDirectoryModel::data(const QModelIndex& index, int role) const
 void ImageDirectoryModel::toggleFileNames()
 {
     show_filenames = !show_filenames;
+}
+
+bool ImageDirectoryModel::isImageAvailable(const QModelIndex &index) const
+{
+    QFileInfo info = fileInfo(index);
+    QPixmap pixmap;
+    QMutexLocker lock(&mutex_);
+    auto it = thumbnails_.find(info.filePath());
+    if (it != thumbnails_.end()) {
+        if (it.value().isValid()) {
+            if (it.value() <= info.lastModified()) {
+                return pixmap_cache_.find(info.filePath(), &pixmap);
+            }
+        }
+    }
+    return false;
 }
 
 
