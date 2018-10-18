@@ -24,7 +24,7 @@
 #include "image/browser.h"
 #include "preset/preset_view.h"
 #include "spotify/spotify_control_panel.h"
-#include "new_web/socket_host_widget.h"
+#include "web/socket_host_widget.h"
 #include "tuio/tuio_control_panel.h"
 #include "sound_file/sound_file_player.h"
 
