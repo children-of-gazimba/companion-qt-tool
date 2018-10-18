@@ -71,9 +71,6 @@ SOURCES += main.cpp \
     spotify/spotify_control_panel.cpp \
     spotify/spotify_tile_configure_dialog.cpp \
     resources/web_pixmap.cpp \
-    new_web/socket_host_widget.cpp \
-    new_web/companion_server.cpp \
-    new_web/companion_udp_discovery.cpp \
     image/image_item.cpp \
     image/interactive/interactive_image.cpp \
     image/interactive/interactive_image_token.cpp \
@@ -107,7 +104,10 @@ SOURCES += main.cpp \
     sound_file/playback_view.cpp \
     sound_file/sound_file_player.cpp \
     tile/nested_path_widget.cpp \
-    misc/progress_button.cpp
+    misc/progress_button.cpp \
+    web/companion_server.cpp \
+    web/companion_udp_discovery.cpp \
+    web/socket_host_widget.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -158,9 +158,6 @@ HEADERS  += main_window.h \
     spotify/spotify_control_panel.h \
     spotify/spotify_tile_configure_dialog.h \
     resources/web_pixmap.h \
-    new_web/socket_host_widget.h \
-    new_web/companion_server.h \
-    new_web/companion_udp_discovery.h \
     image/image_item.h \
     image/interactive/interactive_image.h \
     image/interactive/interactive_image_token.h \
@@ -194,7 +191,10 @@ HEADERS  += main_window.h \
     sound_file/playback_view.h \
     sound_file/sound_file_player.h \
     tile/nested_path_widget.h \
-    misc/progress_button.h
+    misc/progress_button.h \
+    web/companion_server.h \
+    web/companion_udp_discovery.h \
+    web/socket_host_widget.h
 
 RESOURCES += \
     _RES/resources.qrc
