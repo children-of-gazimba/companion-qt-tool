@@ -86,7 +86,7 @@ void CompanionWidget::onProgressChanged(int value)
     progress_bar_->setValue(value);
 }
 
-void CompanionWidget::onSelectedCategoryChanged(DB::CategoryRecord *rec)
+void CompanionWidget::onSelectedCategoryChanged(CategoryRecord *rec)
 {
     int id = -1;
     if(rec != 0)
@@ -334,7 +334,7 @@ void CompanionWidget::initWidgets()
 
     global_player_ = new SoundFilePlayer(this);
     connect(sound_file_view_, &PlaybackView::play,
-            this, [=](const DB::SoundFileRecord& rec) {
+            this, [=](const SoundFileRecord& rec) {
         global_player_->setSoundFile(rec, true);
     });
 
@@ -353,7 +353,7 @@ void CompanionWidget::initWidgets()
         this
     );
 
-    category_view_ = new Category::TreeView(this);
+    category_view_ = new CategoryTreeView(this);
     category_view_->setCategoryTreeModel(db_handler_->getCategoryTreeModel());
 
     preset_view_ = new Preset::PresetView(this);
@@ -399,12 +399,12 @@ void CompanionWidget::initWidgets()
             category_view_, SLOT(selectRoot()));
     connect(db_handler_, SIGNAL(progressChanged(int)),
             this, SLOT(onProgressChanged(int)));
-    connect(category_view_, SIGNAL(categorySelected(DB::CategoryRecord*)),
-            this, SLOT(onSelectedCategoryChanged(DB::CategoryRecord*)));
+    connect(category_view_, SIGNAL(categorySelected(CategoryRecord*)),
+            this, SLOT(onSelectedCategoryChanged(CategoryRecord*)));
     connect(sound_file_view_, SIGNAL(deleteSoundFileRequested(int)),
             db_handler_->getSoundFileTableModel(), SLOT(deleteSoundFile(int)));
-    connect(db_handler_->getSoundFileTableModel(), SIGNAL(aboutToBeDeleted(DB::SoundFileRecord*)),
-            sound_file_view_, SLOT(onSoundFileAboutToBeDeleted(DB::SoundFileRecord*)));
+    connect(db_handler_->getSoundFileTableModel(), SIGNAL(aboutToBeDeleted(SoundFileRecord*)),
+            sound_file_view_, SLOT(onSoundFileAboutToBeDeleted(SoundFileRecord*)));
     connect(graphics_view_, SIGNAL(dropAccepted()),
             sound_file_view_, SLOT(onDropSuccessful()));
     connect(graphics_view_, SIGNAL(layoutAdded(const QString&)),
@@ -545,5 +545,5 @@ void CompanionWidget::initDB()
 #else
     db_api = new DB::Core::Api(QCoreApplication::applicationDirPath() + Resources::Lib::DATABASE_PATH, this);
 #endif
-    db_handler_ = new DB::Handler(db_api, this);
+    db_handler_ = new DatabaseHandler(db_api, this);
 }

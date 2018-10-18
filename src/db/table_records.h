@@ -1,10 +1,8 @@
-#ifndef DB_TABLES_H
-#define DB_TABLES_H
+#ifndef DB_TABLE_RECORDS_H
+#define DB_TABLE_RECORDS_H
 
 #include <QString>
 #include <QList>
-
-namespace DB {
 
 /* used to reference a table in the project db by int **/
 enum TableIndex {
@@ -292,6 +290,4 @@ QString const toString(TableIndex idx);
  **/
 TableIndex toTableIndex(QString const& idx_str);
 
-} // namespace DB
-
-#endif // DB_TABLES_H
+#endif // DB_TABLE_RECORDS_H

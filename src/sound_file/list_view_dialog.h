@@ -13,7 +13,7 @@ class ListViewDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ListViewDialog(const QList<DB::SoundFileRecord*>& records, QWidget *parent = 0);
+    explicit ListViewDialog(const QList<SoundFileRecord*>& records, QWidget *parent = 0);
     explicit ListViewDialog(QWidget *parent = 0);
 
 signals:
@@ -21,7 +21,7 @@ signals:
 public slots:
 
 private:
-    void initWidgets(const QList<DB::SoundFileRecord*>& records = QList<DB::SoundFileRecord*>());
+    void initWidgets(const QList<SoundFileRecord*>& records = QList<SoundFileRecord*>());
     void initLayout();
 
     ListView* list_view_;

@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QList>
 
-#include "db/handler.h"
+#include "db/database_handler.h"
 #include "db/table_records.h"
 
 namespace Resources {
@@ -13,17 +13,17 @@ class PathFixer : public QObject
 {
     Q_OBJECT
 public:
-    explicit PathFixer(DB::Handler* handler, QObject *parent = 0);
+    explicit PathFixer(DatabaseHandler* handler, QObject *parent = 0);
     ~PathFixer();
 
-    static void remove(DB::SoundFileRecord* rec, DB::Handler* handler);
-    static bool check(DB::SoundFileRecord* rec);
+    static void remove(SoundFileRecord* rec, DatabaseHandler* handler);
+    static bool check(SoundFileRecord* rec);
 signals:
 
 public slots:
 
 private:
-    DB::Handler* handler_;
+    DatabaseHandler* handler_;
 };
 
 } // namespace Resources

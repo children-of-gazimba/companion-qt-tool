@@ -1,7 +1,5 @@
 #include "table_records.h"
 
-namespace DB {
-
 QString const toString(TableIndex idx)
 {
     QString idx_str = "";
@@ -65,6 +63,4 @@ TableIndex toTableIndex(QString const& idx_str)
     } else {
         return NONE;
     }
-}
-
 }

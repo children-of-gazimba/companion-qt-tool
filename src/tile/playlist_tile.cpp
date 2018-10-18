@@ -91,18 +91,18 @@ void PlaylistTile::paint(QPainter *painter, const QStyleOptionGraphicsItem* opti
 
 void PlaylistTile::receiveExternalData(const QMimeData *data)
 {
-    // extract DB::TableRecord from mime data
-    QList<DB::TableRecord*> records = Misc::JsonMimeDataParser::toTableRecordList(data);
+    // extract TableRecord from mime data
+    QList<TableRecord*> records = Misc::JsonMimeDataParser::toTableRecordList(data);
 
     // validate parsing
     if(records.size() == 0)
         return;
 
     // add media for each sound file record
-    foreach(DB::TableRecord* rec, records) {
-        if(rec->index != DB::SOUND_FILE)
+    foreach(TableRecord* rec, records) {
+        if(rec->index != SOUND_FILE)
             continue;
-        addMedia(*((DB::SoundFileRecord*) rec));
+        addMedia(*((SoundFileRecord*) rec));
     }
 
     // delete temp records
@@ -145,7 +145,7 @@ bool PlaylistTile::addMedia(int record_id)
     return playlist_->addMedia(record_id);
 }
 
-bool PlaylistTile::addMedia(const DB::SoundFileRecord &r)
+bool PlaylistTile::addMedia(const SoundFileRecord &r)
 {
     if(model_ == 0)
         return false;
@@ -170,7 +170,7 @@ const QJsonObject PlaylistTile::toJsonObject() const
 
     // store playlist
     QJsonArray arr_pl;
-    foreach(DB::SoundFileRecord* rec, playlist_->getSoundFileList())
+    foreach(SoundFileRecord* rec, playlist_->getSoundFileList())
         arr_pl.append(Misc::JsonMimeDataParser::toJsonObject(rec));
     obj["playlist"] = arr_pl;
 
@@ -194,15 +194,15 @@ bool PlaylistTile::setFromJsonObject(const QJsonObject &obj)
             if(sound_obj.isEmpty())
                 continue;
 
-            DB::TableRecord* rec = Misc::JsonMimeDataParser::toTableRecord(sound_obj);
-            if(rec->index != DB::SOUND_FILE) {
+            TableRecord* rec = Misc::JsonMimeDataParser::toTableRecord(sound_obj);
+            if(rec->index != SOUND_FILE) {
                 delete rec;
                 continue;
             }
 
             // check existance against actual database
-            DB::SoundFileRecord* sf_rec = (DB::SoundFileRecord*) rec;
-            QList<DB::SoundFileRecord*> actual_recs = model_->getSoundFilesByRelativePath(sf_rec->relative_path);
+            SoundFileRecord* sf_rec = (SoundFileRecord*) rec;
+            QList<SoundFileRecord*> actual_recs = model_->getSoundFilesByRelativePath(sf_rec->relative_path);
             if(actual_recs.size() == 0) {
                 qDebug() << "FAILURE: Could not verify SoundFile existance.";
                 qDebug() << " > SoundFile:" << sound_obj << "does not exist in any ResourceDirectory.";
@@ -213,7 +213,7 @@ bool PlaylistTile::setFromJsonObject(const QJsonObject &obj)
             }
             else if(actual_recs.size() > 1) {
                 bool found = false;
-                foreach(DB::SoundFileRecord* act_rec, actual_recs) {
+                foreach(SoundFileRecord* act_rec, actual_recs) {
                     if(act_rec->id == sf_rec->id) {
                         sf_rec->copyFrom(act_rec);
                         found = true;

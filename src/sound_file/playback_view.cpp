@@ -12,7 +12,7 @@
 #include "resources/lib.h"
 #include "misc/json_mime_data_parser.h"
 
-PlaybackView::PlaybackView(const QList<DB::SoundFileRecord *> &sound_files, QWidget *parent)
+PlaybackView::PlaybackView(const QList<SoundFileRecord *> &sound_files, QWidget *parent)
     : QTableView(parent)
     , start_pos_()
     , model_(0)
@@ -40,10 +40,10 @@ PlaybackView::PlaybackView(QWidget *parent)
 PlaybackView::~PlaybackView()
 {}
 
-void PlaybackView::setSoundFiles(const QList<DB::SoundFileRecord *> &sound_files)
+void PlaybackView::setSoundFiles(const QList<SoundFileRecord *> &sound_files)
 {
     model_->clear();
-    foreach(DB::SoundFileRecord* rec, sound_files)
+    foreach(SoundFileRecord* rec, sound_files)
         addSoundFile(rec);
     setColumnWidth(0, verticalHeader()->defaultSectionSize());
 }
@@ -120,8 +120,8 @@ void PlaybackView::dropEvent(QDropEvent *event)
 {
     auto source = qobject_cast<PlaybackView*>(event->source());
     if (source && source != this) {
-        // extract DB::TableRecord from mime data
-        QList<DB::TableRecord*> records = Misc::JsonMimeDataParser::toTableRecordList(event->mimeData());
+        // extract TableRecord from mime data
+        QList<TableRecord*> records = Misc::JsonMimeDataParser::toTableRecordList(event->mimeData());
 
         // validate parsing
         if(records.size() == 0) {
@@ -130,9 +130,9 @@ void PlaybackView::dropEvent(QDropEvent *event)
         }
 
         // handle extracted data
-        foreach(DB::TableRecord* rec, records) {
-            if(rec->index == DB::SOUND_FILE) {
-                DB::SoundFileRecord* sound_rec = (DB::SoundFileRecord*) rec;
+        foreach(TableRecord* rec, records) {
+            if(rec->index == SOUND_FILE) {
+                SoundFileRecord* sound_rec = (SoundFileRecord*) rec;
                 addSoundFile(sound_rec->id, sound_rec->name, sound_rec->path);
             }
         }
@@ -164,19 +164,19 @@ void PlaybackView::onPlayButtonClicked()
     if(!playable_index_.isValid())
         return;
 
-    DB::SoundFileRecord rec;
+    SoundFileRecord rec;
     rec.id = model_->data(model_->index(playable_index_.row(), 0), Qt::UserRole).toInt();
     rec.path = model_->data(model_->index(playable_index_.row(), 0), Qt::UserRole+1).toString();
     rec.name = model_->data(model_->index(playable_index_.row(), 1)).toString();
     emit play(rec);
 }
 
-void PlaybackView::addSoundFile(DB::SoundFileRecord *rec)
+void PlaybackView::addSoundFile(SoundFileRecord *rec)
 {
      addSoundFile(rec->id, rec->name, rec->path);
 }
 
-void PlaybackView::onSoundFileAboutToBeDeleted(DB::SoundFileRecord *)
+void PlaybackView::onSoundFileAboutToBeDeleted(SoundFileRecord *)
 {
     qDebug() << "TODO implement sound file about to be deleted.";
 }
@@ -239,12 +239,12 @@ void PlaybackView::onDeleteAction()
 
 void PlaybackView::performDrag()
 {
-    QList<DB::TableRecord*> records;
+    QList<TableRecord*> records;
     QSet<int> rows;
     foreach(QModelIndex idx, selectionModel()->selectedIndexes()) {
         if(rows.contains(idx.row()))
             continue;
-        DB::SoundFileRecord* temp_rec = new DB::SoundFileRecord;
+        SoundFileRecord* temp_rec = new SoundFileRecord;
         temp_rec->id = model_->data(model_->index(idx.row(), 0), Qt::UserRole).toInt();
         temp_rec->path = model_->data(model_->index(idx.row(), 0), Qt::UserRole+1).toString();
         temp_rec->name = model_->data(model_->index(idx.row(), 1)).toString();

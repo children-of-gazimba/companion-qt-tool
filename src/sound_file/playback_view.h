@@ -16,11 +16,11 @@ class PlaybackView : public QTableView
 {
     Q_OBJECT
 public:
-    explicit PlaybackView(QList<DB::SoundFileRecord*> const& sound_files, QWidget *parent = nullptr);
+    explicit PlaybackView(QList<SoundFileRecord*> const& sound_files, QWidget *parent = nullptr);
     explicit PlaybackView(QWidget *parent = nullptr);
     virtual ~PlaybackView();
 
-    void setSoundFiles(QList<DB::SoundFileRecord*> const&);
+    void setSoundFiles(QList<SoundFileRecord*> const&);
     void setEditable(bool);
     bool getEditable();
 
@@ -40,12 +40,12 @@ protected slots:
     void onPlayButtonClicked();
 
 signals:
-    void play(const DB::SoundFileRecord&);
+    void play(const SoundFileRecord&);
     void deleteSoundFileRequested(int id);
 
 public slots:
-    void addSoundFile(DB::SoundFileRecord* rec);
-    void onSoundFileAboutToBeDeleted(DB::SoundFileRecord* rec);
+    void addSoundFile(SoundFileRecord* rec);
+    void onSoundFileAboutToBeDeleted(SoundFileRecord* rec);
     void onDropSuccessful();
 
 private slots:

@@ -26,10 +26,10 @@ public:
     void setSoundFileModel(DB::Model::SoundFileTableModel* m);
     const DB::Model::SoundFileTableModel* getSoundFileModel() const;
 
-    bool addMedia(const DB::SoundFileRecord& rec);
+    bool addMedia(const SoundFileRecord& rec);
     bool addMedia(int record_id);
 
-    const QList<DB::SoundFileRecord*> getSoundFileList(bool unique = false);
+    const QList<SoundFileRecord*> getSoundFileList(bool unique = false);
 
 signals:
     void changedSettings();
@@ -41,7 +41,7 @@ private:
     QString name_;
     Settings* settings_;
     DB::Model::SoundFileTableModel* model_;
-    QMap<QMediaContent*, DB::SoundFileRecord*> records_;
+    QMap<QMediaContent*, SoundFileRecord*> records_;
 
 };
 

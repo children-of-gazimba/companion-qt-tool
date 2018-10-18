@@ -95,7 +95,7 @@ void PresetView::performDrag()
 
         QModelIndex idx = selectionModel()->selectedRows(1)[0];
 
-        DB::PresetRecord* rec = model_->getPresetByRow(idx.row());
+        PresetRecord* rec = model_->getPresetByRow(idx.row());
         QMimeData* mime_data = new QMimeData;
         mime_data->setText(rec->json);
 

@@ -18,8 +18,8 @@
 #include "misc/drop_group_box.h"
 #include "resources/importer.h"
 #include "sound_file/playback_view.h"
-#include "db/handler.h"
-#include "category/tree_view.h"
+#include "db/database_handler.h"
+#include "category/category_tree_view.h"
 #include "tile/graphics_view.h"
 #include "image/browser.h"
 #include "preset/preset_view.h"
@@ -46,7 +46,7 @@ public slots:
 
 private slots:
     void onProgressChanged(int);
-    void onSelectedCategoryChanged(DB::CategoryRecord* rec);
+    void onSelectedCategoryChanged(CategoryRecord* rec);
     void onDeleteDatabase();
     void onSaveProjectAs();
     void onSaveProject();
@@ -83,7 +83,7 @@ private:
     // WIDGETS
     PlaybackView* sound_file_view_;
     SoundFilePlayer* global_player_;
-    Category::TreeView* category_view_;
+    CategoryTreeView* category_view_;
     Preset::PresetView* preset_view_;
 
     Tile::GraphicsView* graphics_view_;
@@ -101,7 +101,7 @@ private:
 
 
     // DB handler
-    DB::Handler* db_handler_;
+    DatabaseHandler* db_handler_;
 };
 
 #endif // DSAMEDIACONTROLKIT_H

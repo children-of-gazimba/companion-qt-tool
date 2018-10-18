@@ -14,7 +14,7 @@ Importer::Importer(DB::Model::ResourceDirTableModel* model, QObject *parent)
 {
 }
 
-void Importer::parseFolder(const QUrl &url, const DB::ResourceDirRecord& resource_dir)
+void Importer::parseFolder(const QUrl &url, const ResourceDirRecord& resource_dir)
 {
     QList<Resources::SoundFile> files;
     if(url.isValid() && url.isLocalFile())
@@ -32,18 +32,18 @@ void Importer::startBrowseFolder(bool)
 {
     QUrl url = QFileDialog::getExistingDirectoryUrl(0, tr("Open Resource Directory"));
     if(url.isValid()) {
-        DB::ResourceDirRecord* rec = createOrGetResourceDir(url);
+        ResourceDirRecord* rec = createOrGetResourceDir(url);
         if(rec != 0)
             parseFolder(url, *rec);
     }
 }
 
-DB::ResourceDirRecord* Importer::createOrGetResourceDir(const QUrl &url)
+ResourceDirRecord* Importer::createOrGetResourceDir(const QUrl &url)
 {
     if(url.isValid() && url.isLocalFile()) {
         QDir d(url.toLocalFile());
         d.cdUp();
-        DB::ResourceDirRecord* rec = model_->getResourceDirByPath(d.absolutePath());
+        ResourceDirRecord* rec = model_->getResourceDirByPath(d.absolutePath());
         if(rec == 0) {
             model_->addResourceDirRecord(QFileInfo(d.absolutePath()));
             rec = model_->getResourceDirByPath(d.absolutePath());

@@ -707,8 +707,8 @@ void GraphicsView::dropEvent(QDropEvent *event)
         }
     }
 
-    // extract DB::TableRecord from mime data
-    QList<DB::TableRecord*> records = Misc::JsonMimeDataParser::toTableRecordList(event->mimeData());
+    // extract TableRecord from mime data
+    QList<TableRecord*> records = Misc::JsonMimeDataParser::toTableRecordList(event->mimeData());
 
     QString pl_class = PlaylistTile::staticMetaObject.className();
     QString nested_class = NestedTile::staticMetaObject.className();
@@ -716,7 +716,7 @@ void GraphicsView::dropEvent(QDropEvent *event)
     QString map_class = MapTile::staticMetaObject.className();
 
     // validate parsing
-    if(records.size() == 0 || records[0]->index != DB::SOUND_FILE) {
+    if(records.size() == 0 || records[0]->index != SOUND_FILE) {
         // TODO make pretty
         QJsonDocument doc = QJsonDocument::fromJson(event->mimeData()->text().toUtf8());
         if(doc.object().contains("type") && doc.object()["type"].toString().compare(nested_class) == 0) {
@@ -837,9 +837,9 @@ void GraphicsView::dropEvent(QDropEvent *event)
     tile->setPos(p);
     tile->setSize(0);
 
-    foreach(DB::TableRecord* rec, records) {
-        if(rec->index == DB::SOUND_FILE)
-            tile->addMedia(*((DB::SoundFileRecord*) rec));
+    foreach(TableRecord* rec, records) {
+        if(rec->index == SOUND_FILE)
+            tile->addMedia(*((SoundFileRecord*) rec));
     }
 
     // add to scene

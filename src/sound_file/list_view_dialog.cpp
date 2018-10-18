@@ -4,7 +4,7 @@
 
 namespace SoundFile {
 
-ListViewDialog::ListViewDialog(const QList<DB::SoundFileRecord *> &records, QWidget *parent)
+ListViewDialog::ListViewDialog(const QList<SoundFileRecord *> &records, QWidget *parent)
     : QDialog(parent)
     , list_view_(0)
     , ok_(0)
@@ -28,7 +28,7 @@ ListViewDialog::ListViewDialog(QWidget *parent)
     initLayout();
 }
 
-void ListViewDialog::initWidgets(const QList<DB::SoundFileRecord *> &records)
+void ListViewDialog::initWidgets(const QList<SoundFileRecord *> &records)
 {
     list_view_ = new ListView(records, this);
     ok_ = new QPushButton(tr("OK"), this);

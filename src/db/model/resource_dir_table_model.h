@@ -57,7 +57,7 @@ public:
      * Gets the row of ResourceDirRecord.
      * Returns -1 if none found
     */
-    int getRowByResourceDir(DB::ResourceDirRecord* rec);
+    int getRowByResourceDir(ResourceDirRecord* rec);
 
     /*
      * Gets ResourceDirRecord based on path.
@@ -91,15 +91,15 @@ public:
     /*
     * Returns all ResourceDirRecords held by this model
     */
-    QList<DB::ResourceDirRecord*> const& getResourceDirs() const;
+    QList<ResourceDirRecord*> const& getResourceDirs() const;
 
 
 signals:   
    /* triggered and processed before ResourceDirRecord gets deleted */
-   void aboutToBeDeleted(DB::ResourceDirRecord*);
+   void aboutToBeDeleted(ResourceDirRecord*);
 
    /* triggered and processed before ResourceDirRecords get deleted */
-   void aboutToBeDeleted(const QList<DB::ResourceDirRecord*>&);
+   void aboutToBeDeleted(const QList<ResourceDirRecord*>&);
 
 public slots:
     void deleteResourceDir(int id);

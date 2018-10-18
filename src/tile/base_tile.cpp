@@ -762,7 +762,7 @@ void BaseTile::onSaveAsPreset()
     if(preset_model_ == 0)
         return;
 
-    DB::PresetRecord* rec = preset_model_->getPresetByName(name_);
+    PresetRecord* rec = preset_model_->getPresetByName(name_);
     if(rec != 0) {
         QMessageBox msg_box;
         msg_box.setIcon(QMessageBox::Warning);

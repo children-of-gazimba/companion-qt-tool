@@ -13,10 +13,10 @@ namespace Resources {
 class ImageFile : public ResourceFile
 {
 public:
-    ImageFile(QFileInfo const&, DB::ResourceDirRecord const&);
+    ImageFile(QFileInfo const&, ResourceDirRecord const&);
     ~ImageFile();
 
-    /*virtual*/ DB::TableIndex getTableIndex();
+    /*virtual*/ TableIndex getTableIndex();
 };
 
 } // namespace Resources

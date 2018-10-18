@@ -25,7 +25,7 @@ public:
      * Siganls folderImported(QList<Resources::SoundFile> const&)
      * when import is finished.
     */
-    void parseFolder(QUrl const& url, const DB::ResourceDirRecord& resource_dir);
+    void parseFolder(QUrl const& url, const ResourceDirRecord& resource_dir);
 
 signals:
     void folderImported(QList<Resources::SoundFile> const&);
@@ -42,7 +42,7 @@ private:
      * Record will be created if none exists so far.
      * Returns 0 if url invalid.
     */
-    DB::ResourceDirRecord* createOrGetResourceDir(const QUrl& url);
+    ResourceDirRecord* createOrGetResourceDir(const QUrl& url);
 
     DB::Model::ResourceDirTableModel* model_;
 

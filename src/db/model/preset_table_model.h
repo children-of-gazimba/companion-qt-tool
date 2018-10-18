@@ -57,7 +57,7 @@ public:
      * Gets the row of PresetRecord.
      * Returns -1 if none found
     */
-    int getRowByPreset(DB::PresetRecord* rec);
+    int getRowByPreset(PresetRecord* rec);
 
     /*
      * Gets PresetRecord based on ID.
@@ -91,15 +91,15 @@ public:
     /*
     * Returns all PresetRecords held by this model
     */
-    QList<DB::PresetRecord*> const& getPresets() const;
+    QList<PresetRecord*> const& getPresets() const;
 
 
 signals:   
    /* triggered and processed before PresetRecord gets deleted */
-   void aboutToBeDeleted(DB::PresetRecord*);
+   void aboutToBeDeleted(PresetRecord*);
 
    /* triggered and processed before PresetRecords get deleted */
-   void aboutToBeDeleted(const QList<DB::PresetRecord*>&);
+   void aboutToBeDeleted(const QList<PresetRecord*>&);
 
 public slots:
     void deletePreset(int id);

@@ -57,7 +57,7 @@ public:
      * Gets the row of ImageDirRecord.
      * Returns -1 if none found
     */
-    int getRowByImageDir(DB::ImageDirRecord* rec);
+    int getRowByImageDir(ImageDirRecord* rec);
 
     /*
      * Gets ImageDirRecord based on path.
@@ -91,15 +91,15 @@ public:
     /*
     * Returns all ImageDirRecords held by this model
     */
-    QList<DB::ImageDirRecord*> const& getImageDirs() const;
+    QList<ImageDirRecord*> const& getImageDirs() const;
 
 
 signals:   
    /* triggered and processed before ImageDirRecord gets deleted */
-   void aboutToBeDeleted(DB::ImageDirRecord*);
+   void aboutToBeDeleted(ImageDirRecord*);
 
    /* triggered and processed before ImageDirRecords get deleted */
-   void aboutToBeDeleted(const QList<DB::ImageDirRecord*>&);
+   void aboutToBeDeleted(const QList<ImageDirRecord*>&);
 
 public slots:
     void deleteImageDir(int id);

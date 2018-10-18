@@ -4,27 +4,25 @@
 #include <QTreeView>
 
 class QMouseEvent;
+struct CategoryRecord;
 namespace DB {
-    struct CategoryRecord;
     namespace Model {
         class CategoryTreeModel;
     }
 }
 
-namespace Category {
-
-class TreeView : public QTreeView
+class CategoryTreeView : public QTreeView
 {
     Q_OBJECT
 public:
-    explicit TreeView(QWidget *parent = 0);
+    explicit CategoryTreeView(QWidget *parent = 0);
 
     void setCategoryTreeModel(DB::Model::CategoryTreeModel* model);
 
     void mousePressEvent(QMouseEvent *event);
 
 signals:
-    void categorySelected(DB::CategoryRecord* rec);
+    void categorySelected(CategoryRecord* rec);
 
 public slots:
     void selectRoot();
@@ -36,7 +34,5 @@ private:
     DB::Model::CategoryTreeModel* model_;
 
 };
-
-} // namespace Category
 
 #endif // TREEVIEW_H

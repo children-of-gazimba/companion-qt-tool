@@ -1,5 +1,5 @@
-#ifndef DB_HANDLER_H
-#define DB_HANDLER_H
+#ifndef DB_DATABASE_HANDLER_H
+#define DB_DATABASE_HANDLER_H
 
 #include <QObject>
 
@@ -13,25 +13,23 @@
 #include "model/image_dir_table_model.h"
 #include "model/preset_table_model.h"
 
-namespace DB {
-
 /*
  * Class that Provides high-level interface to DB::Core::Api,
  * which is specific to this application.
  */
-class Handler : public QObject
+class DatabaseHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit Handler(DB::Core::Api* api, QObject *parent = 0);
+    explicit DatabaseHandler(DB::Core::Api* api, QObject *parent = 0);
 
     DB::Core::Api* getApi() const;
 
-    Model::CategoryTreeModel* getCategoryTreeModel();
-    Model::SoundFileTableModel* getSoundFileTableModel();
-    Model::ResourceDirTableModel* getResourceDirTableModel();
-    Model::ImageDirTableModel* getImageDirTableModel();
-    Model::PresetTableModel* getPresetTableModel();
+    DB::Model::CategoryTreeModel* getCategoryTreeModel();
+    DB::Model::SoundFileTableModel* getSoundFileTableModel();
+    DB::Model::ResourceDirTableModel* getResourceDirTableModel();
+    DB::Model::ImageDirTableModel* getImageDirTableModel();
+    DB::Model::PresetTableModel* getPresetTableModel();
 
     /*
      * Gets a list of SoundFileRecords,
@@ -73,15 +71,13 @@ public slots:
 private:
     void addCategory(QStringList const& path);
 
-    Core::Api* api_;
+    DB::Core::Api* api_;
 
-    Model::CategoryTreeModel* category_tree_model_;
-    Model::SoundFileTableModel* sound_file_table_model_;
-    Model::ResourceDirTableModel* resource_dir_table_model_;
-    Model::ImageDirTableModel* image_dir_table_model_;
-    Model::PresetTableModel* preset_table_model_;
+    DB::Model::CategoryTreeModel* category_tree_model_;
+    DB::Model::SoundFileTableModel* sound_file_table_model_;
+    DB::Model::ResourceDirTableModel* resource_dir_table_model_;
+    DB::Model::ImageDirTableModel* image_dir_table_model_;
+    DB::Model::PresetTableModel* preset_table_model_;
 };
 
-} // namespace DB
-
-#endif // DB_HANDLER_H
+#endif // DB_DATABASE_HANDLER_H

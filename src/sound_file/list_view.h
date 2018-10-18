@@ -16,11 +16,11 @@ class ListView : public QListView
 {
     Q_OBJECT
 public:
-    explicit ListView(QList<DB::SoundFileRecord*> const& sound_files, QWidget *parent = 0);
+    explicit ListView(QList<SoundFileRecord*> const& sound_files, QWidget *parent = 0);
     explicit ListView(QWidget *parent = 0);
     virtual ~ListView();
 
-    void setSoundFiles(QList<DB::SoundFileRecord*> const&);
+    void setSoundFiles(QList<SoundFileRecord*> const&);
     void setEditable(bool);
     bool getEditable();
 
@@ -36,8 +36,8 @@ protected:
     virtual void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);
 
 public slots:
-    void addSoundFile(DB::SoundFileRecord* rec);
-    void onSoundFileAboutToBeDeleted(DB::SoundFileRecord* rec);
+    void addSoundFile(SoundFileRecord* rec);
+    void onSoundFileAboutToBeDeleted(SoundFileRecord* rec);
     void onDropSuccessful();
 
 private slots:

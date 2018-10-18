@@ -1,13 +1,11 @@
-#include "handler.h"
+#include "database_handler.h"
 
 #include <QDebug>
 #include <QElapsedTimer>
 #include <QCoreApplication>
 #include <QDebug>
 
-namespace DB {
-
-Handler::Handler(DB::Core::Api* api, QObject *parent)
+DatabaseHandler::DatabaseHandler(DB::Core::Api* api, QObject *parent)
     : QObject(parent)
     , api_(api)
     , category_tree_model_(0)
@@ -22,62 +20,62 @@ Handler::Handler(DB::Core::Api* api, QObject *parent)
     }
 }
 
-Core::Api *Handler::getApi() const
+DB::Core::Api *DatabaseHandler::getApi() const
 {
     return api_;
 }
 
-Model::CategoryTreeModel *Handler::getCategoryTreeModel()
+DB::Model::CategoryTreeModel *DatabaseHandler::getCategoryTreeModel()
 {
     if(category_tree_model_ == 0) {
-        category_tree_model_ = new Model::CategoryTreeModel(api_, this);
+        category_tree_model_ = new DB::Model::CategoryTreeModel(api_, this);
         category_tree_model_->select();
     }
 
     return category_tree_model_;
 }
 
-Model::SoundFileTableModel *Handler::getSoundFileTableModel()
+DB::Model::SoundFileTableModel *DatabaseHandler::getSoundFileTableModel()
 {
     if(sound_file_table_model_ == 0) {
-        sound_file_table_model_ = new Model::SoundFileTableModel(api_, this);
+        sound_file_table_model_ = new DB::Model::SoundFileTableModel(api_, this);
         sound_file_table_model_->select();
     }
 
     return sound_file_table_model_;
 }
 
-Model::ResourceDirTableModel *Handler::getResourceDirTableModel()
+DB::Model::ResourceDirTableModel *DatabaseHandler::getResourceDirTableModel()
 {
     if(resource_dir_table_model_ == 0) {
-        resource_dir_table_model_ = new Model::ResourceDirTableModel(api_, this);
+        resource_dir_table_model_ = new DB::Model::ResourceDirTableModel(api_, this);
         resource_dir_table_model_->select();
     }
 
     return resource_dir_table_model_;
 }
 
-Model::ImageDirTableModel *Handler::getImageDirTableModel()
+DB::Model::ImageDirTableModel *DatabaseHandler::getImageDirTableModel()
 {
     if(image_dir_table_model_ == 0) {
-        image_dir_table_model_ = new Model::ImageDirTableModel(api_, this);
+        image_dir_table_model_ = new DB::Model::ImageDirTableModel(api_, this);
         image_dir_table_model_->select();
     }
 
     return image_dir_table_model_;
 }
 
-Model::PresetTableModel *Handler::getPresetTableModel()
+DB::Model::PresetTableModel *DatabaseHandler::getPresetTableModel()
 {
     if(preset_table_model_ == 0) {
-        preset_table_model_ = new Model::PresetTableModel(api_, this);
+        preset_table_model_ = new DB::Model::PresetTableModel(api_, this);
         preset_table_model_->select();
     }
 
     return preset_table_model_;
 }
 
-const QList<SoundFileRecord *> Handler::getSoundFileRecordsByCategoryId(int category_id)
+const QList<SoundFileRecord *> DatabaseHandler::getSoundFileRecordsByCategoryId(int category_id)
 {
     QList<SoundFileRecord*> records;
 
@@ -92,7 +90,7 @@ const QList<SoundFileRecord *> Handler::getSoundFileRecordsByCategoryId(int cate
     return records;
 }
 
-void Handler::deleteAll()
+void DatabaseHandler::deleteAll()
 {
     api_->deleteAll();
     getCategoryTreeModel()->update();
@@ -102,12 +100,12 @@ void Handler::deleteAll()
     getImageDirTableModel()->update();
 }
 
-void Handler::addSoundFile(const QFileInfo& info, const ResourceDirRecord& resource_dir)
+void DatabaseHandler::addSoundFile(const QFileInfo& info, const ResourceDirRecord& resource_dir)
 {
     getSoundFileTableModel()->addSoundFileRecord(info, resource_dir);
 }
 
-void Handler::addCategory(QString name, CategoryRecord *parent)
+void DatabaseHandler::addCategory(QString name, CategoryRecord *parent)
 {
     int p_id = -1;
     if(parent != 0)
@@ -116,12 +114,12 @@ void Handler::addCategory(QString name, CategoryRecord *parent)
     getCategoryTreeModel()->update();
 }
 
-void Handler::addSoundFileCategory(int sound_file_id, int category_id)
+void DatabaseHandler::addSoundFileCategory(int sound_file_id, int category_id)
 {
     api_->insertSoundFileCategory(sound_file_id, category_id);
 }
 
-void Handler::insertSoundFilesAndCategories(const QList<Resources::SoundFile>& sound_files)
+void DatabaseHandler::insertSoundFilesAndCategories(const QList<Resources::SoundFile>& sound_files)
 {
     emit progressChanged(0);
     QCoreApplication::processEvents();
@@ -166,7 +164,7 @@ void Handler::insertSoundFilesAndCategories(const QList<Resources::SoundFile>& s
     QCoreApplication::processEvents();
 }
 
-void Handler::addCategory(const QStringList &path)
+void DatabaseHandler::addCategory(const QStringList &path)
 {
     CategoryRecord* parent = 0;
     int j = 0;
@@ -185,6 +183,4 @@ void Handler::addCategory(const QStringList &path)
         ++j;
     }
 }
-
-} // namespace DB
 

@@ -51,7 +51,7 @@ const DB::Model::SoundFileTableModel *MediaPlaylist::getSoundFileModel() const
     return model_;
 }
 
-bool MediaPlaylist::addMedia(const DB::SoundFileRecord &rec)
+bool MediaPlaylist::addMedia(const SoundFileRecord &rec)
 {
     return addMedia(rec.id);
 }
@@ -60,7 +60,7 @@ bool MediaPlaylist::addMedia(int record_id)
 {
     if(model_ == 0)
         return false;
-    DB::SoundFileRecord* rec = model_->getSoundFileById(record_id);
+    SoundFileRecord* rec = model_->getSoundFileById(record_id);
     if(rec == 0)
         return false;
 
@@ -94,12 +94,12 @@ bool MediaPlaylist::addMedia(int record_id)
     return true;
 }
 
-const QList<DB::SoundFileRecord *> MediaPlaylist::getSoundFileList(bool unique)
+const QList<SoundFileRecord *> MediaPlaylist::getSoundFileList(bool unique)
 {
-    QList<DB::SoundFileRecord*> sf_list;
+    QList<SoundFileRecord*> sf_list;
 
     if(unique) {
-        foreach(DB::SoundFileRecord* rec, records_.values()) {
+        foreach(SoundFileRecord* rec, records_.values()) {
             if(sf_list.contains(rec))
                 continue;
             sf_list.append(rec);

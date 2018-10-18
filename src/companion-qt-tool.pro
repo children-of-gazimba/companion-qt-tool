@@ -32,9 +32,7 @@ SOURCES += main.cpp \
     db/core/sqlite_wrapper.cpp \
     db/model/category_tree_model.cpp \
     db/model/sound_file_table_model.cpp \
-    db/handler.cpp \
     db/table_records.cpp \
-    category/tree_view.cpp \
     misc/drop_group_box.cpp \
     misc/json_mime_data_parser.cpp \
     misc/standard_item_model.cpp \
@@ -107,7 +105,9 @@ SOURCES += main.cpp \
     misc/progress_button.cpp \
     web/companion_server.cpp \
     web/companion_udp_discovery.cpp \
-    web/socket_host_widget.cpp
+    web/socket_host_widget.cpp \
+    category/category_tree_view.cpp \
+    db/database_handler.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -118,9 +118,7 @@ HEADERS  += main_window.h \
     db/core/sqlite_wrapper.h \
     db/model/category_tree_model.h \
     db/model/sound_file_table_model.h \
-    db/handler.h \
     db/table_records.h \
-    category/tree_view.h \
     misc/drop_group_box.h \
     misc/char_input_dialog.h \
     misc/json_mime_data_parser.h \
@@ -194,7 +192,9 @@ HEADERS  += main_window.h \
     misc/progress_button.h \
     web/companion_server.h \
     web/companion_udp_discovery.h \
-    web/socket_host_widget.h
+    web/socket_host_widget.h \
+    category/category_tree_view.h \
+    db/database_handler.h
 
 RESOURCES += \
     _RES/resources.qrc

@@ -31,7 +31,7 @@ public:
      * given TableRecord.
      * returns 0 if parsing fails.
     */
-    static QMimeData* toJsonMimeData(DB::TableRecord*);
+    static QMimeData* toJsonMimeData(TableRecord*);
 
     /*
      * creates QMimeData with text set to a string
@@ -39,41 +39,41 @@ public:
      * given all given TableRecords.
      * returns 0 if parsing fails.
     */
-    static QMimeData* toJsonMimeData(const QList<DB::TableRecord*>&);
+    static QMimeData* toJsonMimeData(const QList<TableRecord*>&);
 
     /*
-     * Extracts DB::TableRecord from given QMimeData.
+     * Extracts TableRecord from given QMimeData.
      * Parser assumes text in QMimeData is in Json format and.
      * (see toJsonMimeData(...))
      * Returns 0 if parsing fails.
-     * Note: None of the returned pointers reference any DB::Model::...
+     * Note: None of the returned pointers reference any Model::...
      * elements and should therefore be deleted after use.
     */
-    static DB::TableRecord* toTableRecord(const QMimeData*);
+    static TableRecord* toTableRecord(const QMimeData*);
 
     /*
-     * Extracts list of DB::TableRecord from given QMimeData.
+     * Extracts list of TableRecord from given QMimeData.
      * Parser assumes text in QMimeData is in Json format and.
      * (see toJsonMimeData(...))
      * Returns 0 if parsing fails.
-     * Note: None of the returned pointers reference any DB::Model::...
+     * Note: None of the returned pointers reference any Model::...
      * elements and should therefore be deleted after use.
     */
-    static QList<DB::TableRecord*> toTableRecordList(const QMimeData*);
+    static QList<TableRecord*> toTableRecordList(const QMimeData*);
 
     /*
-    * Extracts DB::TableRecord from given QJsonObject.
+    * Extracts TableRecord from given QJsonObject.
     * Returns 0 if parsing failes.
-    * Note: None of the returned pointers reference any DB::Model::...
+    * Note: None of the returned pointers reference any Model::...
     * elements and should therefore be deleted after use.
     */
-    static DB::TableRecord* toTableRecord(const QJsonObject&);
+    static TableRecord* toTableRecord(const QJsonObject&);
 
-    /* Creates JsonObject from given DB::TableRecord */
-    static const QJsonObject toJsonObject(DB::TableRecord*);
+    /* Creates JsonObject from given TableRecord */
+    static const QJsonObject toJsonObject(TableRecord*);
 
-    /* Creates JsonObject from given DB::SoundFileRecord */
-    static const QJsonObject toJsonObject(DB::SoundFileRecord*);
+    /* Creates JsonObject from given SoundFileRecord */
+    static const QJsonObject toJsonObject(SoundFileRecord*);
 
     /* Creates JsonObject from given Playlist::Settings */
     static const QJsonObject toJsonObject(const Playlist::Settings&);
@@ -87,10 +87,10 @@ public:
     static const QPainterPath toPainterPath(const QJsonArray& arr);
 
     /*
-     * Creates JsonObject from given DB::CategoryRecord.
+     * Creates JsonObject from given CategoryRecord.
      * Serializes only id,index,name,parent_id.
     */
-    static const QJsonObject toJsonObject(DB::CategoryRecord*);
+    static const QJsonObject toJsonObject(CategoryRecord*);
 };
 
 } // namespace Misc

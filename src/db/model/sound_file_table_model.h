@@ -63,7 +63,7 @@ public:
      * Gets the row of SoundFileRecord.
      * Returns -1 if none found
     */
-    int getRowBySoundFile(DB::SoundFileRecord* rec);
+    int getRowBySoundFile(SoundFileRecord* rec);
 
     /*
      * Gets SoundFileRecord based on path.
@@ -106,17 +106,17 @@ public:
     /*
     * Returns all SoundFileRecords held by this model
     */
-    QList<DB::SoundFileRecord*> const& getSoundFiles() const;
+    QList<SoundFileRecord*> const& getSoundFiles() const;
 
 public slots:
     void deleteSoundFile(int id);
 
 signals:
     /* triggered and processed before SoundFileRecord gets deleted */
-    void aboutToBeDeleted(DB::SoundFileRecord*);
+    void aboutToBeDeleted(SoundFileRecord*);
 
     /* triggered and processed before SoundFileRecords get deleted */
-    void aboutToBeDeleted(const QList<DB::SoundFileRecord*>&);
+    void aboutToBeDeleted(const QList<SoundFileRecord*>&);
 
 private:
     /* validates existance of given QModelIndex for this model **/

@@ -16,7 +16,7 @@
 #include <QJsonObject>
 #include <QUuid>
 
-#include "db/handler.h"
+#include "db/database_handler.h"
 #include "db/model/preset_table_model.h"
 #include "tracking/trackable.h"
 

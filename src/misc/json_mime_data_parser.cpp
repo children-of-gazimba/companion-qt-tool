@@ -8,7 +8,7 @@ namespace Misc {
 JsonMimeDataParser::JsonMimeDataParser()
 {}
 
-QMimeData* JsonMimeDataParser::toJsonMimeData(DB::TableRecord* rec)
+QMimeData* JsonMimeDataParser::toJsonMimeData(TableRecord* rec)
 {
     QMimeData* data = 0;
     if(rec == 0)
@@ -26,14 +26,14 @@ QMimeData* JsonMimeDataParser::toJsonMimeData(DB::TableRecord* rec)
     return data;
 }
 
-QMimeData *JsonMimeDataParser::toJsonMimeData(const QList<DB::TableRecord *>& records)
+QMimeData *JsonMimeDataParser::toJsonMimeData(const QList<TableRecord *>& records)
 {
     QMimeData* data = 0;
     if(records.size() == 0)
         return data;
 
     QJsonArray arr;
-    foreach(DB::TableRecord* rec, records) {
+    foreach(TableRecord* rec, records) {
         QJsonObject obj(toJsonObject(rec));
         if(obj.isEmpty())
             continue;
@@ -48,7 +48,7 @@ QMimeData *JsonMimeDataParser::toJsonMimeData(const QList<DB::TableRecord *>& re
     return data;
 }
 
-DB::TableRecord *JsonMimeDataParser::toTableRecord(const QMimeData* mime)
+TableRecord *JsonMimeDataParser::toTableRecord(const QMimeData* mime)
 {
     if(mime == 0 || !mime->hasText())
         return 0;
@@ -60,9 +60,9 @@ DB::TableRecord *JsonMimeDataParser::toTableRecord(const QMimeData* mime)
     return toTableRecord(doc.object());
 }
 
-QList<DB::TableRecord *> JsonMimeDataParser::toTableRecordList(const QMimeData* mime)
+QList<TableRecord *> JsonMimeDataParser::toTableRecordList(const QMimeData* mime)
 {
-    QList<DB::TableRecord*> records;
+    QList<TableRecord*> records;
     if(mime == 0 || !mime->hasText())
         return records;
 
@@ -71,7 +71,7 @@ QList<DB::TableRecord *> JsonMimeDataParser::toTableRecordList(const QMimeData* 
         return records;
 
     if(doc.isObject()) {
-        DB::TableRecord* rec = toTableRecord(mime);
+        TableRecord* rec = toTableRecord(mime);
         if(rec == 0)
             return records;
         records.append(rec);
@@ -81,7 +81,7 @@ QList<DB::TableRecord *> JsonMimeDataParser::toTableRecordList(const QMimeData* 
             if(!val.isObject())
                 continue;
 
-            DB::TableRecord* rec = toTableRecord(val.toObject());
+            TableRecord* rec = toTableRecord(val.toObject());
             if(rec == 0)
                 continue;
             records.append(rec);
@@ -91,14 +91,14 @@ QList<DB::TableRecord *> JsonMimeDataParser::toTableRecordList(const QMimeData* 
     return records;
 }
 
-DB::TableRecord *JsonMimeDataParser::toTableRecord(const QJsonObject& obj)
+TableRecord *JsonMimeDataParser::toTableRecord(const QJsonObject& obj)
 {
-    DB::TableRecord* rec = 0;
+    TableRecord* rec = 0;
 
     if(!obj.contains("type"))
         return rec;
 
-    if(obj["type"] == DB::SOUND_FILE) {
+    if(obj["type"] == SOUND_FILE) {
         int id = -1;
         QString name = "";
         QString path = "";
@@ -112,9 +112,9 @@ DB::TableRecord *JsonMimeDataParser::toTableRecord(const QJsonObject& obj)
         if(obj.contains("relative_path") || obj["relative_path"].isString())
             relative_path = obj["relative_path"].toString();
 
-        rec = new DB::SoundFileRecord(id, name, path, relative_path);
+        rec = new SoundFileRecord(id, name, path, relative_path);
     }
-    else if(obj["type"] == DB::CATEGORY) {
+    else if(obj["type"] == CATEGORY) {
         int id = -1;
         QString name = "";
         int parent_id = -1;
@@ -125,13 +125,13 @@ DB::TableRecord *JsonMimeDataParser::toTableRecord(const QJsonObject& obj)
         if(obj.contains("parent_id"))
             parent_id = obj["parent_id"].toInt();
 
-        rec = new DB::CategoryRecord(id, name, parent_id);
+        rec = new CategoryRecord(id, name, parent_id);
     }
 
     return rec;
 }
 
-const QJsonObject JsonMimeDataParser::toJsonObject(DB::TableRecord* rec)
+const QJsonObject JsonMimeDataParser::toJsonObject(TableRecord* rec)
 {
     QJsonObject obj;
 
@@ -139,16 +139,16 @@ const QJsonObject JsonMimeDataParser::toJsonObject(DB::TableRecord* rec)
         return obj;
 
     switch(rec->index) {
-        case DB::SOUND_FILE:
-            obj = toJsonObject((DB::SoundFileRecord*) rec);
+        case SOUND_FILE:
+            obj = toJsonObject((SoundFileRecord*) rec);
             break;
 
-        case DB::CATEGORY:
-            obj = toJsonObject((DB::CategoryRecord*) rec);
+        case CATEGORY:
+            obj = toJsonObject((CategoryRecord*) rec);
             break;
 
-        case DB::SOUND_FILE_CATEGORY:
-        case DB::NONE:
+        case SOUND_FILE_CATEGORY:
+        case NONE:
         default:
             break;
     }
@@ -156,7 +156,7 @@ const QJsonObject JsonMimeDataParser::toJsonObject(DB::TableRecord* rec)
     return obj;
 }
 
-const QJsonObject JsonMimeDataParser::toJsonObject(DB::SoundFileRecord* rec)
+const QJsonObject JsonMimeDataParser::toJsonObject(SoundFileRecord* rec)
 {
     QJsonObject obj;
 
@@ -291,7 +291,7 @@ const QPainterPath JsonMimeDataParser::toPainterPath(const QJsonArray &arr)
     return p;
 }
 
-const QJsonObject JsonMimeDataParser::toJsonObject(DB::CategoryRecord* rec)
+const QJsonObject JsonMimeDataParser::toJsonObject(CategoryRecord* rec)
 {
     QJsonObject obj;
 
