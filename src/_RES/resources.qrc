@@ -16,6 +16,7 @@
         <file>invisible.png</file>
         <file>visible.png</file>
         <file>back_button_round.png</file>
+        <file>img_unavailable.png</file>
     </qresource>
     <qresource prefix="/styles">
         <file>dark_style.css</file>
@@ -60,5 +61,9 @@
     </qresource>
     <qresource prefix="/config">
         <file>spotify_credentials.json</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file>ic_view_list_24px.svg</file>
+        <file>ic_view_module_24px.svg</file>
     </qresource>
 </RCC>
