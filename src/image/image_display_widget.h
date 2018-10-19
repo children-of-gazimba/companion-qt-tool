@@ -7,10 +7,7 @@
 
 class InteractiveImageToken;
 class InteractiveImageShape;
-
-namespace Image {
-class View;
-}
+class ImageCanvas;
 class WidgetListView;
 
 class ImageDisplayWidget : public QWidget
@@ -19,7 +16,7 @@ class ImageDisplayWidget : public QWidget
 public:
     explicit ImageDisplayWidget(QWidget *parent = nullptr);
 
-    Image::View* getView() const;
+    ImageCanvas* getView() const;
     void popOpen();
 
 private slots:
@@ -41,7 +38,7 @@ private:
 
     QMenuBar* menu_bar_;
     QMenu* view_menu_;
-    Image::View* view_;
+    ImageCanvas* view_;
     WidgetListView* token_config_list_;
     WidgetListView* shape_config_list_;
     QSplitter* main_splitter_;

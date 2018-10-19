@@ -66,7 +66,7 @@ void ThumbnailList::openDirectory(const QString &dir_name)
     file_view_->setRootIndex(model_->index(dir.path()));
 }
 
-Image::View *ThumbnailList::getView() const
+ImageCanvas *ThumbnailList::getView() const
 {
     return presentation_view_->getView();
 }

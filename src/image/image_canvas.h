@@ -1,5 +1,5 @@
-#ifndef IMAGE_VIEW_H
-#define IMAGE_VIEW_H
+#ifndef IMAGE_CANVAS_H
+#define IMAGE_CANVAS_H
 
 #include <QWidget>
 #include <QGraphicsView>
@@ -10,14 +10,12 @@
 class ImageItem;
 class InteractiveImage;
 
-namespace Image {
-
-class View : public QGraphicsView
+class ImageCanvas : public QGraphicsView
 {
     Q_OBJECT
 public:
-    explicit View(QWidget *parent = 0);
-    virtual  ~View();
+    explicit ImageCanvas(QWidget *parent = 0);
+    virtual  ~ImageCanvas();
 
     void setItem(ImageItem*);
     void setItem(InteractiveImage*);
@@ -54,6 +52,4 @@ private:
     QMenu* context_menu_;
 };
 
-} // namespace Image
-
-#endif // IMAGE_VIEW_H
+#endif // IMAGE_CANVAS_H

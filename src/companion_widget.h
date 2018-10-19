@@ -21,7 +21,7 @@
 #include "db/database_handler.h"
 #include "category/category_tree_view.h"
 #include "tile/graphics_view.h"
-#include "image/browser.h"
+#include "image/image_browser.h"
 #include "preset/preset_view.h"
 #include "spotify/spotify_control_panel.h"
 #include "web/socket_host_widget.h"
@@ -93,7 +93,7 @@ private:
     QGroupBox* left_box_;
     QGroupBox* right_box_;
     SocketHostWidget* socket_host_;
-    Image::Browser* image_browser_;
+    ImageBrowser* image_browser_;
     SpotifyControlPanel *spotify_authenticator_widget_;
     TuioControlPanel *tuio_control_panel_;
     QTabWidget* left_tabwidget_;

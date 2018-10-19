@@ -50,9 +50,6 @@ SOURCES += main.cpp \
     resources/sound_file.cpp \
     playlist/media_playlist.cpp \
     log/file_logger.cpp \
-    image/view.cpp \
-    image/browser.cpp \
-    image/list.cpp \
     db/model/image_dir_table_model.cpp \
     tile/nested_tile.cpp \
     preset/preset_view.cpp \
@@ -107,7 +104,9 @@ SOURCES += main.cpp \
     web/socket_host_widget.cpp \
     category/category_tree_view.cpp \
     db/database_handler.cpp \
-    db/core/database_api.cpp
+    db/core/database_api.cpp \
+    image/image_browser.cpp \
+    image/image_canvas.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -137,9 +136,6 @@ HEADERS  += main_window.h \
     resources/sound_file.h \
     playlist/media_playlist.h \
     log/file_logger.h \
-    image/view.h \
-    image/browser.h \
-    image/list.h \
     db/model/image_dir_table_model.h \
     tile/nested_tile.h \
     preset/preset_view.h \
@@ -194,7 +190,9 @@ HEADERS  += main_window.h \
     web/socket_host_widget.h \
     category/category_tree_view.h \
     db/database_handler.h \
-    db/core/database_api.h
+    db/core/database_api.h \
+    image/image_browser.h \
+    image/image_canvas.h
 
 RESOURCES += \
     _RES/resources.qrc

@@ -1,7 +1,6 @@
 #ifndef IMAGELIST_H
 #define IMAGELIST_H
 
-#include <QObject>
 #include <QWidget>
 
 #include <QLineEdit>
@@ -12,62 +11,62 @@
 
 #include "models/image_directory_model.h"
 #include "image_display_widget.h"
-#include "view.h"
+#include "image_canvas.h"
 
 class ThumbnailList : public QWidget
 {
-        Q_OBJECT
-    public:
+    Q_OBJECT
+public:
 
-        /**
-         * @brief The ViewMode enum describes whether the QListView <file_view_> operates in List or in Icon Mode.
-         */
-        enum ViewMode {List, Grid};
+    /**
+     * @brief The ViewMode enum describes whether the QListView <file_view_> operates in List or in Icon Mode.
+     */
+    enum ViewMode {List, Grid};
 
-        /**
-         * @brief ImageList c'tor
-         * @param parent
-         */
-        explicit ThumbnailList(QWidget *parent = nullptr);
-        virtual ~ThumbnailList() override;
+    /**
+     * @brief ImageList c'tor
+     * @param parent
+     */
+    explicit ThumbnailList(QWidget *parent = nullptr);
+    virtual ~ThumbnailList() override;
 
-        /**
-         * @brief Overridden resizeEvent
-         * @param event
-         */
-        virtual void resizeEvent(QResizeEvent *event) override;
+    /**
+     * @brief Overridden resizeEvent
+     * @param event
+     */
+    virtual void resizeEvent(QResizeEvent *event) override;
 
-        void openDirectory(const QString&);
-        Image::View *getView() const;
-        ImageDisplayWidget *getDisplayWidget() const;
+    void openDirectory(const QString&);
+    ImageCanvas *getView() const;
+    ImageDisplayWidget *getDisplayWidget() const;
 
-    signals:
-        void newDirectory(const QString& new_directory);
+signals:
+    void newDirectory(const QString& new_directory);
 
-    public slots:
-        void onOpen();
-        void onImageSelected(const QModelIndex& idx);
+public slots:
+    void onOpen();
+    void onImageSelected(const QModelIndex& idx);
 
-    private slots:
-        void onChangeGridsize(int value);
+private slots:
+    void onChangeGridsize(int value);
 
-    private:
-        void initWidgets();
-        void initLayout();
+private:
+    void initWidgets();
+    void initLayout();
 
-        int gridsize_;
-        ViewMode view_mode_;
+    int gridsize_;
+    ViewMode view_mode_;
 
-        ImageDirectoryModel *model_;
+    ImageDirectoryModel *model_;
 
-        QListView *file_view_;
-        QLineEdit *line_edit_;
-        QPushButton *open_button_;
-        QSlider *gridsize_slider_;
-        QLabel *list_icon_label_;
-        QLabel *grid_icon_label_;
+    QListView *file_view_;
+    QLineEdit *line_edit_;
+    QPushButton *open_button_;
+    QSlider *gridsize_slider_;
+    QLabel *list_icon_label_;
+    QLabel *grid_icon_label_;
 
-        ImageDisplayWidget *presentation_view_;
+    ImageDisplayWidget *presentation_view_;
 };
 
 #endif // IMAGELIST_H

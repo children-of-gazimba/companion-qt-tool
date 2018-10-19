@@ -11,7 +11,7 @@
 #include "db/model/sound_file_table_model.h"
 #include "db/model/preset_table_model.h"
 #include "base_tile.h"
-#include "image/view.h"
+#include "image/image_canvas.h"
 #include "image/image_display_widget.h"
 #include "nested_path_widget.h"
 
@@ -275,7 +275,7 @@ private:
     QAction* nest_selected_action_;
     QPoint click_pos_;
     QMap<QString, QJsonObject> layouts_;
-    Image::View* image_view_;
+    ImageCanvas* image_view_;
     ImageDisplayWidget* image_widget_;
     NestedPathWidget* nested_path_widget_;
 };

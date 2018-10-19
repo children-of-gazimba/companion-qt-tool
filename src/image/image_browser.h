@@ -7,23 +7,21 @@
 
 #include "list.h"
 #include "thumbnail_list.h"
-#include "view.h"
+#include "image_canvas.h"
 #include "image_display_widget.h"
 #include "db/model/image_dir_table_model.h"
 
-namespace Image {
-
-class Browser : public QWidget
+class ImageBrowser : public QWidget
 {
     Q_OBJECT
 public:
-    explicit Browser(QWidget *parent = 0);
-    virtual ~Browser();
+    explicit ImageBrowser(QWidget *parent = 0);
+    virtual ~ImageBrowser();
 
     void setImageDirTableModel(ImageDirTableModel*);
     ImageDirTableModel* getImageDirTableModel();
 
-    View *getView() const;
+    ImageCanvas *getView() const;
     ImageDisplayWidget* getDisplayWidget() const;
 
 signals:
@@ -44,7 +42,5 @@ private:
     QSplitter* v_splitter_;
     ImageDirTableModel* model_;
 };
-
-} // namespace Image
 
 #endif // IMAGE_BROWSER_H

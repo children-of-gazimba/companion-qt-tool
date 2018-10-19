@@ -384,7 +384,7 @@ void CompanionWidget::initWidgets()
     left_v_splitter_->setStretchFactor(0, 2);
     left_v_splitter_->setStretchFactor(1, 8);
 
-    image_browser_ = new Image::Browser(left_tabwidget_);
+    image_browser_ = new ImageBrowser(left_tabwidget_);
     image_browser_->layout()->setMargin(0);
     image_browser_->setImageDirTableModel(db_handler_->getImageDirTableModel());
     graphics_view_->setImageDisplay(image_browser_->getDisplayWidget());
