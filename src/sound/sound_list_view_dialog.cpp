@@ -1,10 +1,8 @@
-#include "list_view_dialog.h"
+#include "sound_list_view_dialog.h"
 
 #include <QHBoxLayout>
 
-namespace SoundFile {
-
-ListViewDialog::ListViewDialog(const QList<DB::SoundFileRecord *> &records, QWidget *parent)
+SoundListViewDialog::SoundListViewDialog(const QList<SoundFileRecord *> &records, QWidget *parent)
     : QDialog(parent)
     , list_view_(0)
     , ok_(0)
@@ -16,7 +14,7 @@ ListViewDialog::ListViewDialog(const QList<DB::SoundFileRecord *> &records, QWid
     initLayout();
 }
 
-ListViewDialog::ListViewDialog(QWidget *parent)
+SoundListViewDialog::SoundListViewDialog(QWidget *parent)
     : QDialog(parent)
     , list_view_(0)
     , ok_(0)
@@ -28,9 +26,9 @@ ListViewDialog::ListViewDialog(QWidget *parent)
     initLayout();
 }
 
-void ListViewDialog::initWidgets(const QList<DB::SoundFileRecord *> &records)
+void SoundListViewDialog::initWidgets(const QList<SoundFileRecord *> &records)
 {
-    list_view_ = new ListView(records, this);
+    list_view_ = new SoundListView(records, this);
     ok_ = new QPushButton(tr("OK"), this);
     cancel_ = new QPushButton(tr("Cancel"), this);
 
@@ -40,7 +38,7 @@ void ListViewDialog::initWidgets(const QList<DB::SoundFileRecord *> &records)
             this, SLOT(reject()));
 }
 
-void ListViewDialog::initLayout()
+void SoundListViewDialog::initLayout()
 {
     QVBoxLayout* layout = new QVBoxLayout;
 
@@ -54,6 +52,3 @@ void ListViewDialog::initLayout()
 
     setLayout(layout);
 }
-
-} // namespace SoundFile
-

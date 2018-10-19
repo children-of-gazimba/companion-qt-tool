@@ -10,8 +10,6 @@
 
 #include "resources/lib.h"
 
-namespace Preset {
-
 PresetView::PresetView(QWidget *parent)
     : QListView(parent)
     , start_pos_()
@@ -27,13 +25,13 @@ PresetView::PresetView(QWidget *parent)
 PresetView::~PresetView()
 {}
 
-void PresetView::setPresetTableModel(DB::Model::PresetTableModel *model)
+void PresetView::setPresetTableModel(PresetTableModel *model)
 {
     model_ = model;
     setModel(model_);
 }
 
-DB::Model::PresetTableModel *PresetView::getPresetTableModel()
+PresetTableModel *PresetView::getPresetTableModel()
 {
     return model_;
 }
@@ -95,7 +93,7 @@ void PresetView::performDrag()
 
         QModelIndex idx = selectionModel()->selectedRows(1)[0];
 
-        DB::PresetRecord* rec = model_->getPresetByRow(idx.row());
+        PresetRecord* rec = model_->getPresetByRow(idx.row());
         QMimeData* mime_data = new QMimeData;
         mime_data->setText(rec->json);
 
@@ -123,5 +121,3 @@ void PresetView::initContextMenu()
 
     context_menu_->addActions(actions);
 }
-
-} // namespace Preset

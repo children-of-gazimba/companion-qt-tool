@@ -28,22 +28,13 @@ SOURCES += main.cpp \
     _TEST/content_browser.cpp \
     _TEST/multi_track_media_player.cpp \
     _TEST/player_controls.cpp \
-    db/core/api.cpp \
     db/core/sqlite_wrapper.cpp \
     db/model/category_tree_model.cpp \
     db/model/sound_file_table_model.cpp \
-    db/handler.cpp \
     db/table_records.cpp \
-    category/tree_view.cpp \
     misc/drop_group_box.cpp \
-    misc/json_mime_data_parser.cpp \
     misc/standard_item_model.cpp \
     misc/char_input_dialog.cpp \
-    sound_file/list_view.cpp \
-    sound_file/list_view_dialog.cpp \
-    tile/graphics_view.cpp \
-    playlist/settings_widget.cpp \
-    custom_media_player.cpp \
     db/model/resource_dir_table_model.cpp \
     resources/importer.cpp \
     resources/lib.cpp \
@@ -51,11 +42,7 @@ SOURCES += main.cpp \
     resources/image_file.cpp \
     resources/resource_file.cpp \
     resources/sound_file.cpp \
-    playlist/media_playlist.cpp \
     log/file_logger.cpp \
-    image/view.cpp \
-    image/browser.cpp \
-    image/list.cpp \
     db/model/image_dir_table_model.cpp \
     tile/nested_tile.cpp \
     preset/preset_view.cpp \
@@ -101,36 +88,38 @@ SOURCES += main.cpp \
     misc/volume_mapper.cpp \
     image/models/image_directory_model.cpp \
     image/thumbnail_list.cpp \
-    sound_file/playback_view.cpp \
-    sound_file/sound_file_player.cpp \
     tile/nested_path_widget.cpp \
     misc/progress_button.cpp \
     web/companion_server.cpp \
     web/companion_udp_discovery.cpp \
-    web/socket_host_widget.cpp
+    web/socket_host_widget.cpp \
+    category/category_tree_view.cpp \
+    db/database_handler.cpp \
+    db/core/database_api.cpp \
+    image/image_browser.cpp \
+    image/image_canvas.cpp \
+    sound/sound_file_player.cpp \
+    sound/sound_list_playback_view.cpp \
+    sound/sound_list_view.cpp \
+    sound/sound_list_view_dialog.cpp \
+    tile/canvas.cpp \
+    playlist/playlist.cpp \
+    playlist/playlist_player.cpp \
+    playlist/playlist_settings_widget.cpp \
+    json/json_mime_data_parser.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
     _TEST/content_browser.h \
     _TEST/multi_track_media_player.h \
     _TEST/player_controls.h \
-    db/core/api.h \
     db/core/sqlite_wrapper.h \
     db/model/category_tree_model.h \
     db/model/sound_file_table_model.h \
-    db/handler.h \
     db/table_records.h \
-    category/tree_view.h \
     misc/drop_group_box.h \
     misc/char_input_dialog.h \
-    misc/json_mime_data_parser.h \
     misc/standard_item_model.h \
-    sound_file/list_view.h \
-    sound_file/list_view_dialog.h \
-    tile/graphics_view.h \
-    playlist/settings.h \
-    playlist/settings_widget.h \
-    custom_media_player.h \
     db/model/resource_dir_table_model.h \
     resources/importer.h \
     resources/lib.h \
@@ -138,11 +127,7 @@ HEADERS  += main_window.h \
     resources/image_file.h \
     resources/resource_file.h \
     resources/sound_file.h \
-    playlist/media_playlist.h \
     log/file_logger.h \
-    image/view.h \
-    image/browser.h \
-    image/list.h \
     db/model/image_dir_table_model.h \
     tile/nested_tile.h \
     preset/preset_view.h \
@@ -188,13 +173,26 @@ HEADERS  += main_window.h \
     misc/volume_mapper.h \
     image/models/image_directory_model.h \
     image/thumbnail_list.h \
-    sound_file/playback_view.h \
-    sound_file/sound_file_player.h \
     tile/nested_path_widget.h \
     misc/progress_button.h \
     web/companion_server.h \
     web/companion_udp_discovery.h \
-    web/socket_host_widget.h
+    web/socket_host_widget.h \
+    category/category_tree_view.h \
+    db/database_handler.h \
+    db/core/database_api.h \
+    image/image_browser.h \
+    image/image_canvas.h \
+    sound/sound_file_player.h \
+    sound/sound_list_playback_view.h \
+    sound/sound_list_view.h \
+    sound/sound_list_view_dialog.h \
+    tile/canvas.h \
+    playlist/playlist.h \
+    playlist/playlist_player.h \
+    playlist/playlist_settings.h \
+    playlist/playlist_settings_widget.h \
+    json/json_mime_data_parser.h
 
 RESOURCES += \
     _RES/resources.qrc

@@ -1,4 +1,4 @@
-#include "settings_widget.h"
+#include "playlist_settings_widget.h"
 
 #include <QHBoxLayout>
 #include <QRadioButton>
@@ -6,9 +6,7 @@
 
 #include "misc/volume_mapper.h"
 
-namespace Playlist{
-
-SettingsWidget::SettingsWidget(const Playlist::Settings& settings, QWidget *parent)
+PlaylistSettingsWidget::PlaylistSettingsWidget(const PlaylistSettings& settings, QWidget *parent)
     : QWidget(parent)
     , settings_(settings)
     , name_edit_(0)
@@ -32,18 +30,18 @@ SettingsWidget::SettingsWidget(const Playlist::Settings& settings, QWidget *pare
     initLayout();
 }
 
-SettingsWidget::~SettingsWidget()
+PlaylistSettingsWidget::~PlaylistSettingsWidget()
 {
 }
 
-void SettingsWidget::onCloseClicked(bool)
+void PlaylistSettingsWidget::onCloseClicked(bool)
 {
     emit closed();
 }
 
-void SettingsWidget::onSaveClicked(bool)
+void PlaylistSettingsWidget::onSaveClicked(bool)
 {
-    Settings new_settings;
+    PlaylistSettings new_settings;
 
     //set loop settings
     if (loop_checkbox_->isChecked()){
@@ -90,7 +88,7 @@ void SettingsWidget::onSaveClicked(bool)
     emit saved(new_settings);
 }
 
-void SettingsWidget::popOpen()
+void PlaylistSettingsWidget::popOpen()
 {
     if(isHidden())
         showNormal();
@@ -100,31 +98,31 @@ void SettingsWidget::popOpen()
     activateWindow();
 }
 
-void SettingsWidget::onExternalVolumeChanged(int v)
+void PlaylistSettingsWidget::onExternalVolumeChanged(int v)
 {
     volume_slider_->setValue(VolumeMapper::linearToLogarithmic(v));
 }
 
-void SettingsWidget::onMinIntervalSliderChanged(int val)
+void PlaylistSettingsWidget::onMinIntervalSliderChanged(int val)
 {
     int max = max_interval_slider_->value();
     interval_label_->setText(QString::number(val) + "-" + QString::number(max) + " sec");
 }
 
-void SettingsWidget::onMaxIntervalSliderChanged(int val)
+void PlaylistSettingsWidget::onMaxIntervalSliderChanged(int val)
 {
     int min = min_interval_slider_->value();
     interval_label_->setText(QString::number(min) + "-" + QString::number(val) + " sec");
 }
 
 
-void SettingsWidget::onVolumeSliderChanged(int val)
+void PlaylistSettingsWidget::onVolumeSliderChanged(int val)
 {
     volume_label_->setText(QString::number(val) + " %");
     emit volumeSettingsChanged(VolumeMapper::logarithmicToLinear(val));
 }
 
-void SettingsWidget::onOpenImage()
+void PlaylistSettingsWidget::onOpenImage()
 {
     // QString s = QFileDialog::getOpenFileName(this, tr("Open Image"), "", "Image Files (*.png *.jpg *.bmp)");
     QString s = QFileDialog::getOpenFileName(this, tr("Open Image"), "", "Image Files (*.png *.jpg *.bmp)",nullptr, QFileDialog::DontUseNativeDialog);
@@ -134,7 +132,7 @@ void SettingsWidget::onOpenImage()
     }
 }
 
-void SettingsWidget::initWidgets()
+void PlaylistSettingsWidget::initWidgets()
 {
     name_edit_ = new QLineEdit(this);
     name_edit_->setPlaceholderText("Playlist Name");
@@ -216,7 +214,7 @@ void SettingsWidget::initWidgets()
             this, SLOT(onSaveClicked(bool)));
 }
 
-void SettingsWidget::initLayout()
+void PlaylistSettingsWidget::initLayout()
 {
     QWidget::setWindowFlags(Qt::Tool);
     QWidget::setWindowTitle("Playlist Settings");
@@ -282,10 +280,8 @@ void SettingsWidget::initLayout()
     setFixedWidth(600);
 }
 
-void SettingsWidget::closeEvent(QCloseEvent *e)
+void PlaylistSettingsWidget::closeEvent(QCloseEvent *e)
 {
     emit closed();
     QWidget::closeEvent(e);
 }
-
-} //namespace Playlist

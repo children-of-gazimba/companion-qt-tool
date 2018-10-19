@@ -3,10 +3,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 
-namespace DB {
-namespace Model {
-
-SoundFileTableModel::SoundFileTableModel(Core::Api* api, QObject* parent)
+SoundFileTableModel::SoundFileTableModel(DatabaseApi* api, QObject* parent)
     : QAbstractTableModel(parent)
     , api_(api)
     , source_model_(0)
@@ -118,7 +115,7 @@ bool SoundFileTableModel::removeRow(int row, const QModelIndex&)
         return false;
 
     // collect SOundFileRecord being deleted
-    DB::SoundFileRecord* rec = getSoundFileByRow(row);
+    SoundFileRecord* rec = getSoundFileByRow(row);
     if(rec != 0) {
 
         // signal deletion
@@ -151,9 +148,9 @@ bool SoundFileTableModel::removeRows(int row, int count, const QModelIndex&)
     if(row < records_.size() && row+count < records_.size()) {
 
         // collect all SoundFileRecords being deleted
-        QList<DB::SoundFileRecord*> recs;
+        QList<SoundFileRecord*> recs;
         for(int i = row; i <= row+count; ++i) {
-            DB::SoundFileRecord* rec = getSoundFileByRow(i);
+            SoundFileRecord* rec = getSoundFileByRow(i);
             if(rec == 0)
                 return false;
             recs.append(rec);
@@ -173,7 +170,7 @@ bool SoundFileTableModel::removeRows(int row, int count, const QModelIndex&)
 
         // delete pointers
         while(recs.size() > 0) {
-            DB::SoundFileRecord* rec = recs.first();
+            SoundFileRecord* rec = recs.first();
             delete rec;
             rec = 0;
             recs.pop_front();
@@ -197,7 +194,7 @@ void SoundFileTableModel::select()
 {
     if(api_ == 0) {
         qDebug() << "FAILURE: cannot select SoundFileTableModel";
-        qDebug() << " > (DB::Core::Api*) api is null";
+        qDebug() << " > (DB::Api*) api is null";
         return;
     }
 
@@ -355,7 +352,3 @@ void SoundFileTableModel::clear()
         delete rec;
     }
 }
-
-} // namespace Model
-} // namespace DB
-

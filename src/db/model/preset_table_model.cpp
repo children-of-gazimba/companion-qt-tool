@@ -3,10 +3,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 
-namespace DB {
-namespace Model {
-
-PresetTableModel::PresetTableModel(Core::Api* api, QObject* parent)
+PresetTableModel::PresetTableModel(DatabaseApi* api, QObject* parent)
     : QAbstractTableModel(parent)
     , api_(api)
     , source_model_(0)
@@ -118,7 +115,7 @@ bool PresetTableModel::removeRow(int row, const QModelIndex&)
         return false;
 
     // collect PresetRecord being deleted
-    DB::PresetRecord* rec = getPresetByRow(row);
+    PresetRecord* rec = getPresetByRow(row);
     if(rec != 0) {
 
         // signal deletion
@@ -151,9 +148,9 @@ bool PresetTableModel::removeRows(int row, int count, const QModelIndex&)
     if(row < records_.size() && row+count < records_.size()) {
 
         // collect all PresetRecords being deleted
-        QList<DB::PresetRecord*> recs;
+        QList<PresetRecord*> recs;
         for(int i = row; i <= row+count; ++i) {
-            DB::PresetRecord* rec = getPresetByRow(i);
+            PresetRecord* rec = getPresetByRow(i);
             if(rec == 0)
                 return false;
             recs.append(rec);
@@ -173,7 +170,7 @@ bool PresetTableModel::removeRows(int row, int count, const QModelIndex&)
 
         // delete pointers
         while(recs.size() > 0) {
-            DB::PresetRecord* rec = recs.first();
+            PresetRecord* rec = recs.first();
             delete rec;
             rec = 0;
             recs.pop_front();
@@ -197,7 +194,7 @@ void PresetTableModel::select()
 {
     if(api_ == 0) {
         qDebug() << "FAILURE: cannot select PresetTableModel";
-        qDebug() << " > (DB::Core::Api*) api is null";
+        qDebug() << " > (DB::Api*) api is null";
         return;
     }
 
@@ -325,7 +322,3 @@ void PresetTableModel::clear()
         delete rec;
     }
 }
-
-} // namespace Model
-} // namespace DB
-

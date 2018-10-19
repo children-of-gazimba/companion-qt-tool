@@ -1,5 +1,5 @@
-#ifndef TILE_GRAPHICS_VIEW_H
-#define TILE_GRAPHICS_VIEW_H
+#ifndef TILE_CANVAS_H
+#define TILE_CANVAS_H
 
 #include <QGraphicsView>
 #include <QMouseEvent>
@@ -11,11 +11,10 @@
 #include "db/model/sound_file_table_model.h"
 #include "db/model/preset_table_model.h"
 #include "base_tile.h"
-#include "image/view.h"
+#include "image/image_canvas.h"
 #include "image/image_display_widget.h"
 #include "nested_path_widget.h"
 
-// TODO: rename namespace to Tile
 namespace Tile {
 
 /**
@@ -27,14 +26,14 @@ namespace Tile {
  * Holds functionality to convert all tiles in scene to JSON description
  * and be set from JSON.
 */
-class GraphicsView : public QGraphicsView
+class Canvas : public QGraphicsView
 {
     Q_OBJECT
 
 public:
-    GraphicsView(QGraphicsScene *scene, QWidget *parent);
-    GraphicsView(QWidget *parent = 0);
-    ~GraphicsView();
+    Canvas(QGraphicsScene *scene, QWidget *parent);
+    Canvas(QWidget *parent = 0);
+    ~Canvas();
 
     /**
      * Serializes this graphics view and all layouts defined for it.
@@ -50,11 +49,11 @@ public:
     */
     bool setFromJsonObject(const QJsonObject& obj);
 
-    void setSoundFileModel(DB::Model::SoundFileTableModel* m);
-    DB::Model::SoundFileTableModel* getSoundFileModel();
+    void setSoundFileModel(SoundFileTableModel* m);
+    SoundFileTableModel* getSoundFileModel();
 
-    void setPresetModel(DB::Model::PresetTableModel* m);
-    DB::Model::PresetTableModel* getPresetModel();
+    void setPresetModel(PresetTableModel* m);
+    PresetTableModel* getPresetModel();
 
     void clear();
 
@@ -266,8 +265,8 @@ private:
     */
     void initWidgets();
 
-    DB::Model::SoundFileTableModel* sound_model_;
-    DB::Model::PresetTableModel* preset_model_;
+    SoundFileTableModel* sound_model_;
+    PresetTableModel* preset_model_;
     QGraphicsScene* main_scene_;
     QStack<QGraphicsScene*> scene_stack_;
     QMap<QGraphicsScene*, QString> scene_names_;
@@ -275,11 +274,11 @@ private:
     QAction* nest_selected_action_;
     QPoint click_pos_;
     QMap<QString, QJsonObject> layouts_;
-    Image::View* image_view_;
+    ImageCanvas* image_view_;
     ImageDisplayWidget* image_widget_;
     NestedPathWidget* nested_path_widget_;
 };
 
 } // namespace Tile
 
-#endif // TILE_GRAPHICS_VIEW_H
+#endif // TILE_CANVAS_H

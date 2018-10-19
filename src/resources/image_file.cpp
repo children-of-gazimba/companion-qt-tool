@@ -2,16 +2,16 @@
 
 namespace Resources {
 
-ImageFile::ImageFile(QFileInfo const& info, DB::ResourceDirRecord const& resource_dir)
+ImageFile::ImageFile(QFileInfo const& info, ResourceDirRecord const& resource_dir)
     : ResourceFile(info, resource_dir)
 {}
 
 ImageFile::~ImageFile()
 {}
 
-DB::TableIndex ImageFile::getTableIndex()
+TableIndex ImageFile::getTableIndex()
 {
-    return DB::IMAGE_FILE;
+    return IMAGE_FILE;
 }
 
 } // namespace Resources

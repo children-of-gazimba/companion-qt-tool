@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    Log::FileLogger::clearLogFile();
+    FileLogger::clearLogFile();
 
     Resources::Lib::init();
     a.setStyleSheet(Resources::Lib::DARK_STYLE);

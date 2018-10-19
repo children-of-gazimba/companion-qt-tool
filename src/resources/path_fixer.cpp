@@ -4,7 +4,7 @@
 
 namespace Resources {
 
-PathFixer::PathFixer(DB::Handler* handler, QObject *parent)
+PathFixer::PathFixer(DatabaseHandler* handler, QObject *parent)
     : QObject(parent)
     , handler_(handler)
 {}
@@ -12,7 +12,7 @@ PathFixer::PathFixer(DB::Handler* handler, QObject *parent)
 PathFixer::~PathFixer()
 {}
 
-bool PathFixer::check(DB::SoundFileRecord *rec)
+bool PathFixer::check(SoundFileRecord *rec)
 {
     QFileInfo info(rec->path);
     return info.exists() && info.isFile();

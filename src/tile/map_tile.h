@@ -4,7 +4,7 @@
 #include <QGraphicsView>
 
 #include "base_tile.h"
-#include "graphics_view.h"
+#include "canvas.h"
 #include "image/image_display_widget.h"
 
 #include <QJsonObject>

@@ -1,7 +1,5 @@
 #include "drop_group_box.h"
 
-namespace Misc {
-
 DropGroupBox::DropGroupBox(QString const& title, QWidget *parent)
     : QGroupBox(title, parent)
 {
@@ -35,5 +33,3 @@ void DropGroupBox::dropEvent(QDropEvent *event)
         event->accept();
     }
 }
-
-} // namespace Misc

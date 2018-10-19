@@ -1,43 +1,40 @@
-#include "api.h"
+#include "database_api.h"
 
-namespace DB {
-namespace Core {
-
-Api::Api(QString const& db_path, QObject *parent)
+DatabaseApi::DatabaseApi(QString const& db_path, QObject *parent)
     : SqliteWrapper(db_path, parent)
 {}
 
-QSqlRelationalTableModel *Api::getSoundFileTable()
+QSqlRelationalTableModel *DatabaseApi::getSoundFileTable()
 {
     return getTable(SOUND_FILE);
 }
 
-QSqlRelationalTableModel *Api::getCategoryTable()
+QSqlRelationalTableModel *DatabaseApi::getCategoryTable()
 {
     return getTable(CATEGORY);
 }
 
-QSqlRelationalTableModel *Api::getSoundFileCategoryTable()
+QSqlRelationalTableModel *DatabaseApi::getSoundFileCategoryTable()
 {
     return getTable(SOUND_FILE_CATEGORY);
 }
 
-QSqlRelationalTableModel *Api::getResourceDirTable()
+QSqlRelationalTableModel *DatabaseApi::getResourceDirTable()
 {
     return getTable(RESOURCE_DIRECTORY);
 }
 
-QSqlRelationalTableModel *Api::getImageDirTable()
+QSqlRelationalTableModel *DatabaseApi::getImageDirTable()
 {
     return getTable(IMAGE_DIRECTORY);
 }
 
-QSqlRelationalTableModel *Api::getPresetTable()
+QSqlRelationalTableModel *DatabaseApi::getPresetTable()
 {
     return getTable(PRESET);
 }
 
-void Api::insertSoundFile(const QFileInfo &info, ResourceDirRecord const& resource_dir)
+void DatabaseApi::insertSoundFile(const QFileInfo &info, ResourceDirRecord const& resource_dir)
 {
     QString rel_path = info.filePath();
     rel_path.remove(0, resource_dir.path.size());
@@ -51,7 +48,7 @@ void Api::insertSoundFile(const QFileInfo &info, ResourceDirRecord const& resour
     insertQuery(SOUND_FILE, value_block);
 }
 
-void Api::insertCategory(const QString &name, int parent_id)
+void DatabaseApi::insertCategory(const QString &name, int parent_id)
 {
     QString value_block  = "";
     if(parent_id != -1) {
@@ -64,7 +61,7 @@ void Api::insertCategory(const QString &name, int parent_id)
     insertQuery(CATEGORY, value_block);
 }
 
-void Api::insertSoundFileCategory(int sound_file_id, int category_id)
+void DatabaseApi::insertSoundFileCategory(int sound_file_id, int category_id)
 {
     QString value_block  = "";
     value_block = "(sound_file_id, category_id) VALUES (";
@@ -74,7 +71,7 @@ void Api::insertSoundFileCategory(int sound_file_id, int category_id)
     insertQuery(SOUND_FILE_CATEGORY, value_block);
 }
 
-void Api::insertResourceDir(const QFileInfo &info)
+void DatabaseApi::insertResourceDir(const QFileInfo &info)
 {
     QString value_block  = "";
     value_block = "(name, path) VALUES (";
@@ -84,7 +81,7 @@ void Api::insertResourceDir(const QFileInfo &info)
     insertQuery(RESOURCE_DIRECTORY, value_block);
 }
 
-void Api::insertImageDir(const QFileInfo &info)
+void DatabaseApi::insertImageDir(const QFileInfo &info)
 {
     QString value_block  = "";
     value_block = "(path) VALUES ";
@@ -93,7 +90,7 @@ void Api::insertImageDir(const QFileInfo &info)
     insertQuery(IMAGE_DIRECTORY, value_block);
 }
 
-void Api::insertPreset(const QString &name, const QString &json)
+void DatabaseApi::insertPreset(const QString &name, const QString &json)
 {
     QString value_block  = "";
     value_block = "(name, json) VALUES (";
@@ -103,7 +100,7 @@ void Api::insertPreset(const QString &name, const QString &json)
     insertQuery(PRESET, value_block);
 }
 
-int Api::getSoundFileId(const QString &path)
+int DatabaseApi::getSoundFileId(const QString &path)
 {
     QString SELECT = "id";
     QString WHERE = "path = '" + SqliteWrapper::escape(path) + "'";
@@ -113,7 +110,7 @@ int Api::getSoundFileId(const QString &path)
     return -1;
 }
 
-int Api::getResourceDirId(const QString &path)
+int DatabaseApi::getResourceDirId(const QString &path)
 {
     QString SELECT = "id";
     QString WHERE = "path = '" + SqliteWrapper::escape(path) + "'";
@@ -123,7 +120,7 @@ int Api::getResourceDirId(const QString &path)
     return -1;
 }
 
-int Api::getImageDirId(const QString &path)
+int DatabaseApi::getImageDirId(const QString &path)
 {
     QString SELECT = "id";
     QString WHERE = "path = '" + SqliteWrapper::escape(path) + "'";
@@ -133,7 +130,7 @@ int Api::getImageDirId(const QString &path)
     return -1;
 }
 
-int Api::getPresetId(const QString &name)
+int DatabaseApi::getPresetId(const QString &name)
 {
     QString SELECT = "id";
     QString WHERE = "name = '" + SqliteWrapper::escape(name) + "'";
@@ -143,7 +140,7 @@ int Api::getPresetId(const QString &name)
     return -1;
 }
 
-bool Api::soundFileExists(const QString &path, const QString &name)
+bool DatabaseApi::soundFileExists(const QString &path, const QString &name)
 {
     QString where = "path = '" + SqliteWrapper::escape(path) + "' and ";
     where += "name = '" + SqliteWrapper::escape(name) + "'";
@@ -151,7 +148,7 @@ bool Api::soundFileExists(const QString &path, const QString &name)
     return selectQuery("Count(*)", SOUND_FILE, where)[0].value(0).toInt() > 0;
 }
 
-bool Api::soundFileCategoryExists(int sound_file_id, int category_id)
+bool DatabaseApi::soundFileCategoryExists(int sound_file_id, int category_id)
 {
     QString where = "sound_file_id = " + QString::number(sound_file_id) + " and ";
     where += "category_id = " + QString::number(category_id) + "";
@@ -159,7 +156,7 @@ bool Api::soundFileCategoryExists(int sound_file_id, int category_id)
     return selectQuery("Count(*)", SOUND_FILE_CATEGORY, where)[0].value(0).toInt() > 0;
 }
 
-const QList<int> Api::getRelatedIds(TableIndex get_table, TableIndex have_table, int have_id)
+const QList<int> DatabaseApi::getRelatedIds(TableIndex get_table, TableIndex have_table, int have_id)
 {
     QList<int> ids;
     if(have_table == NONE || get_table == NONE)
@@ -179,7 +176,7 @@ const QList<int> Api::getRelatedIds(TableIndex get_table, TableIndex have_table,
     return ids;
 }
 
-void Api::deleteAll()
+void DatabaseApi::deleteAll()
 {
     // delete sound_files
     deleteQuery(SOUND_FILE, "id > 0");
@@ -200,7 +197,7 @@ void Api::deleteAll()
     deleteQuery(IMAGE_DIRECTORY, "id > 0");
 }
 
-TableIndex Api::getRelationTable(TableIndex first, TableIndex second)
+TableIndex DatabaseApi::getRelationTable(TableIndex first, TableIndex second)
 {
     if(first == second)
         return NONE;
@@ -212,6 +209,3 @@ TableIndex Api::getRelationTable(TableIndex first, TableIndex second)
 
     return NONE;
 }
-
-} // namespace Core
-} // namespace DB

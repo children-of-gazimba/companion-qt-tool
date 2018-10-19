@@ -11,7 +11,7 @@
 
 namespace Tile {
 
-NestedTile::NestedTile(GraphicsView* master_view, QGraphicsItem *parent)
+NestedTile::NestedTile(Canvas* master_view, QGraphicsItem *parent)
     : BaseTile(parent)
     , master_view_(master_view)
     , scene_(0)

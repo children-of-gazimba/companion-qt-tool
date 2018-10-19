@@ -2,17 +2,14 @@
 #define DB_MODEL_IMAGE_DIR_TABLE_MODEL_H
 
 #include <QAbstractTableModel>
-#include "db/core/api.h"
+#include "db/core/database_api.h"
 #include "db/table_records.h"
-
-namespace DB {
-namespace Model {
 
 class ImageDirTableModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit ImageDirTableModel(Core::Api* api, QObject *parent = 0);
+    explicit ImageDirTableModel(DatabaseApi* api, QObject *parent = 0);
     ~ImageDirTableModel();
 
     //// inheritted functions (from pure virtual BC) - see docs for description
@@ -57,7 +54,7 @@ public:
      * Gets the row of ImageDirRecord.
      * Returns -1 if none found
     */
-    int getRowByImageDir(DB::ImageDirRecord* rec);
+    int getRowByImageDir(ImageDirRecord* rec);
 
     /*
      * Gets ImageDirRecord based on path.
@@ -91,15 +88,15 @@ public:
     /*
     * Returns all ImageDirRecords held by this model
     */
-    QList<DB::ImageDirRecord*> const& getImageDirs() const;
+    QList<ImageDirRecord*> const& getImageDirs() const;
 
 
 signals:   
    /* triggered and processed before ImageDirRecord gets deleted */
-   void aboutToBeDeleted(DB::ImageDirRecord*);
+   void aboutToBeDeleted(ImageDirRecord*);
 
    /* triggered and processed before ImageDirRecords get deleted */
-   void aboutToBeDeleted(const QList<DB::ImageDirRecord*>&);
+   void aboutToBeDeleted(const QList<ImageDirRecord*>&);
 
 public slots:
     void deleteImageDir(int id);
@@ -111,12 +108,9 @@ private:
     /* Clears all ImageDirRecords from records **/
     void clear();
 
-    Core::Api* api_;
+    DatabaseApi* api_;
     QSqlRelationalTableModel* source_model_;
     QList<ImageDirRecord*> records_;
 };
-
-} // namepace Model
-} // namespace DB
 
 #endif // DB_MODEL_IMAGE_DIR_TABLE_MODEL_H

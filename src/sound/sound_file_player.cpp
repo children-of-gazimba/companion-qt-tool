@@ -26,7 +26,7 @@ SoundFilePlayer::SoundFilePlayer(QWidget *parent)
 SoundFilePlayer::~SoundFilePlayer()
 {}
 
-void SoundFilePlayer::setSoundFile(const DB::SoundFileRecord &sf, bool auto_play)
+void SoundFilePlayer::setSoundFile(const SoundFileRecord &sf, bool auto_play)
 {
     resetPlayer();
     current_sound_->setText(sf.name);

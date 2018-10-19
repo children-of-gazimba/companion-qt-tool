@@ -9,9 +9,9 @@
 #include <QCoreApplication>
 #include <QInputDialog>
 
-#include "db/core/api.h"
+#include "db/core/database_api.h"
 #include "resources/lib.h"
-#include "misc/json_mime_data_parser.h"
+#include "json/json_mime_data_parser.h"
 #include "spotify/spotify_handler.h"
 
 CompanionWidget::CompanionWidget(QWidget *parent)
@@ -86,7 +86,7 @@ void CompanionWidget::onProgressChanged(int value)
     progress_bar_->setValue(value);
 }
 
-void CompanionWidget::onSelectedCategoryChanged(DB::CategoryRecord *rec)
+void CompanionWidget::onSelectedCategoryChanged(CategoryRecord *rec)
 {
     int id = -1;
     if(rec != 0)
@@ -308,7 +308,7 @@ void CompanionWidget::onLayoutAdded(const QString &name)
 void CompanionWidget::clearAll()
 {
     graphics_view_->clear();
-    image_browser_->getView()->clear();
+    image_browser_->getCanvas()->clear();
     setProjectPath("");
 }
 
@@ -327,14 +327,14 @@ void CompanionWidget::setProjectPath(const QString &path)
 
 void CompanionWidget::initWidgets()
 {
-    sound_file_view_ = new PlaybackView(
+    sound_file_view_ = new SoundListPlaybackView(
         db_handler_->getSoundFileTableModel()->getSoundFiles(),
         this
     );
 
     global_player_ = new SoundFilePlayer(this);
-    connect(sound_file_view_, &PlaybackView::play,
-            this, [=](const DB::SoundFileRecord& rec) {
+    connect(sound_file_view_, &SoundListPlaybackView::play,
+            this, [=](const SoundFileRecord& rec) {
         global_player_->setSoundFile(rec, true);
     });
 
@@ -344,7 +344,7 @@ void CompanionWidget::initWidgets()
     progress_bar_->setValue(100);
     progress_bar_->hide();
 
-    graphics_view_ = new Tile::GraphicsView(this);
+    graphics_view_ = new Tile::Canvas(this);
     graphics_view_->setSoundFileModel(db_handler_->getSoundFileTableModel());
     graphics_view_->setPresetModel(db_handler_->getPresetTableModel());
 
@@ -353,10 +353,10 @@ void CompanionWidget::initWidgets()
         this
     );
 
-    category_view_ = new Category::TreeView(this);
+    category_view_ = new CategoryTreeView(this);
     category_view_->setCategoryTreeModel(db_handler_->getCategoryTreeModel());
 
-    preset_view_ = new Preset::PresetView(this);
+    preset_view_ = new PresetView(this);
     preset_view_->setPresetTableModel(db_handler_->getPresetTableModel());
 
     left_box_ = new QGroupBox(this);
@@ -384,7 +384,7 @@ void CompanionWidget::initWidgets()
     left_v_splitter_->setStretchFactor(0, 2);
     left_v_splitter_->setStretchFactor(1, 8);
 
-    image_browser_ = new Image::Browser(left_tabwidget_);
+    image_browser_ = new ImageBrowser(left_tabwidget_);
     image_browser_->layout()->setMargin(0);
     image_browser_->setImageDirTableModel(db_handler_->getImageDirTableModel());
     graphics_view_->setImageDisplay(image_browser_->getDisplayWidget());
@@ -399,12 +399,12 @@ void CompanionWidget::initWidgets()
             category_view_, SLOT(selectRoot()));
     connect(db_handler_, SIGNAL(progressChanged(int)),
             this, SLOT(onProgressChanged(int)));
-    connect(category_view_, SIGNAL(categorySelected(DB::CategoryRecord*)),
-            this, SLOT(onSelectedCategoryChanged(DB::CategoryRecord*)));
+    connect(category_view_, SIGNAL(categorySelected(CategoryRecord*)),
+            this, SLOT(onSelectedCategoryChanged(CategoryRecord*)));
     connect(sound_file_view_, SIGNAL(deleteSoundFileRequested(int)),
             db_handler_->getSoundFileTableModel(), SLOT(deleteSoundFile(int)));
-    connect(db_handler_->getSoundFileTableModel(), SIGNAL(aboutToBeDeleted(DB::SoundFileRecord*)),
-            sound_file_view_, SLOT(onSoundFileAboutToBeDeleted(DB::SoundFileRecord*)));
+    connect(db_handler_->getSoundFileTableModel(), SIGNAL(aboutToBeDeleted(SoundFileRecord*)),
+            sound_file_view_, SLOT(onSoundFileAboutToBeDeleted(SoundFileRecord*)));
     connect(graphics_view_, SIGNAL(dropAccepted()),
             sound_file_view_, SLOT(onDropSuccessful()));
     connect(graphics_view_, SIGNAL(layoutAdded(const QString&)),
@@ -539,11 +539,11 @@ void CompanionWidget::initMenu()
 
 void CompanionWidget::initDB()
 {
-    DB::Core::Api* db_api = nullptr;
+    DatabaseApi* db_api = nullptr;
 #ifdef _WIN32
-    db_api = new DB::Core::Api(Resources::Lib::DATABASE_PATH, this);
+    db_api = new DatabaseApi(Resources::Lib::DATABASE_PATH, this);
 #else
-    db_api = new DB::Core::Api(QCoreApplication::applicationDirPath() + Resources::Lib::DATABASE_PATH, this);
+    db_api = new Api(QCoreApplication::applicationDirPath() + Resources::Lib::DATABASE_PATH, this);
 #endif
-    db_handler_ = new DB::Handler(db_api, this);
+    db_handler_ = new DatabaseHandler(db_api, this);
 }

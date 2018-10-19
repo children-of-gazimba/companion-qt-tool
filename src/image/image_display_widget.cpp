@@ -4,7 +4,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-#include "view.h"
+#include "image_canvas.h"
 #include "misc/widget_list_view.h"
 #include "misc/container.h"
 #include "interactive/interactive_image.h"
@@ -25,7 +25,7 @@ ImageDisplayWidget::ImageDisplayWidget(QWidget *parent)
     initLayout();
 }
 
-Image::View *ImageDisplayWidget::getView() const
+ImageCanvas *ImageDisplayWidget::getCanvas() const
 {
     return view_;
 }
@@ -133,7 +133,7 @@ void ImageDisplayWidget::keyPressEvent(QKeyEvent *event)
 
 void ImageDisplayWidget::initWidgets()
 {
-    view_ = new Image::View(this);
+    view_ = new ImageCanvas(this);
     menu_bar_ = new QMenuBar(this);
     token_config_list_ = new WidgetListView(this);
     shape_config_list_ = new WidgetListView(this);

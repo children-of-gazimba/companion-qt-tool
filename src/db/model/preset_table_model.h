@@ -2,17 +2,14 @@
 #define DB_MODEL_PRESET_TABLE_MODEL_H
 
 #include <QAbstractTableModel>
-#include "db/core/api.h"
+#include "db/core/database_api.h"
 #include "db/table_records.h"
-
-namespace DB {
-namespace Model {
 
 class PresetTableModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit PresetTableModel(Core::Api* api, QObject *parent = 0);
+    explicit PresetTableModel(DatabaseApi* api, QObject *parent = 0);
     ~PresetTableModel();
 
     //// inheritted functions (from pure virtual BC) - see docs for description
@@ -57,7 +54,7 @@ public:
      * Gets the row of PresetRecord.
      * Returns -1 if none found
     */
-    int getRowByPreset(DB::PresetRecord* rec);
+    int getRowByPreset(PresetRecord* rec);
 
     /*
      * Gets PresetRecord based on ID.
@@ -91,15 +88,15 @@ public:
     /*
     * Returns all PresetRecords held by this model
     */
-    QList<DB::PresetRecord*> const& getPresets() const;
+    QList<PresetRecord*> const& getPresets() const;
 
 
 signals:   
    /* triggered and processed before PresetRecord gets deleted */
-   void aboutToBeDeleted(DB::PresetRecord*);
+   void aboutToBeDeleted(PresetRecord*);
 
    /* triggered and processed before PresetRecords get deleted */
-   void aboutToBeDeleted(const QList<DB::PresetRecord*>&);
+   void aboutToBeDeleted(const QList<PresetRecord*>&);
 
 public slots:
     void deletePreset(int id);
@@ -111,12 +108,9 @@ private:
     /* Clears all PresetRecords from records **/
     void clear();
 
-    Core::Api* api_;
+    DatabaseApi* api_;
     QSqlRelationalTableModel* source_model_;
     QList<PresetRecord*> records_;
 };
-
-} // namepace Model
-} // namespace DB
 
 #endif // DB_MODEL_PRESET_TABLE_MODEL_H

@@ -3,10 +3,7 @@
 #include <QDebug>
 #include <QRegExp>
 
-namespace DB {
-namespace Model {
-
-CategoryTreeModel::CategoryTreeModel(Core::Api* api, QObject* parent)
+CategoryTreeModel::CategoryTreeModel(DatabaseApi* api, QObject* parent)
     : QStandardItemModel(parent)
     , table_model_(0)
     , api_(api)
@@ -274,6 +271,3 @@ void CategoryTreeModel::setChildItems(QStandardItem* item, QList<CategoryRecord*
         }
     }
 }
-
-} // namespace Model
-} // namespace DB

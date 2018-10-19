@@ -6,12 +6,12 @@
 #include <QMimeData>
 #include <QDrag>
 
-#include "custom_media_player.h"
 #include "base_tile.h"
-#include "playlist/settings_widget.h"
-#include "playlist/media_playlist.h"
-#include "playlist/settings.h"
-#include "misc/json_mime_data_parser.h"
+#include "playlist/playlist_player.h"
+#include "playlist/playlist_settings_widget.h"
+#include "playlist/playlist.h"
+#include "playlist/playlist_settings.h"
+#include "json/json_mime_data_parser.h"
 #include "db/model/sound_file_table_model.h"
 
 namespace Tile {
@@ -29,11 +29,11 @@ public:
     virtual void receiveExternalData(const QMimeData* data);
     virtual void receiveWheelEvent(QWheelEvent *event);
 
-    bool addMedia(const DB::SoundFileRecord& r);
+    bool addMedia(const SoundFileRecord& r);
     bool addMedia(int record_id);
 
-    void setSoundFileModel(DB::Model::SoundFileTableModel* m);
-    DB::Model::SoundFileTableModel* getSoundFileModel();
+    void setSoundFileModel(SoundFileTableModel* m);
+    SoundFileTableModel* getSoundFileModel();
 
     /**
      * Returns a QJsonObject holding all information about the tile
@@ -68,7 +68,7 @@ protected slots:
     virtual void onConfigurePlaylist();
     /* */
     void closePlaylistSettings();
-    void savePlaylistSettings(const Playlist::Settings& settings);
+    void savePlaylistSettings(const PlaylistSettings& settings);
 
     /** slot to open contents view */
     virtual void onContents();
@@ -95,11 +95,11 @@ protected:
 
     const QRectF getVolumeRect() const;
 
-    CustomMediaPlayer* player_;
+    PlaylistPlayer* player_;
 
-    Playlist::SettingsWidget* playlist_settings_widget_;
-    Playlist::MediaPlaylist* playlist_;
-    DB::Model::SoundFileTableModel* model_;
+    PlaylistSettingsWidget* playlist_settings_widget_;
+    Playlist* playlist_;
+    SoundFileTableModel* model_;
 
     bool is_playing_;
     bool draw_filled_volume_indicator_;

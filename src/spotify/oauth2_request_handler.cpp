@@ -1,4 +1,3 @@
-
 #include "oauth2_request_handler.h"
 
 #include <QNetworkReply>

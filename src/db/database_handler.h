@@ -1,11 +1,11 @@
-#ifndef DB_HANDLER_H
-#define DB_HANDLER_H
+#ifndef DB_DATABASE_HANDLER_H
+#define DB_DATABASE_HANDLER_H
 
 #include <QObject>
 
 #include <QSqlRelationalTableModel>
 
-#include "core/api.h"
+#include "core/database_api.h"
 #include "resources/sound_file.h"
 #include "model/category_tree_model.h"
 #include "model/sound_file_table_model.h"
@@ -13,25 +13,23 @@
 #include "model/image_dir_table_model.h"
 #include "model/preset_table_model.h"
 
-namespace DB {
-
 /*
- * Class that Provides high-level interface to DB::Core::Api,
+ * Class that Provides high-level interface to Api,
  * which is specific to this application.
  */
-class Handler : public QObject
+class DatabaseHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit Handler(DB::Core::Api* api, QObject *parent = 0);
+    explicit DatabaseHandler(DatabaseApi* api, QObject *parent = 0);
 
-    DB::Core::Api* getApi() const;
+    DatabaseApi* getApi() const;
 
-    Model::CategoryTreeModel* getCategoryTreeModel();
-    Model::SoundFileTableModel* getSoundFileTableModel();
-    Model::ResourceDirTableModel* getResourceDirTableModel();
-    Model::ImageDirTableModel* getImageDirTableModel();
-    Model::PresetTableModel* getPresetTableModel();
+    CategoryTreeModel* getCategoryTreeModel();
+    SoundFileTableModel* getSoundFileTableModel();
+    ResourceDirTableModel* getResourceDirTableModel();
+    ImageDirTableModel* getImageDirTableModel();
+    PresetTableModel* getPresetTableModel();
 
     /*
      * Gets a list of SoundFileRecords,
@@ -73,15 +71,13 @@ public slots:
 private:
     void addCategory(QStringList const& path);
 
-    Core::Api* api_;
+    DatabaseApi* api_;
 
-    Model::CategoryTreeModel* category_tree_model_;
-    Model::SoundFileTableModel* sound_file_table_model_;
-    Model::ResourceDirTableModel* resource_dir_table_model_;
-    Model::ImageDirTableModel* image_dir_table_model_;
-    Model::PresetTableModel* preset_table_model_;
+    CategoryTreeModel* category_tree_model_;
+    SoundFileTableModel* sound_file_table_model_;
+    ResourceDirTableModel* resource_dir_table_model_;
+    ImageDirTableModel* image_dir_table_model_;
+    PresetTableModel* preset_table_model_;
 };
 
-} // namespace DB
-
-#endif // DB_HANDLER_H
+#endif // DB_DATABASE_HANDLER_H

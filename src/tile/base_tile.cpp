@@ -346,12 +346,12 @@ void BaseTile::setActivated(bool state)
     onActivate();
 }
 
-void BaseTile::setPresetModel(DB::Model::PresetTableModel *model)
+void BaseTile::setPresetModel(PresetTableModel *model)
 {
     preset_model_ = model;
 }
 
-DB::Model::PresetTableModel* BaseTile::getPresetModel()
+PresetTableModel* BaseTile::getPresetModel()
 {
     return preset_model_;
 }
@@ -762,7 +762,7 @@ void BaseTile::onSaveAsPreset()
     if(preset_model_ == 0)
         return;
 
-    DB::PresetRecord* rec = preset_model_->getPresetByName(name_);
+    PresetRecord* rec = preset_model_->getPresetByName(name_);
     if(rec != 0) {
         QMessageBox msg_box;
         msg_box.setIcon(QMessageBox::Warning);
@@ -785,7 +785,7 @@ void BaseTile::onSaveAsPreset()
 
 void BaseTile::onSetKey()
 {
-    Misc::CharInputDialog d;
+    CharInputDialog d;
     d.setChar(getActivateKey());
     if(d.exec()) {
         setActivateKey(d.getChar());

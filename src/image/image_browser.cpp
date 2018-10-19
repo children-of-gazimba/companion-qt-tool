@@ -1,14 +1,13 @@
-#include "browser.h"
+#include "image_browser.h"
 
 #include <QDebug>
 #include <QVBoxLayout>
 #include <QString>
 #include <QHeaderView>
 #include <QFileInfo>
+#include <QStandardItemModel>
 
-namespace Image {
-
-Browser::Browser(QWidget *parent)
+ImageBrowser::ImageBrowser(QWidget *parent)
     : QWidget(parent)
     , recent_directories_(0)
     , list_view_(0)
@@ -19,32 +18,32 @@ Browser::Browser(QWidget *parent)
     initLayout();
 }
 
-Browser::~Browser()
+ImageBrowser::~ImageBrowser()
 {
 }
 
-void Browser::setImageDirTableModel(DB::Model::ImageDirTableModel* model)
+void ImageBrowser::setImageDirTableModel(ImageDirTableModel* model)
 {
     model_ = model;
     recent_directories_->setModel(model);
 }
 
-DB::Model::ImageDirTableModel *Browser::getImageDirTableModel()
+ImageDirTableModel *ImageBrowser::getImageDirTableModel()
 {
     return model_;
 }
 
-View *Browser::getView() const
+ImageCanvas *ImageBrowser::getCanvas() const
 {
-    return list_view_->getView();
+    return list_view_->getCanvas();
 }
 
-ImageDisplayWidget *Browser::getDisplayWidget() const
+ImageDisplayWidget *ImageBrowser::getDisplayWidget() const
 {
     return list_view_->getDisplayWidget();
 }
 
-void Browser::onNewDirectory(const QString & name)
+void ImageBrowser::onNewDirectory(const QString & name)
 {
     if(model_ != 0) {
         model_->addImageDirRecord(QFileInfo(name));
@@ -69,7 +68,7 @@ void Browser::onNewDirectory(const QString & name)
     }
 }
 
-void Browser::onRecentDirClicked(const QModelIndex& idx)
+void ImageBrowser::onRecentDirClicked(const QModelIndex& idx)
 {
     if(!idx.isValid() || idx.row() < 0)
         return;
@@ -78,7 +77,7 @@ void Browser::onRecentDirClicked(const QModelIndex& idx)
     list_view_->openDirectory(dir);
 }
 
-void Browser::initWidgets()
+void ImageBrowser::initWidgets()
 {
     v_splitter_ = new QSplitter(Qt::Vertical, this);
 
@@ -100,7 +99,7 @@ void Browser::initWidgets()
     v_splitter_->setStretchFactor(1, 8);
 }
 
-void Browser::initLayout()
+void ImageBrowser::initLayout()
 {
     QVBoxLayout* layout = new QVBoxLayout;
 
@@ -108,5 +107,3 @@ void Browser::initLayout()
 
     setLayout(layout);
 }
-
-} // namespace Image

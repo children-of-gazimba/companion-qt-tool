@@ -36,7 +36,7 @@ QWidget:disabled {
     color: rgba(255, 255, 255, 100);
 }
 
-Playlist--SettingsWidget {
+PlaylistSettingsWidget {
     background-color: #373738;
     color: white;
 }
@@ -47,17 +47,6 @@ RegisterTokenDialog {
 }
 
 SpotifyControlPanel {
-    background-color: #373738;
-    color: white;
-}
-
-/*
-Image--View {
-    background-color: #373738;
-    color: white;
-}*/
-
-Web--Host {
     background-color: #373738;
     color: white;
 }
@@ -197,13 +186,13 @@ QTableView > QHeaderView::section {
    padding: 5px;
 }
 
-SoundFile--ListView {
+SoundListView {
    background-color: #545556;
    color: white;
    /*margin-top: 5px;*/
 }
 
-Preset--PresetView {
+PresetView {
    background-color: #545556;
    color: white;
    /*margin-top: 5px;*/
@@ -239,13 +228,13 @@ QTableView {
    color: white;
 }
 
-PlaybackView::item {
+SoundListPlaybackView::item {
     background-color: #373738;
     margin-top: 2px;
     margin-bottom: 2px;
 }
 
-PlaybackView::item:selected {
+SoundListPlaybackView::item:selected {
     background-color: rgba(50, 152, 253, 80);
     margin-top: 2px;
     margin-bottom: 2px;

@@ -1,5 +1,5 @@
-#ifndef SOUND_FILE_LIST_VIEW_H
-#define SOUND_FILE_LIST_VIEW_H
+#ifndef SOUND_LIST_VIEW_H
+#define SOUND_LIST_VIEW_H
 
 #include <QListView>
 
@@ -10,17 +10,15 @@
 #include "db/table_records.h"
 #include "misc/standard_item_model.h"
 
-namespace SoundFile {
-
-class ListView : public QListView
+class SoundListView : public QListView
 {
     Q_OBJECT
 public:
-    explicit ListView(QList<DB::SoundFileRecord*> const& sound_files, QWidget *parent = 0);
-    explicit ListView(QWidget *parent = 0);
-    virtual ~ListView();
+    explicit SoundListView(QList<SoundFileRecord*> const& sound_files, QWidget *parent = 0);
+    explicit SoundListView(QWidget *parent = 0);
+    virtual ~SoundListView();
 
-    void setSoundFiles(QList<DB::SoundFileRecord*> const&);
+    void setSoundFiles(QList<SoundFileRecord*> const&);
     void setEditable(bool);
     bool getEditable();
 
@@ -36,8 +34,8 @@ protected:
     virtual void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);
 
 public slots:
-    void addSoundFile(DB::SoundFileRecord* rec);
-    void onSoundFileAboutToBeDeleted(DB::SoundFileRecord* rec);
+    void addSoundFile(SoundFileRecord* rec);
+    void onSoundFileAboutToBeDeleted(SoundFileRecord* rec);
     void onDropSuccessful();
 
 private slots:
@@ -47,11 +45,9 @@ protected:
     void performDrag();
 
     QPoint start_pos_;
-    Misc::StandardItemModel* model_;
+    StandardItemModel* model_;
     bool skip_select_;
     QModelIndex playable_index_;
 };
 
-} // namespace SoundFile
-
-#endif // UI_SOUND_FILE_LIST_VIEW_H
+#endif // SOUND_LIST_VIEW_H

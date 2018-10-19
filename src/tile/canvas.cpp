@@ -1,4 +1,4 @@
-#include "graphics_view.h"
+#include "canvas.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -12,12 +12,12 @@
 #include "nested_tile.h"
 #include "spotify_tile.h"
 #include "map_tile.h"
-#include "misc/json_mime_data_parser.h"
+#include "json/json_mime_data_parser.h"
 #include "resources/lib.h"
 
 namespace Tile {
 
-GraphicsView::GraphicsView(QGraphicsScene *scene, QWidget *parent)
+Canvas::Canvas(QGraphicsScene *scene, QWidget *parent)
     : QGraphicsView(scene, parent)
     , sound_model_(0)
     , main_scene_(scene)
@@ -37,7 +37,7 @@ GraphicsView::GraphicsView(QGraphicsScene *scene, QWidget *parent)
     initContextMenu();
 }
 
-GraphicsView::GraphicsView(QWidget *parent)
+Canvas::Canvas(QWidget *parent)
     : QGraphicsView(parent)
     , sound_model_(0)
     , main_scene_(0)
@@ -58,14 +58,14 @@ GraphicsView::GraphicsView(QWidget *parent)
     initContextMenu();
 }
 
-GraphicsView::~GraphicsView()
+Canvas::~Canvas()
 {
     context_menu_->deleteLater();
     if(scene())
         scene()->clear();
 }
 
-const QJsonObject GraphicsView::toJsonObject(bool exclude_layouts) const
+const QJsonObject Canvas::toJsonObject(bool exclude_layouts) const
 {
     QJsonObject obj;
 
@@ -104,7 +104,7 @@ const QJsonObject GraphicsView::toJsonObject(bool exclude_layouts) const
     return obj;
 }
 
-bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
+bool Canvas::setFromJsonObject(const QJsonObject &obj)
 {
     if(obj.isEmpty() || !obj.contains("scene"))
         return false;
@@ -226,27 +226,27 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
     return true;
 }
 
-void GraphicsView::setSoundFileModel(DB::Model::SoundFileTableModel *m)
+void Canvas::setSoundFileModel(SoundFileTableModel *m)
 {
     sound_model_ = m;
 }
 
-DB::Model::SoundFileTableModel *GraphicsView::getSoundFileModel()
+SoundFileTableModel *Canvas::getSoundFileModel()
 {
     return sound_model_;
 }
 
-void GraphicsView::setPresetModel(DB::Model::PresetTableModel *m)
+void Canvas::setPresetModel(PresetTableModel *m)
 {
     preset_model_ = m;
 }
 
-DB::Model::PresetTableModel *GraphicsView::getPresetModel()
+PresetTableModel *Canvas::getPresetModel()
 {
     return preset_model_;
 }
 
-void GraphicsView::clear()
+void Canvas::clear()
 {
     if(!scene())
         return;
@@ -256,7 +256,7 @@ void GraphicsView::clear()
     scene()->clear();
 }
 
-BaseTile *GraphicsView::getTile(const QUuid &uuid) const
+BaseTile *Canvas::getTile(const QUuid &uuid) const
 {
     foreach(QGraphicsItem* it, scene()->items()) {
         QObject* o = dynamic_cast<QObject*>(it);
@@ -270,7 +270,7 @@ BaseTile *GraphicsView::getTile(const QUuid &uuid) const
     return 0;
 }
 
-const QList<BaseTile *> GraphicsView::getSelectedTiles() const
+const QList<BaseTile *> Canvas::getSelectedTiles() const
 {
     QList<BaseTile*> selected_tiles;
     foreach(auto it, items()) {
@@ -282,13 +282,13 @@ const QList<BaseTile *> GraphicsView::getSelectedTiles() const
     return selected_tiles;
 }
 
-void GraphicsView::deselectAllTiles()
+void Canvas::deselectAllTiles()
 {
     foreach(auto t, getSelectedTiles())
         t->setIsSelected(false);
 }
 
-bool GraphicsView::activate(const QUuid &tile_id)
+bool Canvas::activate(const QUuid &tile_id)
 {
     foreach(QGraphicsItem* it, scene()->items()) {
         QObject* o = dynamic_cast<QObject*>(it);
@@ -303,7 +303,7 @@ bool GraphicsView::activate(const QUuid &tile_id)
     return false;
 }
 
-bool GraphicsView::deactivate(const QUuid &tile_id)
+bool Canvas::deactivate(const QUuid &tile_id)
 {
     foreach(QGraphicsItem* it, scene()->items()) {
         QObject* o = dynamic_cast<QObject*>(it);
@@ -318,7 +318,7 @@ bool GraphicsView::deactivate(const QUuid &tile_id)
     return false;
 }
 
-bool GraphicsView::isActivated(const QUuid &tile_id)
+bool Canvas::isActivated(const QUuid &tile_id)
 {
     foreach(QGraphicsItem* it, scene()->items()) {
         QObject* o = dynamic_cast<QObject*>(it);
@@ -332,7 +332,7 @@ bool GraphicsView::isActivated(const QUuid &tile_id)
     return false;
 }
 
-int GraphicsView::getVolume(const QUuid &tile_id) const
+int Canvas::getVolume(const QUuid &tile_id) const
 {
     QString playlist_class = Tile::PlaylistTile::staticMetaObject.className();
     foreach(QGraphicsItem* it, scene()->items()) {
@@ -351,7 +351,7 @@ int GraphicsView::getVolume(const QUuid &tile_id) const
     return -1;
 }
 
-bool GraphicsView::setVolume(const QUuid &tile_id, int volume)
+bool Canvas::setVolume(const QUuid &tile_id, int volume)
 {
     QString playlist_class = Tile::PlaylistTile::staticMetaObject.className();
     foreach(QGraphicsItem* it, scene()->items()) {
@@ -371,17 +371,17 @@ bool GraphicsView::setVolume(const QUuid &tile_id, int volume)
     return false;
 }
 
-void GraphicsView::setImageDisplay(ImageDisplayWidget *image_display)
+void Canvas::setImageDisplay(ImageDisplayWidget *image_display)
 {
     image_widget_ = image_display;
 }
 
-ImageDisplayWidget *GraphicsView::getImageDisplay() const
+ImageDisplayWidget *Canvas::getImageDisplay() const
 {
     return image_widget_;
 }
 
-void GraphicsView::pushScene(QGraphicsScene* scene, QString const& name)
+void Canvas::pushScene(QGraphicsScene* scene, QString const& name)
 {
     scene_stack_.push(scene);
     scene->setSceneRect(main_scene_->sceneRect());
@@ -393,7 +393,7 @@ void GraphicsView::pushScene(QGraphicsScene* scene, QString const& name)
     }
 }
 
-void GraphicsView::popScene()
+void Canvas::popScene()
 {
     if(scene_stack_.size() > 1) {
         scene_names_.remove(scene_stack_.pop());
@@ -404,12 +404,12 @@ void GraphicsView::popScene()
     }
 }
 
-const QMenu *GraphicsView::getContextMenu() const
+const QMenu *Canvas::getContextMenu() const
 {
     return context_menu_;
 }
 
-BaseTile* GraphicsView::createEmptyPlaylistTile(const QPoint &p)
+BaseTile* Canvas::createEmptyPlaylistTile(const QPoint &p)
 {
     PlaylistTile* tile = new PlaylistTile;
     tile->setPresetModel(preset_model_);
@@ -427,7 +427,7 @@ BaseTile* GraphicsView::createEmptyPlaylistTile(const QPoint &p)
     return tile;
 }
 
-BaseTile* GraphicsView::createEmptyNestedTile(const QPoint &p)
+BaseTile* Canvas::createEmptyNestedTile(const QPoint &p)
 {
     NestedTile* tile = new NestedTile(this);
     tile->setPresetModel(preset_model_);
@@ -444,7 +444,7 @@ BaseTile* GraphicsView::createEmptyNestedTile(const QPoint &p)
     return tile;
 }
 
-BaseTile* GraphicsView::createEmptySpotifyTile(const QPoint &p)
+BaseTile* Canvas::createEmptySpotifyTile(const QPoint &p)
 {
     SpotifyTile* tile = new SpotifyTile;
     tile->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -461,7 +461,7 @@ BaseTile* GraphicsView::createEmptySpotifyTile(const QPoint &p)
     return tile;
 }
 
-BaseTile* GraphicsView::createEmptyMapTile(const QPoint &p)
+BaseTile* Canvas::createEmptyMapTile(const QPoint &p)
 {
     MapTile* tile = new MapTile;
     tile->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -479,23 +479,23 @@ BaseTile* GraphicsView::createEmptyMapTile(const QPoint &p)
     return tile;
 }
 
-bool GraphicsView::hasLayout(const QString& name) const
+bool Canvas::hasLayout(const QString& name) const
 {
     return layouts_.contains(name);
 }
 
-void GraphicsView::storeAsLayout(const QString &name)
+void Canvas::storeAsLayout(const QString &name)
 {
     storeAsLayout(name, toJsonObject(true));
 }
 
-void GraphicsView::storeAsLayout(const QString &name, const QJsonObject &layout)
+void Canvas::storeAsLayout(const QString &name, const QJsonObject &layout)
 {
     layouts_[name] = layout;
     layoutAdded(name);
 }
 
-bool GraphicsView::loadLayout(const QString &name)
+bool Canvas::loadLayout(const QString &name)
 {
     if(!layouts_.contains(name))
         return false;
@@ -516,23 +516,23 @@ bool GraphicsView::loadLayout(const QString &name)
     return setFromJsonObject(sanitizeLayout(layouts_[name]));
 }
 
-void GraphicsView::removeLayout(const QString &name)
+void Canvas::removeLayout(const QString &name)
 {
     if(layouts_.contains(name))
         layouts_.remove(name);
 }
 
-void GraphicsView::clearLayouts()
+void Canvas::clearLayouts()
 {
     layouts_.clear();
 }
 
-const QStringList GraphicsView::getLayoutNames() const
+const QStringList Canvas::getLayoutNames() const
 {
     return layouts_.keys();
 }
 
-BaseTile *GraphicsView::getTileAt(const QPoint &pos) const
+BaseTile *Canvas::getTileAt(const QPoint &pos) const
 {
     auto it = itemAt(pos);
     if(!it)
@@ -540,7 +540,7 @@ BaseTile *GraphicsView::getTileAt(const QPoint &pos) const
     return qgraphicsitem_cast<BaseTile*>(it);
 }
 
-void GraphicsView::resizeEvent(QResizeEvent *e)
+void Canvas::resizeEvent(QResizeEvent *e)
 {
     QGraphicsView::resizeEvent(e);
     if(e->isAccepted()) {
@@ -555,7 +555,7 @@ void GraphicsView::resizeEvent(QResizeEvent *e)
     }
 }
 
-void GraphicsView::wheelEvent(QWheelEvent *event)
+void Canvas::wheelEvent(QWheelEvent *event)
 {
     if(!scene())
         return;
@@ -578,27 +578,27 @@ void GraphicsView::wheelEvent(QWheelEvent *event)
     QGraphicsView::wheelEvent(event);
 }
 
-void GraphicsView::onEmptyPlaylistTile()
+void Canvas::onEmptyPlaylistTile()
 {
     createEmptyPlaylistTile(click_pos_);
 }
 
-void GraphicsView::onEmptyNestedTile()
+void Canvas::onEmptyNestedTile()
 {
     createEmptyNestedTile(click_pos_);
 }
 
-void GraphicsView::onEmptySpotifyTile()
+void Canvas::onEmptySpotifyTile()
 {
     createEmptySpotifyTile(click_pos_);
 }
 
-void GraphicsView::onEmptyMapTile()
+void Canvas::onEmptyMapTile()
 {
     createEmptyMapTile(click_pos_);
 }
 
-void GraphicsView::onNestSelectedTiles()
+void Canvas::onNestSelectedTiles()
 {
     QList<BaseTile*> selected_tiles = getSelectedTiles();
     BaseTile* new_tile = createEmptyNestedTile(click_pos_);
@@ -625,7 +625,7 @@ void GraphicsView::onNestSelectedTiles()
     }
 }
 
-const QJsonObject GraphicsView::sanitizeLayout(const QJsonObject& obj) const
+const QJsonObject Canvas::sanitizeLayout(const QJsonObject& obj) const
 {
     if(!obj.contains("scene") || !obj["scene"].isObject())
         return obj;
@@ -665,27 +665,27 @@ const QJsonObject GraphicsView::sanitizeLayout(const QJsonObject& obj) const
     return sanitized_obj;
 }
 
-void GraphicsView::dragEnterEvent(QDragEnterEvent *event)
+void Canvas::dragEnterEvent(QDragEnterEvent *event)
 {
     QGraphicsView::dragEnterEvent(event);
-    GraphicsView *source = qobject_cast<GraphicsView*>(event->source());
+    Canvas *source = qobject_cast<Canvas*>(event->source());
     if (source != this) {
         event->setDropAction(Qt::CopyAction);
         event->accept();
     }
 }
 
-void GraphicsView::dragMoveEvent(QDragMoveEvent *event)
+void Canvas::dragMoveEvent(QDragMoveEvent *event)
 {
     QGraphicsView::dragMoveEvent(event);
-    GraphicsView *source = qobject_cast<GraphicsView*>(event->source());
+    Canvas *source = qobject_cast<Canvas*>(event->source());
     if (source != this) {
         event->setDropAction(Qt::CopyAction);
         event->accept();
     }
 }
 
-void GraphicsView::dropEvent(QDropEvent *event)
+void Canvas::dropEvent(QDropEvent *event)
 {
     if(!scene())
         return;
@@ -707,8 +707,8 @@ void GraphicsView::dropEvent(QDropEvent *event)
         }
     }
 
-    // extract DB::TableRecord from mime data
-    QList<DB::TableRecord*> records = Misc::JsonMimeDataParser::toTableRecordList(event->mimeData());
+    // extract TableRecord from mime data
+    QList<TableRecord*> records = JsonMimeDataParser::toTableRecordList(event->mimeData());
 
     QString pl_class = PlaylistTile::staticMetaObject.className();
     QString nested_class = NestedTile::staticMetaObject.className();
@@ -716,7 +716,7 @@ void GraphicsView::dropEvent(QDropEvent *event)
     QString map_class = MapTile::staticMetaObject.className();
 
     // validate parsing
-    if(records.size() == 0 || records[0]->index != DB::SOUND_FILE) {
+    if(records.size() == 0 || records[0]->index != SOUND_FILE) {
         // TODO make pretty
         QJsonDocument doc = QJsonDocument::fromJson(event->mimeData()->text().toUtf8());
         if(doc.object().contains("type") && doc.object()["type"].toString().compare(nested_class) == 0) {
@@ -837,9 +837,9 @@ void GraphicsView::dropEvent(QDropEvent *event)
     tile->setPos(p);
     tile->setSize(0);
 
-    foreach(DB::TableRecord* rec, records) {
-        if(rec->index == DB::SOUND_FILE)
-            tile->addMedia(*((DB::SoundFileRecord*) rec));
+    foreach(TableRecord* rec, records) {
+        if(rec->index == SOUND_FILE)
+            tile->addMedia(*((SoundFileRecord*) rec));
     }
 
     // add to scene
@@ -858,12 +858,12 @@ void GraphicsView::dropEvent(QDropEvent *event)
     }
 }
 
-void GraphicsView::keyPressEvent(QKeyEvent*)
+void Canvas::keyPressEvent(QKeyEvent*)
 {
     //qDebug() << event->key();
 }
 
-void GraphicsView::keyReleaseEvent(QKeyEvent *event)
+void Canvas::keyReleaseEvent(QKeyEvent *event)
 {
     if(event->key() == Qt::Key_Backspace) {
         popScene();
@@ -880,7 +880,7 @@ void GraphicsView::keyReleaseEvent(QKeyEvent *event)
     }
 }
 
-void GraphicsView::mousePressEvent(QMouseEvent *event)
+void Canvas::mousePressEvent(QMouseEvent *event)
 {
     QGraphicsView::mousePressEvent(event);
     if(!event->isAccepted()) {
@@ -893,7 +893,7 @@ void GraphicsView::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void GraphicsView::mouseReleaseEvent(QMouseEvent *event)
+void Canvas::mouseReleaseEvent(QMouseEvent *event)
 {
     if(event->button() == Qt::LeftButton && !(event->modifiers() & Qt::ControlModifier)) {
         auto tile = getTileAt(event->pos());
@@ -903,7 +903,7 @@ void GraphicsView::mouseReleaseEvent(QMouseEvent *event)
     QGraphicsView::mouseReleaseEvent(event);
 }
 
-const QString GraphicsView::getScenePathHTML() const
+const QString Canvas::getScenePathHTML() const
 {
     QString path = "";
     int i = 0;
@@ -920,7 +920,7 @@ const QString GraphicsView::getScenePathHTML() const
     return path;
 }
 
-void GraphicsView::clearTiles()
+void Canvas::clearTiles()
 {
     foreach(QGraphicsItem* it, scene()->items()) {
         QObject* o = dynamic_cast<QObject*>(it);
@@ -931,7 +931,7 @@ void GraphicsView::clearTiles()
     }
 }
 
-void GraphicsView::initContextMenu()
+void Canvas::initContextMenu()
 {
     context_menu_ = new QMenu;
 
@@ -960,18 +960,18 @@ void GraphicsView::initContextMenu()
 
     nest_selected_action_ = context_menu_->addAction(tr("Nest Selected Tiles..."));
     connect(nest_selected_action_, &QAction::triggered,
-            this, &GraphicsView::onNestSelectedTiles);
+            this, &Canvas::onNestSelectedTiles);
     nest_selected_action_->setEnabled(false);
 }
 
-void GraphicsView::initWidgets()
+void Canvas::initWidgets()
 {
     // do not add to layout to create as overlay
     nested_path_widget_ = new NestedPathWidget(this);
     nested_path_widget_->move(5,5);
     nested_path_widget_->hide();
     connect(nested_path_widget_, &NestedPathWidget::backButtonClicked,
-            this, &GraphicsView::popScene);
+            this, &Canvas::popScene);
 }
 
 } // namespace Tile

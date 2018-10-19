@@ -17,16 +17,16 @@
 
 #include "misc/drop_group_box.h"
 #include "resources/importer.h"
-#include "sound_file/playback_view.h"
-#include "db/handler.h"
-#include "category/tree_view.h"
-#include "tile/graphics_view.h"
-#include "image/browser.h"
+#include "sound/sound_list_playback_view.h"
+#include "db/database_handler.h"
+#include "category/category_tree_view.h"
+#include "tile/canvas.h"
+#include "image/image_browser.h"
 #include "preset/preset_view.h"
 #include "spotify/spotify_control_panel.h"
 #include "web/socket_host_widget.h"
 #include "tuio/tuio_control_panel.h"
-#include "sound_file/sound_file_player.h"
+#include "sound/sound_file_player.h"
 
 class CompanionWidget : public QWidget
 {
@@ -46,7 +46,7 @@ public slots:
 
 private slots:
     void onProgressChanged(int);
-    void onSelectedCategoryChanged(DB::CategoryRecord* rec);
+    void onSelectedCategoryChanged(CategoryRecord* rec);
     void onDeleteDatabase();
     void onSaveProjectAs();
     void onSaveProject();
@@ -81,19 +81,19 @@ private:
     QMenu* main_menu_;
 
     // WIDGETS
-    PlaybackView* sound_file_view_;
+    SoundListPlaybackView* sound_file_view_;
     SoundFilePlayer* global_player_;
-    Category::TreeView* category_view_;
-    Preset::PresetView* preset_view_;
+    CategoryTreeView* category_view_;
+    PresetView* preset_view_;
 
-    Tile::GraphicsView* graphics_view_;
+    Tile::Canvas* graphics_view_;
     Resources::Importer* sound_file_importer_;
     QSplitter* center_h_splitter_;
     QSplitter* left_v_splitter_;
     QGroupBox* left_box_;
     QGroupBox* right_box_;
     SocketHostWidget* socket_host_;
-    Image::Browser* image_browser_;
+    ImageBrowser* image_browser_;
     SpotifyControlPanel *spotify_authenticator_widget_;
     TuioControlPanel *tuio_control_panel_;
     QTabWidget* left_tabwidget_;
@@ -101,7 +101,7 @@ private:
 
 
     // DB handler
-    DB::Handler* db_handler_;
+    DatabaseHandler* db_handler_;
 };
 
 #endif // DSAMEDIACONTROLKIT_H

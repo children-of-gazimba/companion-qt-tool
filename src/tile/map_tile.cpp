@@ -97,7 +97,7 @@ void MapTile::onActivate()
             return;
 
         image_ = new InteractiveImage(QSize(100,100));
-        display_widget_->getView()->setItem(image_);
+        display_widget_->getCanvas()->setItem(image_);
         image_->setFromJsonObject(map_description_);
         display_widget_->popOpen();
         connect(image_, &InteractiveImage::destroyed,

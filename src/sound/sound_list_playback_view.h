@@ -1,5 +1,5 @@
-#ifndef PLAYBACK_VIEW_H
-#define PLAYBACK_VIEW_H
+#ifndef SOUND_LIST_PLAYBACK_VIEW_H
+#define SOUND_LIST_PLAYBACK_VIEW_H
 
 #include <QTableView>
 
@@ -12,15 +12,15 @@
 #include "db/table_records.h"
 #include "misc/standard_item_model.h"
 
-class PlaybackView : public QTableView
+class SoundListPlaybackView : public QTableView
 {
     Q_OBJECT
 public:
-    explicit PlaybackView(QList<DB::SoundFileRecord*> const& sound_files, QWidget *parent = nullptr);
-    explicit PlaybackView(QWidget *parent = nullptr);
-    virtual ~PlaybackView();
+    explicit SoundListPlaybackView(QList<SoundFileRecord*> const& sound_files, QWidget *parent = nullptr);
+    explicit SoundListPlaybackView(QWidget *parent = nullptr);
+    virtual ~SoundListPlaybackView();
 
-    void setSoundFiles(QList<DB::SoundFileRecord*> const&);
+    void setSoundFiles(QList<SoundFileRecord*> const&);
     void setEditable(bool);
     bool getEditable();
 
@@ -40,12 +40,12 @@ protected slots:
     void onPlayButtonClicked();
 
 signals:
-    void play(const DB::SoundFileRecord&);
+    void play(const SoundFileRecord&);
     void deleteSoundFileRequested(int id);
 
 public slots:
-    void addSoundFile(DB::SoundFileRecord* rec);
-    void onSoundFileAboutToBeDeleted(DB::SoundFileRecord* rec);
+    void addSoundFile(SoundFileRecord* rec);
+    void onSoundFileAboutToBeDeleted(SoundFileRecord* rec);
     void onDropSuccessful();
 
 private slots:
@@ -60,11 +60,11 @@ protected:
     void init();
 
     QPoint start_pos_;
-    Misc::StandardItemModel* model_;
+    StandardItemModel* model_;
     bool skip_select_;
     QPersistentModelIndex playable_index_;
     QIcon play_icon_;
     QMenu* context_menu_;
 };
 
-#endif // PLAYBACK_VIEW_H
+#endif // SOUND_LIST_PLAYBACK_VIEW_H

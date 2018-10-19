@@ -16,7 +16,7 @@ public:
     explicit SoundFilePlayer(QWidget *parent = nullptr);
     virtual ~SoundFilePlayer();
 
-    void setSoundFile(const DB::SoundFileRecord& sf, bool auto_play=false);
+    void setSoundFile(const SoundFileRecord& sf, bool auto_play=false);
 
 signals:
 

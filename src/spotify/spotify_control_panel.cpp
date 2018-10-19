@@ -11,7 +11,7 @@
 #include <QWidget>
 #include <QSlider>
 
-#include "spotify/spotify_handler.h"
+#include "spotify_handler.h"
 
 SpotifyControlPanel::SpotifyControlPanel(QWidget *parent)
     : QWidget(parent)

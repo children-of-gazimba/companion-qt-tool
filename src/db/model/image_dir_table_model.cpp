@@ -3,10 +3,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 
-namespace DB {
-namespace Model {
-
-ImageDirTableModel::ImageDirTableModel(Core::Api* api, QObject* parent)
+ImageDirTableModel::ImageDirTableModel(DatabaseApi* api, QObject* parent)
     : QAbstractTableModel(parent)
     , api_(api)
     , source_model_(0)
@@ -110,7 +107,7 @@ bool ImageDirTableModel::removeRow(int row, const QModelIndex&)
         return false;
 
     // collect ImageDirRecord being deleted
-    DB::ImageDirRecord* rec = getImageDirByRow(row);
+    ImageDirRecord* rec = getImageDirByRow(row);
     if(rec != 0) {
 
         // signal deletion
@@ -143,9 +140,9 @@ bool ImageDirTableModel::removeRows(int row, int count, const QModelIndex&)
     if(row < records_.size() && row+count < records_.size()) {
 
         // collect all ImageDirRecords being deleted
-        QList<DB::ImageDirRecord*> recs;
+        QList<ImageDirRecord*> recs;
         for(int i = row; i <= row+count; ++i) {
-            DB::ImageDirRecord* rec = getImageDirByRow(i);
+            ImageDirRecord* rec = getImageDirByRow(i);
             if(rec == 0)
                 return false;
             recs.append(rec);
@@ -165,7 +162,7 @@ bool ImageDirTableModel::removeRows(int row, int count, const QModelIndex&)
 
         // delete pointers
         while(recs.size() > 0) {
-            DB::ImageDirRecord* rec = recs.first();
+            ImageDirRecord* rec = recs.first();
             delete rec;
             rec = 0;
             recs.pop_front();
@@ -189,7 +186,7 @@ void ImageDirTableModel::select()
 {
     if(api_ == 0) {
         qDebug() << "FAILURE: cannot select ImageDirTableModel";
-        qDebug() << " > (DB::Core::Api*) api is null";
+        qDebug() << " > (DB::Api*) api is null";
         return;
     }
 
@@ -324,7 +321,3 @@ void ImageDirTableModel::clear()
         delete rec;
     }
 }
-
-} // namespace Model
-} // namespace DB
-

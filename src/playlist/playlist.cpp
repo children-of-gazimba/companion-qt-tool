@@ -1,22 +1,20 @@
-#include "media_playlist.h"
+#include "playlist.h"
 
 #include <QDebug>
 
-#include "misc/json_mime_data_parser.h"
+#include "json/json_mime_data_parser.h"
 
-namespace Playlist {
-
-MediaPlaylist::MediaPlaylist(QString name, QObject* parent)
+Playlist::Playlist(QString name, QObject* parent)
     : QMediaPlaylist(parent)
     , name_(name)
     , settings_(0)
     , model_(0)
     , records_()
 {
-    settings_ = new Settings;
+    settings_ = new PlaylistSettings;
 }
 
-MediaPlaylist::~MediaPlaylist()
+Playlist::~Playlist()
 {
     QList<QMediaContent*> keys = records_.keys();
     while(keys.size() > 0) {
@@ -27,18 +25,18 @@ MediaPlaylist::~MediaPlaylist()
     delete settings_;
 }
 
-void MediaPlaylist::setSettings(const Settings &settings)
+void Playlist::setSettings(const PlaylistSettings &settings)
 {
     settings_->copyFrom(settings);
     emit changedSettings();
 }
 
-const Settings& MediaPlaylist::getSettings() const
+const PlaylistSettings& Playlist::getSettings() const
 {
     return *settings_;
 }
 
-void MediaPlaylist::setSoundFileModel(DB::Model::SoundFileTableModel *m)
+void Playlist::setSoundFileModel(SoundFileTableModel *m)
 {
     model_ = m;
 
@@ -46,21 +44,21 @@ void MediaPlaylist::setSoundFileModel(DB::Model::SoundFileTableModel *m)
             this, SLOT(onMediaAboutToBeRemoved(int,int)));
 }
 
-const DB::Model::SoundFileTableModel *MediaPlaylist::getSoundFileModel() const
+const SoundFileTableModel *Playlist::getSoundFileModel() const
 {
     return model_;
 }
 
-bool MediaPlaylist::addMedia(const DB::SoundFileRecord &rec)
+bool Playlist::addMedia(const SoundFileRecord &rec)
 {
     return addMedia(rec.id);
 }
 
-bool MediaPlaylist::addMedia(int record_id)
+bool Playlist::addMedia(int record_id)
 {
     if(model_ == 0)
         return false;
-    DB::SoundFileRecord* rec = model_->getSoundFileById(record_id);
+    SoundFileRecord* rec = model_->getSoundFileById(record_id);
     if(rec == 0)
         return false;
 
@@ -70,8 +68,8 @@ bool MediaPlaylist::addMedia(int record_id)
     QList<QMediaContent*> delete_recs;
     foreach(QMediaContent* r_c, records_.keys()) {
         if(*r_c == *c) {
-            QString old_str = Misc::JsonMimeDataParser::toJsonMimeData(records_[r_c])->text();
-            QString new_str = Misc::JsonMimeDataParser::toJsonMimeData(rec)->text();
+            QString old_str = JsonMimeDataParser::toJsonMimeData(records_[r_c])->text();
+            QString new_str = JsonMimeDataParser::toJsonMimeData(rec)->text();
             qDebug() << "Sound file was already set for media content.";
             qDebug() << " > Record will be replaced.";
             qDebug() << " > old:" << old_str;
@@ -94,12 +92,12 @@ bool MediaPlaylist::addMedia(int record_id)
     return true;
 }
 
-const QList<DB::SoundFileRecord *> MediaPlaylist::getSoundFileList(bool unique)
+const QList<SoundFileRecord *> Playlist::getSoundFileList(bool unique)
 {
-    QList<DB::SoundFileRecord*> sf_list;
+    QList<SoundFileRecord*> sf_list;
 
     if(unique) {
-        foreach(DB::SoundFileRecord* rec, records_.values()) {
+        foreach(SoundFileRecord* rec, records_.values()) {
             if(sf_list.contains(rec))
                 continue;
             sf_list.append(rec);
@@ -120,7 +118,7 @@ const QList<DB::SoundFileRecord *> MediaPlaylist::getSoundFileList(bool unique)
     return sf_list;
 }
 
-void MediaPlaylist::onMediaAboutToBeRemoved(int start, int end)
+void Playlist::onMediaAboutToBeRemoved(int start, int end)
 {
     for(int i = start; i <= end; ++i) {
         QMediaContent c = media(i);
@@ -136,6 +134,3 @@ void MediaPlaylist::onMediaAboutToBeRemoved(int start, int end)
         }
     }
 }
-
-} // namespace Playlist
-

@@ -66,9 +66,9 @@ void ThumbnailList::openDirectory(const QString &dir_name)
     file_view_->setRootIndex(model_->index(dir.path()));
 }
 
-Image::View *ThumbnailList::getView() const
+ImageCanvas *ThumbnailList::getCanvas() const
 {
-    return presentation_view_->getView();
+    return presentation_view_->getCanvas();
 }
 
 ImageDisplayWidget *ThumbnailList::getDisplayWidget() const
@@ -103,7 +103,7 @@ void ThumbnailList::onImageSelected(const QModelIndex &idx)
     }
 
     QString path = model_->data(idx, Qt::UserRole).toString();
-    presentation_view_->getView()->setItem(new ImageItem(path));
+    presentation_view_->getCanvas()->setItem(new ImageItem(path));
     presentation_view_->popOpen();
 }
 

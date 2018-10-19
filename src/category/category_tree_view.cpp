@@ -1,13 +1,11 @@
-#include "tree_view.h"
+#include "category_tree_view.h"
 
 #include <QTreeView>
 #include <QMouseEvent>
 
 #include "db/model/category_tree_model.h"
 
-namespace Category {
-
-TreeView::TreeView(QWidget *parent)
+CategoryTreeView::CategoryTreeView(QWidget *parent)
     : QTreeView(parent)
     , model_(0)
 {
@@ -15,14 +13,14 @@ TreeView::TreeView(QWidget *parent)
             this, SLOT(onClicked(const QModelIndex&)));
 }
 
-void TreeView::setCategoryTreeModel(DB::Model::CategoryTreeModel *model)
+void CategoryTreeView::setCategoryTreeModel(CategoryTreeModel *model)
 {
     model_ = model;
     setModel(model);
     selectRoot();
 }
 
-void TreeView::mousePressEvent(QMouseEvent *event)
+void CategoryTreeView::mousePressEvent(QMouseEvent *event)
 {
     QTreeView::mousePressEvent(event);
 
@@ -32,13 +30,13 @@ void TreeView::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void TreeView::selectRoot()
+void CategoryTreeView::selectRoot()
 {
     selectionModel()->clearSelection();
     emit categorySelected(0);
 }
 
-void TreeView::onClicked(const QModelIndex& index)
+void CategoryTreeView::onClicked(const QModelIndex& index)
 {
     if(model_ == 0)
         return;
@@ -47,5 +45,3 @@ void TreeView::onClicked(const QModelIndex& index)
     else
         emit categorySelected(model_->getCategoryByIndex(index));
 }
-
-} // namespace Category

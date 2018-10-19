@@ -1,4 +1,4 @@
-#include "view.h"
+#include "image_canvas.h"
 
 #include <QGraphicsScene>
 #include <QBoxLayout>
@@ -10,9 +10,7 @@
 #include "image_item.h"
 #include "interactive/interactive_image.h"
 
-namespace Image {
-
-View::View(QWidget *parent)
+ImageCanvas::ImageCanvas(QWidget *parent)
     : QGraphicsView(parent)
     , item_(0)
     , context_menu_(0)
@@ -22,32 +20,32 @@ View::View(QWidget *parent)
     initContextMenu();
 }
 
-View::~View()
+ImageCanvas::~ImageCanvas()
 {
     context_menu_->deleteLater();
 }
 
-void View::setItem(ImageItem* it)
+void ImageCanvas::setItem(ImageItem* it)
 {
     setItem((QGraphicsItem*) it);
 }
 
-void View::setItem(InteractiveImage *it)
+void ImageCanvas::setItem(InteractiveImage *it)
 {
     setItem((QGraphicsItem*) it);
 }
 
-QGraphicsItem *View::getItem() const
+QGraphicsItem *ImageCanvas::getItem() const
 {
     return item_;
 }
 
-bool View::isImageInteractive() const
+bool ImageCanvas::isImageInteractive() const
 {
     return qgraphicsitem_cast<InteractiveImage*>(item_) ? true : false;
 }
 
-QMenu *View::getMenuBarExtension()
+QMenu *ImageCanvas::getMenuBarExtension()
 {
     auto it = qgraphicsitem_cast<InteractiveImage*>(item_);
     if(it) {
@@ -58,7 +56,7 @@ QMenu *View::getMenuBarExtension()
     }
 }
 
-void View::setItem(QGraphicsItem* item)
+void ImageCanvas::setItem(QGraphicsItem* item)
 {
     clear();
     scene()->addItem(item);
@@ -69,12 +67,12 @@ void View::setItem(QGraphicsItem* item)
         emit interactiveEnabled(true);
         auto iit = qgraphicsitem_cast<InteractiveImage*>(item_);
         connect(iit, &InteractiveImage::newContentsLoaded,
-                this, &View::onNewContentsLoaded);
+                this, &ImageCanvas::onNewContentsLoaded);
     }
     emit itemSet();
 }
 
-void View::clear()
+void ImageCanvas::clear()
 {
     if(isImageInteractive()) {
         auto iit = qgraphicsitem_cast<InteractiveImage*>(item_);
@@ -86,7 +84,7 @@ void View::clear()
     //scene()->setSceneRect(QRectF(0,0,0,0));
 }
 
-void View::scaleContentsToViewport()
+void ImageCanvas::scaleContentsToViewport()
 {
     QRectF visible_rect = getVisibleRect();
     qreal scale_factor = qMin(
@@ -96,7 +94,7 @@ void View::scaleContentsToViewport()
     scale(scale_factor, scale_factor);
 }
 
-void View::onMakeInteractive()
+void ImageCanvas::onMakeInteractive()
 {
     auto it = qgraphicsitem_cast<ImageItem*>(item_);
     if(it) {
@@ -104,17 +102,17 @@ void View::onMakeInteractive()
         auto interactive_img = new InteractiveImage(path, it->boundingRect().size().toSize());
         setItem(interactive_img);
         connect(interactive_img, &InteractiveImage::newContentsLoaded,
-                this, &View::onNewContentsLoaded);
+                this, &ImageCanvas::onNewContentsLoaded);
     }
 }
 
-void View::onNewContentsLoaded()
+void ImageCanvas::onNewContentsLoaded()
 {
     scene()->setSceneRect(item_->boundingRect());
     scaleContentsToViewport();
 }
 
-void View::resizeEvent(QResizeEvent *event)
+void ImageCanvas::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
     if(item_)
@@ -122,7 +120,7 @@ void View::resizeEvent(QResizeEvent *event)
     scaleContentsToViewport();
 }
 
-const QRectF View::getVisibleRect() const
+const QRectF ImageCanvas::getVisibleRect() const
 {
     QPointF tl(horizontalScrollBar()->value(), verticalScrollBar()->value());
     QPointF br = tl + viewport()->rect().bottomRight();
@@ -130,7 +128,7 @@ const QRectF View::getVisibleRect() const
     return mat.mapRect(QRectF(tl,br));
 }
 
-void View::mousePressEvent(QMouseEvent *event)
+void ImageCanvas::mousePressEvent(QMouseEvent *event)
 {
     QGraphicsView::mousePressEvent(event);
     if(!event->isAccepted()) {
@@ -141,7 +139,7 @@ void View::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void View::initContextMenu()
+void ImageCanvas::initContextMenu()
 {
     context_menu_ = new QMenu(tr("Actions"));
 
@@ -151,5 +149,3 @@ void View::initContextMenu()
 
     context_menu_->addAction(cover_image);
 }
-
-} // namespace Image
