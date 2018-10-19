@@ -39,8 +39,6 @@ SOURCES += main.cpp \
     sound_file/list_view.cpp \
     sound_file/list_view_dialog.cpp \
     tile/graphics_view.cpp \
-    playlist/settings_widget.cpp \
-    custom_media_player.cpp \
     db/model/resource_dir_table_model.cpp \
     resources/importer.cpp \
     resources/lib.cpp \
@@ -48,7 +46,6 @@ SOURCES += main.cpp \
     resources/image_file.cpp \
     resources/resource_file.cpp \
     resources/sound_file.cpp \
-    playlist/media_playlist.cpp \
     log/file_logger.cpp \
     db/model/image_dir_table_model.cpp \
     tile/nested_tile.cpp \
@@ -106,7 +103,10 @@ SOURCES += main.cpp \
     db/database_handler.cpp \
     db/core/database_api.cpp \
     image/image_browser.cpp \
-    image/image_canvas.cpp
+    image/image_canvas.cpp \
+    playlist/companion_playlist.cpp \
+    playlist/companion_playlist_settings_widget.cpp \
+    playlist/companion_playlist_player.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -124,9 +124,6 @@ HEADERS  += main_window.h \
     sound_file/list_view.h \
     sound_file/list_view_dialog.h \
     tile/graphics_view.h \
-    playlist/settings.h \
-    playlist/settings_widget.h \
-    custom_media_player.h \
     db/model/resource_dir_table_model.h \
     resources/importer.h \
     resources/lib.h \
@@ -134,7 +131,6 @@ HEADERS  += main_window.h \
     resources/image_file.h \
     resources/resource_file.h \
     resources/sound_file.h \
-    playlist/media_playlist.h \
     log/file_logger.h \
     db/model/image_dir_table_model.h \
     tile/nested_tile.h \
@@ -192,7 +188,11 @@ HEADERS  += main_window.h \
     db/database_handler.h \
     db/core/database_api.h \
     image/image_browser.h \
-    image/image_canvas.h
+    image/image_canvas.h \
+    playlist/companion_playlist.h \
+    playlist/companion_playlist_settings.h \
+    playlist/companion_playlist_settings_widget.h \
+    playlist/companion_playlist_player.h
 
 RESOURCES += \
     _RES/resources.qrc

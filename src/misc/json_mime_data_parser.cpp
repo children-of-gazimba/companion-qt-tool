@@ -172,7 +172,7 @@ const QJsonObject JsonMimeDataParser::toJsonObject(SoundFileRecord* rec)
     return obj;
 }
 
-const QJsonObject JsonMimeDataParser::toJsonObject(const Playlist::Settings& settings)
+const QJsonObject JsonMimeDataParser::toJsonObject(const CompanionPlaylistSettings& settings)
 {
     QJsonObject obj;
 
@@ -188,9 +188,9 @@ const QJsonObject JsonMimeDataParser::toJsonObject(const Playlist::Settings& set
 
 }
 
-Playlist::Settings* JsonMimeDataParser::toPlaylistSettings(const QJsonObject& obj)
+CompanionPlaylistSettings* JsonMimeDataParser::toPlaylistSettings(const QJsonObject& obj)
 {
-    Playlist::Settings* set = 0;
+    CompanionPlaylistSettings* set = 0;
 
     if(!obj.contains("interval_flag") || !obj.contains("min_interval_val") ||
        !obj.contains("max_interval_val") || !obj.contains("loop_flag") ||
@@ -202,7 +202,7 @@ Playlist::Settings* JsonMimeDataParser::toPlaylistSettings(const QJsonObject& ob
     }
 
     //set name
-    set = new Playlist::Settings;
+    set = new CompanionPlaylistSettings;
     set->name = obj["name"].toString();
 
     //set interval
@@ -231,11 +231,11 @@ Playlist::Settings* JsonMimeDataParser::toPlaylistSettings(const QJsonObject& ob
 
     // set order
     if(obj["order"] == 0) {
-        set->order = Playlist::ORDERED;
+        set->order = ORDERED;
     } else if (obj["order"] == 1) {
-        set->order = Playlist::SHUFFLE;
+        set->order = SHUFFLE;
     } else if (obj["order"] == 2) {
-        set->order = Playlist::WEIGHTED;
+        set->order = WEIGHTED;
     }
 
     return set;

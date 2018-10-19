@@ -21,11 +21,11 @@ PlaylistTile::PlaylistTile(QGraphicsItem *parent)
     , draw_filled_volume_indicator_(false)
     , filled_volume_timer_()
 {
-    player_ = new CustomMediaPlayer(this);
+    player_ = new CompanionPlaylistPlayer(this);
     //connect(player_, SIGNAL(stateChanged(QMediaPlayer::State)),
     //        this, SLOT(changePlayerState(QMediaPlayer::State)));
 
-    connect(player_, SIGNAL(toggledPlayerActivation(bool)),
+    connect(player_, SIGNAL(playerActivationToggled(bool)),
             this, SLOT(changedCustomPlayerActivation(bool)));
 
     filled_volume_timer_.setSingleShot(true);
@@ -35,7 +35,7 @@ PlaylistTile::PlaylistTile(QGraphicsItem *parent)
         draw_filled_volume_indicator_ = false;
     });
 
-    playlist_ = new Playlist::MediaPlaylist("Playlist");
+    playlist_ = new CompanionPlaylist("Playlist");
     player_->setPlaylist(playlist_);
     setAcceptDrops(true);
 }
@@ -115,8 +115,8 @@ void PlaylistTile::receiveExternalData(const QMimeData *data)
 
 void PlaylistTile::receiveWheelEvent(QWheelEvent *event)
 {
-    Playlist::MediaPlaylist* pl = player_->getCustomPlaylist();
-    Playlist::Settings settings = pl->getSettings();
+    CompanionPlaylist* pl = player_->getPlaylist();
+    CompanionPlaylistSettings settings = pl->getSettings();
 
     int log_volume = VolumeMapper::linearToLogarithmic(settings.volume);
     if (event->delta() < 0) {
@@ -254,7 +254,7 @@ bool PlaylistTile::setFromJsonObject(const QJsonObject &obj)
         if(s_obj.isEmpty())
             return false;
         //to do: no pointer needed
-        Playlist::Settings* settings = Misc::JsonMimeDataParser::toPlaylistSettings(s_obj);
+        CompanionPlaylistSettings* settings = Misc::JsonMimeDataParser::toPlaylistSettings(s_obj);
         if(!settings) {
             qDebug() << "FAILURE: Could not set Playlist Settings from JSON";
             qDebug() << " > " << s_obj;
@@ -302,9 +302,9 @@ void PlaylistTile::onActivate()
 
 void PlaylistTile::setVolume(int volume)
 {
-    Playlist::Settings settings = player_->getCustomPlaylist()->getSettings();
+    CompanionPlaylistSettings settings = player_->getPlaylist()->getSettings();
     settings.volume = volume;
-    player_->getCustomPlaylist()->setSettings(settings);
+    player_->getPlaylist()->setSettings(settings);
     volumeChangedEvent();
     //player_->setVolume(volume);
 }
@@ -334,20 +334,20 @@ void PlaylistTile::changedCustomPlayerActivation(bool state)
 
 void PlaylistTile::onConfigurePlaylist()
 {
-    Playlist::Settings s = playlist_->getSettings();
+    CompanionPlaylistSettings s = playlist_->getSettings();
     s.name = getName();
     if(!playlist_settings_widget_) {
-        playlist_settings_widget_ = new Playlist::SettingsWidget(s);
+        playlist_settings_widget_ = new CompanionPlaylistSettingsWidget(s);
         playlist_settings_widget_->setWindowTitle(tr("Playback Settings"));
         playlist_settings_widget_->move(QCursor::pos() - QPoint(170,170));
-        connect(playlist_settings_widget_, &Playlist::SettingsWidget::closed,
+        connect(playlist_settings_widget_, &CompanionPlaylistSettingsWidget::closed,
                 this, &PlaylistTile::closePlaylistSettings);
-        connect(playlist_settings_widget_, &Playlist::SettingsWidget::saved,
+        connect(playlist_settings_widget_, &CompanionPlaylistSettingsWidget::saved,
                 this, &PlaylistTile::savePlaylistSettings);
-        connect(playlist_settings_widget_, &Playlist::SettingsWidget::volumeSettingsChanged,
+        connect(playlist_settings_widget_, &CompanionPlaylistSettingsWidget::volumeSettingsChanged,
                 this, &PlaylistTile::setVolume);
         connect(this, &PlaylistTile::wheelChangedVolume,
-                playlist_settings_widget_, &Playlist::SettingsWidget::onExternalVolumeChanged);
+                playlist_settings_widget_, &CompanionPlaylistSettingsWidget::onExternalVolumeChanged);
     }
     playlist_settings_widget_->popOpen();
 }
@@ -381,7 +381,7 @@ void PlaylistTile::closePlaylistSettings()
     playlist_settings_widget_ = 0;
 }
 
-void PlaylistTile::savePlaylistSettings(const Playlist::Settings &settings)
+void PlaylistTile::savePlaylistSettings(const CompanionPlaylistSettings &settings)
 {
     if(settings.name.size() > 0 && name_.compare(settings.name) != 0)
         setName(settings.name);
@@ -438,7 +438,7 @@ void PlaylistTile::setIsPlaying(bool state)
 
 const QRectF PlaylistTile::getVolumeRect() const
 {
-    int log_volume = player_->getCustomPlaylist()->getSettings().volume;
+    int log_volume = player_->getPlaylist()->getSettings().volume;
     log_volume = VolumeMapper::linearToLogarithmic(log_volume);
     QRectF volume_rect(getPaintRect());
     volume_rect.setTop(volume_rect.bottom()-volume_rect.height()*(log_volume/100.0f));

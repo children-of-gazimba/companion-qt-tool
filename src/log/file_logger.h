@@ -3,8 +3,6 @@
 
 #include <QString>
 
-namespace Log {
-
 class FileLogger
 {
 public:
@@ -24,7 +22,5 @@ public:
 private:
     QString tag_;
 };
-
-} // namespace Log
 
 #endif // LOG_FILE_LOGGER_H

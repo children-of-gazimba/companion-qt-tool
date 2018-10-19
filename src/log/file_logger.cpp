@@ -5,8 +5,6 @@
 
 #include "resources/lib.h"
 
-namespace Log {
-
 FileLogger::FileLogger(const QString& tag)
     : tag_(tag)
 {}
@@ -43,5 +41,3 @@ void FileLogger::setTag(const QString &tag)
 {
     tag_ = tag;
 }
-
-} // namespace Log

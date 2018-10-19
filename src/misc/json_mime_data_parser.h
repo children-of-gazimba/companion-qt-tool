@@ -8,7 +8,7 @@
 #include <QPainterPath>
 
 #include "db/table_records.h"
-#include "playlist/settings.h"
+#include "playlist/companion_playlist_settings.h"
 
 namespace Misc {
 
@@ -75,10 +75,10 @@ public:
     /* Creates JsonObject from given SoundFileRecord */
     static const QJsonObject toJsonObject(SoundFileRecord*);
 
-    /* Creates JsonObject from given Playlist::Settings */
-    static const QJsonObject toJsonObject(const Playlist::Settings&);
+    /* Creates JsonObject from given Settings */
+    static const QJsonObject toJsonObject(const CompanionPlaylistSettings&);
 
-    static Playlist::Settings* toPlaylistSettings(const QJsonObject&);
+    static CompanionPlaylistSettings* toPlaylistSettings(const QJsonObject&);
 
     /** Creates JsonArray of QPainterPath::Elements */
     static const QJsonArray toJsonArray(const QPainterPath& path);

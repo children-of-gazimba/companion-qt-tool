@@ -1,9 +1,7 @@
-#ifndef SETTINGS
-#define SETTINGS
+#ifndef PLAYLIST_COMPANION_PLAYLIST_SETTINGS_H
+#define PLAYLIST_COMPANION_PLAYLIST_SETTINGS_H
 
 #include <QString>
-
-namespace Playlist {
 
 /*
  * Describes in which order a playlist can play its sound files.
@@ -20,7 +18,7 @@ enum PlayOrder {
 /*
  * Struct describing how a playlist should play its sound files.
 */
-struct Settings {
+struct CompanionPlaylistSettings {
 
     QString name;
     PlayOrder order;
@@ -31,7 +29,7 @@ struct Settings {
     int volume;
     QString image_path;
 
-    Settings()
+    CompanionPlaylistSettings()
         : name("Settings")
         , order(PlayOrder::ORDERED)
         , loop_flag(true)
@@ -42,7 +40,7 @@ struct Settings {
         , image_path()
     {}
 
-    Settings(QString n,PlayOrder ord, bool loop, bool interval, int min_interval, int max_interval, int vol, QString img_path)
+    CompanionPlaylistSettings(QString n,PlayOrder ord, bool loop, bool interval, int min_interval, int max_interval, int vol, QString img_path)
         : name(n)
         , order(ord)
         , loop_flag(loop)
@@ -53,7 +51,7 @@ struct Settings {
         , image_path(img_path)
     {}
 
-    void copyFrom(const Settings& settings)
+    void copyFrom(const CompanionPlaylistSettings& settings)
     {
         name = settings.name;
         order = settings.order;
@@ -66,7 +64,5 @@ struct Settings {
     }
 };
 
-} //namespace Playlist
-
-#endif // SETTINGS
+#endif // PLAYLIST_COMPANION_PLAYLIST_SETTINGS_H
 

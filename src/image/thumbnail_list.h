@@ -1,5 +1,5 @@
-#ifndef IMAGELIST_H
-#define IMAGELIST_H
+#ifndef THUMBNAIL_LIST_H
+#define THUMBNAIL_LIST_H
 
 #include <QWidget>
 
@@ -69,4 +69,4 @@ private:
     ImageDisplayWidget *presentation_view_;
 };
 
-#endif // IMAGELIST_H
+#endif // THUMBNAIL_LIST_H

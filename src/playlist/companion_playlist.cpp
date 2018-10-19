@@ -1,22 +1,20 @@
-#include "media_playlist.h"
+#include "companion_playlist.h"
 
 #include <QDebug>
 
 #include "misc/json_mime_data_parser.h"
 
-namespace Playlist {
-
-MediaPlaylist::MediaPlaylist(QString name, QObject* parent)
+CompanionPlaylist::CompanionPlaylist(QString name, QObject* parent)
     : QMediaPlaylist(parent)
     , name_(name)
     , settings_(0)
     , model_(0)
     , records_()
 {
-    settings_ = new Settings;
+    settings_ = new CompanionPlaylistSettings;
 }
 
-MediaPlaylist::~MediaPlaylist()
+CompanionPlaylist::~CompanionPlaylist()
 {
     QList<QMediaContent*> keys = records_.keys();
     while(keys.size() > 0) {
@@ -27,18 +25,18 @@ MediaPlaylist::~MediaPlaylist()
     delete settings_;
 }
 
-void MediaPlaylist::setSettings(const Settings &settings)
+void CompanionPlaylist::setSettings(const CompanionPlaylistSettings &settings)
 {
     settings_->copyFrom(settings);
     emit changedSettings();
 }
 
-const Settings& MediaPlaylist::getSettings() const
+const CompanionPlaylistSettings& CompanionPlaylist::getSettings() const
 {
     return *settings_;
 }
 
-void MediaPlaylist::setSoundFileModel(SoundFileTableModel *m)
+void CompanionPlaylist::setSoundFileModel(SoundFileTableModel *m)
 {
     model_ = m;
 
@@ -46,17 +44,17 @@ void MediaPlaylist::setSoundFileModel(SoundFileTableModel *m)
             this, SLOT(onMediaAboutToBeRemoved(int,int)));
 }
 
-const SoundFileTableModel *MediaPlaylist::getSoundFileModel() const
+const SoundFileTableModel *CompanionPlaylist::getSoundFileModel() const
 {
     return model_;
 }
 
-bool MediaPlaylist::addMedia(const SoundFileRecord &rec)
+bool CompanionPlaylist::addMedia(const SoundFileRecord &rec)
 {
     return addMedia(rec.id);
 }
 
-bool MediaPlaylist::addMedia(int record_id)
+bool CompanionPlaylist::addMedia(int record_id)
 {
     if(model_ == 0)
         return false;
@@ -94,7 +92,7 @@ bool MediaPlaylist::addMedia(int record_id)
     return true;
 }
 
-const QList<SoundFileRecord *> MediaPlaylist::getSoundFileList(bool unique)
+const QList<SoundFileRecord *> CompanionPlaylist::getSoundFileList(bool unique)
 {
     QList<SoundFileRecord*> sf_list;
 
@@ -120,7 +118,7 @@ const QList<SoundFileRecord *> MediaPlaylist::getSoundFileList(bool unique)
     return sf_list;
 }
 
-void MediaPlaylist::onMediaAboutToBeRemoved(int start, int end)
+void CompanionPlaylist::onMediaAboutToBeRemoved(int start, int end)
 {
     for(int i = start; i <= end; ++i) {
         QMediaContent c = media(i);
@@ -136,6 +134,3 @@ void MediaPlaylist::onMediaAboutToBeRemoved(int start, int end)
         }
     }
 }
-
-} // namespace Playlist
-
