@@ -1,5 +1,5 @@
-#ifndef TILE_GRAPHICS_VIEW_H
-#define TILE_GRAPHICS_VIEW_H
+#ifndef TILE_CANVAS_H
+#define TILE_CANVAS_H
 
 #include <QGraphicsView>
 #include <QMouseEvent>
@@ -15,7 +15,6 @@
 #include "image/image_display_widget.h"
 #include "nested_path_widget.h"
 
-// TODO: rename namespace to Tile
 namespace Tile {
 
 /**
@@ -27,14 +26,14 @@ namespace Tile {
  * Holds functionality to convert all tiles in scene to JSON description
  * and be set from JSON.
 */
-class GraphicsView : public QGraphicsView
+class Canvas : public QGraphicsView
 {
     Q_OBJECT
 
 public:
-    GraphicsView(QGraphicsScene *scene, QWidget *parent);
-    GraphicsView(QWidget *parent = 0);
-    ~GraphicsView();
+    Canvas(QGraphicsScene *scene, QWidget *parent);
+    Canvas(QWidget *parent = 0);
+    ~Canvas();
 
     /**
      * Serializes this graphics view and all layouts defined for it.
@@ -282,4 +281,4 @@ private:
 
 } // namespace Tile
 
-#endif // TILE_GRAPHICS_VIEW_H
+#endif // TILE_CANVAS_H

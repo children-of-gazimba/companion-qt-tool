@@ -109,7 +109,7 @@ const QJsonObject InteractiveImageShape::toJsonObject() const
 {
     QJsonObject obj;
     obj["name"] = name_;
-    obj["path"] = Misc::JsonMimeDataParser::toJsonArray(path_);
+    obj["path"] = JsonMimeDataParser::toJsonArray(path_);
 
     QJsonArray pos_arr;
     pos_arr.append(pos().x());
@@ -142,7 +142,7 @@ bool InteractiveImageShape::setFromJsonObject(const QJsonObject &obj)
     if(obj["position"].toArray().size() != 2)
         return false;
 
-    setPath(Misc::JsonMimeDataParser::toPainterPath(obj["path"].toArray()));
+    setPath(JsonMimeDataParser::toPainterPath(obj["path"].toArray()));
     setUncoverEnabled(obj["is_uncover_shape"].toBool());
     setFogVisibility(obj["is_visible_in_fog"].toBool());
     setName(obj["name"].toString());

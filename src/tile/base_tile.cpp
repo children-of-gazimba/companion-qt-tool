@@ -785,7 +785,7 @@ void BaseTile::onSaveAsPreset()
 
 void BaseTile::onSetKey()
 {
-    Misc::CharInputDialog d;
+    CharInputDialog d;
     d.setChar(getActivateKey());
     if(d.exec()) {
         setActivateKey(d.getChar());

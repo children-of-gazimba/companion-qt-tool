@@ -1,4 +1,4 @@
-#include "companion_playlist_settings_widget.h"
+#include "playlist_settings_widget.h"
 
 #include <QHBoxLayout>
 #include <QRadioButton>
@@ -6,7 +6,7 @@
 
 #include "misc/volume_mapper.h"
 
-CompanionPlaylistSettingsWidget::CompanionPlaylistSettingsWidget(const CompanionPlaylistSettings& settings, QWidget *parent)
+PlaylistSettingsWidget::PlaylistSettingsWidget(const PlaylistSettings& settings, QWidget *parent)
     : QWidget(parent)
     , settings_(settings)
     , name_edit_(0)
@@ -30,18 +30,18 @@ CompanionPlaylistSettingsWidget::CompanionPlaylistSettingsWidget(const Companion
     initLayout();
 }
 
-CompanionPlaylistSettingsWidget::~CompanionPlaylistSettingsWidget()
+PlaylistSettingsWidget::~PlaylistSettingsWidget()
 {
 }
 
-void CompanionPlaylistSettingsWidget::onCloseClicked(bool)
+void PlaylistSettingsWidget::onCloseClicked(bool)
 {
     emit closed();
 }
 
-void CompanionPlaylistSettingsWidget::onSaveClicked(bool)
+void PlaylistSettingsWidget::onSaveClicked(bool)
 {
-    CompanionPlaylistSettings new_settings;
+    PlaylistSettings new_settings;
 
     //set loop settings
     if (loop_checkbox_->isChecked()){
@@ -88,7 +88,7 @@ void CompanionPlaylistSettingsWidget::onSaveClicked(bool)
     emit saved(new_settings);
 }
 
-void CompanionPlaylistSettingsWidget::popOpen()
+void PlaylistSettingsWidget::popOpen()
 {
     if(isHidden())
         showNormal();
@@ -98,31 +98,31 @@ void CompanionPlaylistSettingsWidget::popOpen()
     activateWindow();
 }
 
-void CompanionPlaylistSettingsWidget::onExternalVolumeChanged(int v)
+void PlaylistSettingsWidget::onExternalVolumeChanged(int v)
 {
     volume_slider_->setValue(VolumeMapper::linearToLogarithmic(v));
 }
 
-void CompanionPlaylistSettingsWidget::onMinIntervalSliderChanged(int val)
+void PlaylistSettingsWidget::onMinIntervalSliderChanged(int val)
 {
     int max = max_interval_slider_->value();
     interval_label_->setText(QString::number(val) + "-" + QString::number(max) + " sec");
 }
 
-void CompanionPlaylistSettingsWidget::onMaxIntervalSliderChanged(int val)
+void PlaylistSettingsWidget::onMaxIntervalSliderChanged(int val)
 {
     int min = min_interval_slider_->value();
     interval_label_->setText(QString::number(min) + "-" + QString::number(val) + " sec");
 }
 
 
-void CompanionPlaylistSettingsWidget::onVolumeSliderChanged(int val)
+void PlaylistSettingsWidget::onVolumeSliderChanged(int val)
 {
     volume_label_->setText(QString::number(val) + " %");
     emit volumeSettingsChanged(VolumeMapper::logarithmicToLinear(val));
 }
 
-void CompanionPlaylistSettingsWidget::onOpenImage()
+void PlaylistSettingsWidget::onOpenImage()
 {
     // QString s = QFileDialog::getOpenFileName(this, tr("Open Image"), "", "Image Files (*.png *.jpg *.bmp)");
     QString s = QFileDialog::getOpenFileName(this, tr("Open Image"), "", "Image Files (*.png *.jpg *.bmp)",nullptr, QFileDialog::DontUseNativeDialog);
@@ -132,7 +132,7 @@ void CompanionPlaylistSettingsWidget::onOpenImage()
     }
 }
 
-void CompanionPlaylistSettingsWidget::initWidgets()
+void PlaylistSettingsWidget::initWidgets()
 {
     name_edit_ = new QLineEdit(this);
     name_edit_->setPlaceholderText("Playlist Name");
@@ -214,7 +214,7 @@ void CompanionPlaylistSettingsWidget::initWidgets()
             this, SLOT(onSaveClicked(bool)));
 }
 
-void CompanionPlaylistSettingsWidget::initLayout()
+void PlaylistSettingsWidget::initLayout()
 {
     QWidget::setWindowFlags(Qt::Tool);
     QWidget::setWindowTitle("Playlist Settings");
@@ -280,7 +280,7 @@ void CompanionPlaylistSettingsWidget::initLayout()
     setFixedWidth(600);
 }
 
-void CompanionPlaylistSettingsWidget::closeEvent(QCloseEvent *e)
+void PlaylistSettingsWidget::closeEvent(QCloseEvent *e)
 {
     emit closed();
     QWidget::closeEvent(e);

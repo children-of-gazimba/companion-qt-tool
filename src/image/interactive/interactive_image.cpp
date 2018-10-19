@@ -148,7 +148,7 @@ const QJsonObject InteractiveImage::toJsonObject() const
     QJsonArray temp_arr;
     foreach(auto t, token_paths_.keys()) {
         token_arr.append(t->toJsonObject());
-        temp_arr = Misc::JsonMimeDataParser::toJsonArray(token_paths_[t]);
+        temp_arr = JsonMimeDataParser::toJsonArray(token_paths_[t]);
         if(!all_uncovered_)
             token_paths_obj[t->getUuid().toString()] = temp_arr;
     }
@@ -166,7 +166,7 @@ const QJsonObject InteractiveImage::toJsonObject() const
 
     QJsonArray paths_arr;
     foreach(auto p, paths_)
-        paths_arr.append(Misc::JsonMimeDataParser::toJsonArray(p));
+        paths_arr.append(JsonMimeDataParser::toJsonArray(p));
     obj["paths"] = paths_arr;
 
     return obj;
@@ -211,7 +211,7 @@ bool InteractiveImage::setFromJsonObject(const QJsonObject &obj)
             }
             QString token_uuid = token->getUuid().toString();
             if(token_paths_obj.contains(token_uuid) && token_paths_obj[token_uuid].isArray()) {
-                QPainterPath p = Misc::JsonMimeDataParser::toPainterPath(token_paths_obj[token_uuid].toArray());
+                QPainterPath p = JsonMimeDataParser::toPainterPath(token_paths_obj[token_uuid].toArray());
                 token_paths_[token] = p;
             }
             addToken(token);
@@ -242,7 +242,7 @@ bool InteractiveImage::setFromJsonObject(const QJsonObject &obj)
         foreach(auto v, obj["paths"].toArray()) {
             if(!v.isArray())
                 continue;
-            QPainterPath p = Misc::JsonMimeDataParser::toPainterPath(v.toArray());
+            QPainterPath p = JsonMimeDataParser::toPainterPath(v.toArray());
             if(!p.isEmpty())
                 paths_.append(p);
         }

@@ -1,6 +1,6 @@
-#include "companion_playlist_player.h"
+#include "playlist_player.h"
 
-CompanionPlaylistPlayer::CompanionPlaylistPlayer(QObject* parent)
+PlaylistPlayer::PlaylistPlayer(QObject* parent)
     : QMediaPlayer(parent)
     , activated_(false)
     , current_content_index_(0)
@@ -13,12 +13,12 @@ CompanionPlaylistPlayer::CompanionPlaylistPlayer(QObject* parent)
             this, SLOT(onDelayIsOver()));
 }
 
-void CompanionPlaylistPlayer::play()
+void PlaylistPlayer::play()
 {
 
-    CompanionPlaylist* playlist = getPlaylist();
+    Playlist* playlist = getPlaylist();
     if(playlist) {
-        CompanionPlaylistSettings settings = playlist->getSettings();
+        PlaylistSettings settings = playlist->getSettings();
         setVolume(settings.volume);
         // if delay interval is turned on
         if (settings.order == PlayOrder::ORDERED){
@@ -57,7 +57,7 @@ void CompanionPlaylistPlayer::play()
     }
 }
 
-void CompanionPlaylistPlayer::setPlaylist(CompanionPlaylist *playlist)
+void PlaylistPlayer::setPlaylist(Playlist *playlist)
 {
     connect(playlist, SIGNAL(currentIndexChanged(int)),
             this, SLOT(onCurrentMediaIndexChanged(int)) );
@@ -68,37 +68,37 @@ void CompanionPlaylistPlayer::setPlaylist(CompanionPlaylist *playlist)
     QMediaPlayer::setPlaylist(playlist);
 }
 
-void CompanionPlaylistPlayer::onDelayIsOver()
+void PlaylistPlayer::onDelayIsOver()
 {
     delay_timer_->stop();
     play();
 }
 
-void CompanionPlaylistPlayer::activate()
+void PlaylistPlayer::activate()
 {
     activated_ = true;
     emit playerActivationToggled(true);
 }
 
-void CompanionPlaylistPlayer::deactivate()
+void PlaylistPlayer::deactivate()
 {
     activated_ = false;
     emit playerActivationToggled(false);
 }
 
-void CompanionPlaylistPlayer::setActivation(bool flag)
+void PlaylistPlayer::setActivation(bool flag)
 {
     activated_ = flag;
     emit playerActivationToggled(flag);
 }
 
-int CompanionPlaylistPlayer::getRandomIntInRange(int min, int max)
+int PlaylistPlayer::getRandomIntInRange(int min, int max)
 {
     int range = max - min;
     return (qrand() % (range+1)) + min;
 }
 
-void CompanionPlaylistPlayer::onCurrentMediaIndexChanged(int position)
+void PlaylistPlayer::onCurrentMediaIndexChanged(int position)
 {
     current_content_index_ = position;
     if (activated_ && delay_flag_){
@@ -106,9 +106,9 @@ void CompanionPlaylistPlayer::onCurrentMediaIndexChanged(int position)
     }
 }
 
-void CompanionPlaylistPlayer::onMediaSettingsChanged()
+void PlaylistPlayer::onMediaSettingsChanged()
 {
-    CompanionPlaylistSettings settings = getPlaylist()->getSettings();
+    PlaylistSettings settings = getPlaylist()->getSettings();
     setVolume(settings.volume);
     if (settings.interval_flag){
         delay_flag_ = true;
@@ -128,17 +128,17 @@ void CompanionPlaylistPlayer::onMediaSettingsChanged()
     }
 }
 
-void CompanionPlaylistPlayer::onMediaVolumeChanged(int val)
+void PlaylistPlayer::onMediaVolumeChanged(int val)
 {
     if (val >= 0 && val <= 100)
         setVolume(val);
 }
 
 
-CompanionPlaylist *CompanionPlaylistPlayer::getPlaylist() const
+Playlist *PlaylistPlayer::getPlaylist() const
 {
 
-    CompanionPlaylist* pl = qobject_cast<CompanionPlaylist*>( playlist() );
+    Playlist* pl = qobject_cast<Playlist*>( playlist() );
     if(pl){
         return pl;
     } else {

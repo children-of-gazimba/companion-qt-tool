@@ -14,7 +14,7 @@ CompanionServer::~CompanionServer()
         c->close();
 }
 
-void CompanionServer::setGraphicsView(Tile::GraphicsView *view)
+void CompanionServer::setGraphicsView(Tile::Canvas *view)
 {
     view_ = view;
 }

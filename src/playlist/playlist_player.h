@@ -1,21 +1,21 @@
-#ifndef COMPANION_MEDIA_PLAYER_H
-#define COMPANION_MEDIA_PLAYER_H
+#ifndef PLAYLIST_PLAYLIST_PLAYER_H
+#define PLAYLIST_PLAYLIST_PLAYER_H
 
 #include <QMediaPlayer>
 #include <QTimer>
 
-#include "playlist/companion_playlist.h"
-#include "playlist/companion_playlist_settings.h"
+#include "playlist/playlist.h"
+#include "playlist/playlist_settings.h"
 
-class CompanionPlaylistPlayer : public QMediaPlayer
+class PlaylistPlayer : public QMediaPlayer
 {
     Q_OBJECT
 public:
-    CompanionPlaylistPlayer(QObject* parent = 0);
+    PlaylistPlayer(QObject* parent = 0);
     //explicit CustomMediaPlayer(QObject* parent = 0, Flags* flags = 0);
 
-    CompanionPlaylist *getPlaylist() const;
-    void setPlaylist(CompanionPlaylist* playlist);
+    Playlist *getPlaylist() const;
+    void setPlaylist(Playlist* playlist);
 
 signals:
     void playerActivationToggled(bool state);
@@ -41,4 +41,4 @@ private:
     QTimer* delay_timer_;
 };
 
-#endif // COMPANION_MEDIA_PLAYER_H
+#endif // PLAYLIST_PLAYLIST_PLAYER_H

@@ -6,7 +6,7 @@
 #include <QPropertyAnimation>
 
 #include "base_tile.h"
-#include "graphics_view.h"
+#include "canvas.h"
 #include "db/model/sound_file_table_model.h"
 
 namespace Tile {
@@ -18,7 +18,7 @@ class NestedTile : public BaseTile
     Q_PROPERTY(qreal progress MEMBER progress_ READ getProgress WRITE setProgress)
 
 public:
-    NestedTile(GraphicsView* master_view, QGraphicsItem *parent=0);
+    NestedTile(Canvas* master_view, QGraphicsItem *parent=0);
     virtual ~NestedTile();
 
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
@@ -77,7 +77,7 @@ protected:
     */
     virtual const QPixmap getPlayStatePixmap() const;
 
-    GraphicsView* master_view_;
+    Canvas* master_view_;
     QGraphicsScene* scene_;
     QTimer enter_timer_;
     qreal progress_;

@@ -6,7 +6,7 @@
 #include <QMenu>
 #include <QJsonArray>
 
-#include "sound_file/list_view_dialog.h"
+#include "sound/sound_list_view_dialog.h"
 #include "misc/volume_mapper.h"
 
 namespace Tile {
@@ -21,7 +21,7 @@ PlaylistTile::PlaylistTile(QGraphicsItem *parent)
     , draw_filled_volume_indicator_(false)
     , filled_volume_timer_()
 {
-    player_ = new CompanionPlaylistPlayer(this);
+    player_ = new PlaylistPlayer(this);
     //connect(player_, SIGNAL(stateChanged(QMediaPlayer::State)),
     //        this, SLOT(changePlayerState(QMediaPlayer::State)));
 
@@ -35,7 +35,7 @@ PlaylistTile::PlaylistTile(QGraphicsItem *parent)
         draw_filled_volume_indicator_ = false;
     });
 
-    playlist_ = new CompanionPlaylist("Playlist");
+    playlist_ = new Playlist("Playlist");
     player_->setPlaylist(playlist_);
     setAcceptDrops(true);
 }
@@ -92,7 +92,7 @@ void PlaylistTile::paint(QPainter *painter, const QStyleOptionGraphicsItem* opti
 void PlaylistTile::receiveExternalData(const QMimeData *data)
 {
     // extract TableRecord from mime data
-    QList<TableRecord*> records = Misc::JsonMimeDataParser::toTableRecordList(data);
+    QList<TableRecord*> records = JsonMimeDataParser::toTableRecordList(data);
 
     // validate parsing
     if(records.size() == 0)
@@ -115,8 +115,8 @@ void PlaylistTile::receiveExternalData(const QMimeData *data)
 
 void PlaylistTile::receiveWheelEvent(QWheelEvent *event)
 {
-    CompanionPlaylist* pl = player_->getPlaylist();
-    CompanionPlaylistSettings settings = pl->getSettings();
+    Playlist* pl = player_->getPlaylist();
+    PlaylistSettings settings = pl->getSettings();
 
     int log_volume = VolumeMapper::linearToLogarithmic(settings.volume);
     if (event->delta() < 0) {
@@ -171,12 +171,12 @@ const QJsonObject PlaylistTile::toJsonObject() const
     // store playlist
     QJsonArray arr_pl;
     foreach(SoundFileRecord* rec, playlist_->getSoundFileList())
-        arr_pl.append(Misc::JsonMimeDataParser::toJsonObject(rec));
+        arr_pl.append(JsonMimeDataParser::toJsonObject(rec));
     obj["playlist"] = arr_pl;
 
     //store settings
     QJsonObject obj_settings;
-    obj_settings = Misc::JsonMimeDataParser::toJsonObject(playlist_->getSettings());
+    obj_settings = JsonMimeDataParser::toJsonObject(playlist_->getSettings());
     obj["settings"] = obj_settings;
 
     return obj;
@@ -194,7 +194,7 @@ bool PlaylistTile::setFromJsonObject(const QJsonObject &obj)
             if(sound_obj.isEmpty())
                 continue;
 
-            TableRecord* rec = Misc::JsonMimeDataParser::toTableRecord(sound_obj);
+            TableRecord* rec = JsonMimeDataParser::toTableRecord(sound_obj);
             if(rec->index != SOUND_FILE) {
                 delete rec;
                 continue;
@@ -254,7 +254,7 @@ bool PlaylistTile::setFromJsonObject(const QJsonObject &obj)
         if(s_obj.isEmpty())
             return false;
         //to do: no pointer needed
-        CompanionPlaylistSettings* settings = Misc::JsonMimeDataParser::toPlaylistSettings(s_obj);
+        PlaylistSettings* settings = JsonMimeDataParser::toPlaylistSettings(s_obj);
         if(!settings) {
             qDebug() << "FAILURE: Could not set Playlist Settings from JSON";
             qDebug() << " > " << s_obj;
@@ -302,7 +302,7 @@ void PlaylistTile::onActivate()
 
 void PlaylistTile::setVolume(int volume)
 {
-    CompanionPlaylistSettings settings = player_->getPlaylist()->getSettings();
+    PlaylistSettings settings = player_->getPlaylist()->getSettings();
     settings.volume = volume;
     player_->getPlaylist()->setSettings(settings);
     volumeChangedEvent();
@@ -334,27 +334,27 @@ void PlaylistTile::changedCustomPlayerActivation(bool state)
 
 void PlaylistTile::onConfigurePlaylist()
 {
-    CompanionPlaylistSettings s = playlist_->getSettings();
+    PlaylistSettings s = playlist_->getSettings();
     s.name = getName();
     if(!playlist_settings_widget_) {
-        playlist_settings_widget_ = new CompanionPlaylistSettingsWidget(s);
+        playlist_settings_widget_ = new PlaylistSettingsWidget(s);
         playlist_settings_widget_->setWindowTitle(tr("Playback Settings"));
         playlist_settings_widget_->move(QCursor::pos() - QPoint(170,170));
-        connect(playlist_settings_widget_, &CompanionPlaylistSettingsWidget::closed,
+        connect(playlist_settings_widget_, &PlaylistSettingsWidget::closed,
                 this, &PlaylistTile::closePlaylistSettings);
-        connect(playlist_settings_widget_, &CompanionPlaylistSettingsWidget::saved,
+        connect(playlist_settings_widget_, &PlaylistSettingsWidget::saved,
                 this, &PlaylistTile::savePlaylistSettings);
-        connect(playlist_settings_widget_, &CompanionPlaylistSettingsWidget::volumeSettingsChanged,
+        connect(playlist_settings_widget_, &PlaylistSettingsWidget::volumeSettingsChanged,
                 this, &PlaylistTile::setVolume);
         connect(this, &PlaylistTile::wheelChangedVolume,
-                playlist_settings_widget_, &CompanionPlaylistSettingsWidget::onExternalVolumeChanged);
+                playlist_settings_widget_, &PlaylistSettingsWidget::onExternalVolumeChanged);
     }
     playlist_settings_widget_->popOpen();
 }
 
 void PlaylistTile::onContents()
 {
-    SoundFile::ListViewDialog d(playlist_->getSoundFileList());
+    SoundListViewDialog d(playlist_->getSoundFileList());
     d.setAcceptDrops(false);
 
     if(d.exec()) {
@@ -381,7 +381,7 @@ void PlaylistTile::closePlaylistSettings()
     playlist_settings_widget_ = 0;
 }
 
-void PlaylistTile::savePlaylistSettings(const CompanionPlaylistSettings &settings)
+void PlaylistTile::savePlaylistSettings(const PlaylistSettings &settings)
 {
     if(settings.name.size() > 0 && name_.compare(settings.name) != 0)
         setName(settings.name);

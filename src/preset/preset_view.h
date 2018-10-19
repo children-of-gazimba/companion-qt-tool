@@ -1,5 +1,5 @@
-#ifndef PRESET_PRESET_VIEW_H
-#define PRESET_PRESET_VIEW_H
+#ifndef PRESET_VIEW_H
+#define PRESET_VIEW_H
 
 #include <QListView>
 #include <QPoint>
@@ -8,8 +8,6 @@
 
 #include "misc/standard_item_model.h"
 #include "db/model/preset_table_model.h"
-
-namespace Preset {
 
 class PresetView : public QListView
 {
@@ -45,6 +43,4 @@ protected:
     QMenu* context_menu_;
 };
 
-} // namespace Preset
-
-#endif // PRESET_PRESET_VIEW_H
+#endif // PRESET_VIEW_H

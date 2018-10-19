@@ -1,7 +1,5 @@
 #include "standard_item_model.h"
 
-namespace Misc {
-
 StandardItemModel::StandardItemModel(QObject *parent)
     : QStandardItemModel(parent)
     , none_editable_columns_()
@@ -30,5 +28,3 @@ bool StandardItemModel::getColumnEditable(int col) const
 {
     return !none_editable_columns_.contains(col);
 }
-
-} // namespace Misc

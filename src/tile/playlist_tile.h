@@ -7,10 +7,10 @@
 #include <QDrag>
 
 #include "base_tile.h"
-#include "playlist/companion_playlist_player.h"
-#include "playlist/companion_playlist_settings_widget.h"
-#include "playlist/companion_playlist.h"
-#include "playlist/companion_playlist_settings.h"
+#include "playlist/playlist_player.h"
+#include "playlist/playlist_settings_widget.h"
+#include "playlist/playlist.h"
+#include "playlist/playlist_settings.h"
 #include "misc/json_mime_data_parser.h"
 #include "db/model/sound_file_table_model.h"
 
@@ -68,7 +68,7 @@ protected slots:
     virtual void onConfigurePlaylist();
     /* */
     void closePlaylistSettings();
-    void savePlaylistSettings(const CompanionPlaylistSettings& settings);
+    void savePlaylistSettings(const PlaylistSettings& settings);
 
     /** slot to open contents view */
     virtual void onContents();
@@ -95,10 +95,10 @@ protected:
 
     const QRectF getVolumeRect() const;
 
-    CompanionPlaylistPlayer* player_;
+    PlaylistPlayer* player_;
 
-    CompanionPlaylistSettingsWidget* playlist_settings_widget_;
-    CompanionPlaylist* playlist_;
+    PlaylistSettingsWidget* playlist_settings_widget_;
+    Playlist* playlist_;
     SoundFileTableModel* model_;
 
     bool is_playing_;

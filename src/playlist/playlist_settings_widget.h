@@ -1,5 +1,5 @@
-#ifndef PLAYLIST_COMPANION_PLAYLIST_SETTINGS_WIDGET_H
-#define PLAYLIST_COMPANION_PLAYLIST_SETTINGS_WIDGET_H
+#ifndef PLAYLIST_PLAYLIST_SETTINGS_WIDGET_H
+#define PLAYLIST_PLAYLIST_SETTINGS_WIDGET_H
 
 #include <QWidget>
 #include <QSlider>
@@ -10,18 +10,18 @@
 #include <QRadioButton>
 #include <QGroupBox>
 
-#include "companion_playlist.h"
+#include "playlist.h"
 
-class CompanionPlaylistSettingsWidget : public QWidget
+class PlaylistSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit CompanionPlaylistSettingsWidget(const CompanionPlaylistSettings& settings, QWidget *parent = 0);
-    ~CompanionPlaylistSettingsWidget();
+    explicit PlaylistSettingsWidget(const PlaylistSettings& settings, QWidget *parent = 0);
+    ~PlaylistSettingsWidget();
 
 signals:
     void closed();
-    void saved(const CompanionPlaylistSettings& settings);
+    void saved(const PlaylistSettings& settings);
     void volumeSettingsChanged(int val);
 
 public slots:
@@ -41,7 +41,7 @@ private:
     void initLayout();
     void closeEvent(QCloseEvent*);
 
-    CompanionPlaylistSettings settings_;
+    PlaylistSettings settings_;
     QLineEdit* name_edit_;
     QCheckBox* loop_checkbox_;
     QGroupBox* interval_groupbox_;
@@ -60,4 +60,4 @@ private:
     QPushButton* image_clear_button_;
 };
 
-#endif // PLAYLIST_COMPANION_PLAYLIST_SETTINGS_WIDGET_H
+#endif // PLAYLIST_PLAYLIST_SETTINGS_WIDGET_H

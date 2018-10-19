@@ -3,8 +3,6 @@
 #include <QJsonArray>
 #include <QDebug>
 
-namespace Misc {
-
 JsonMimeDataParser::JsonMimeDataParser()
 {}
 
@@ -172,7 +170,7 @@ const QJsonObject JsonMimeDataParser::toJsonObject(SoundFileRecord* rec)
     return obj;
 }
 
-const QJsonObject JsonMimeDataParser::toJsonObject(const CompanionPlaylistSettings& settings)
+const QJsonObject JsonMimeDataParser::toJsonObject(const PlaylistSettings& settings)
 {
     QJsonObject obj;
 
@@ -188,9 +186,9 @@ const QJsonObject JsonMimeDataParser::toJsonObject(const CompanionPlaylistSettin
 
 }
 
-CompanionPlaylistSettings* JsonMimeDataParser::toPlaylistSettings(const QJsonObject& obj)
+PlaylistSettings* JsonMimeDataParser::toPlaylistSettings(const QJsonObject& obj)
 {
-    CompanionPlaylistSettings* set = 0;
+    PlaylistSettings* set = 0;
 
     if(!obj.contains("interval_flag") || !obj.contains("min_interval_val") ||
        !obj.contains("max_interval_val") || !obj.contains("loop_flag") ||
@@ -202,7 +200,7 @@ CompanionPlaylistSettings* JsonMimeDataParser::toPlaylistSettings(const QJsonObj
     }
 
     //set name
-    set = new CompanionPlaylistSettings;
+    set = new PlaylistSettings;
     set->name = obj["name"].toString();
 
     //set interval
@@ -305,5 +303,3 @@ const QJsonObject JsonMimeDataParser::toJsonObject(CategoryRecord* rec)
 
     return obj;
 }
-
-} // namespace Misc

@@ -327,13 +327,13 @@ void CompanionWidget::setProjectPath(const QString &path)
 
 void CompanionWidget::initWidgets()
 {
-    sound_file_view_ = new PlaybackView(
+    sound_file_view_ = new SoundListPlaybackView(
         db_handler_->getSoundFileTableModel()->getSoundFiles(),
         this
     );
 
     global_player_ = new SoundFilePlayer(this);
-    connect(sound_file_view_, &PlaybackView::play,
+    connect(sound_file_view_, &SoundListPlaybackView::play,
             this, [=](const SoundFileRecord& rec) {
         global_player_->setSoundFile(rec, true);
     });
@@ -344,7 +344,7 @@ void CompanionWidget::initWidgets()
     progress_bar_->setValue(100);
     progress_bar_->hide();
 
-    graphics_view_ = new Tile::GraphicsView(this);
+    graphics_view_ = new Tile::Canvas(this);
     graphics_view_->setSoundFileModel(db_handler_->getSoundFileTableModel());
     graphics_view_->setPresetModel(db_handler_->getPresetTableModel());
 
@@ -356,7 +356,7 @@ void CompanionWidget::initWidgets()
     category_view_ = new CategoryTreeView(this);
     category_view_->setCategoryTreeModel(db_handler_->getCategoryTreeModel());
 
-    preset_view_ = new Preset::PresetView(this);
+    preset_view_ = new PresetView(this);
     preset_view_->setPresetTableModel(db_handler_->getPresetTableModel());
 
     left_box_ = new QGroupBox(this);

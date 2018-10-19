@@ -3,7 +3,7 @@
 #include <QHBoxLayout>
 #include <QMessageBox>
 
-SocketHostWidget::SocketHostWidget(Tile::GraphicsView* view, QWidget *parent)
+SocketHostWidget::SocketHostWidget(Tile::Canvas* view, QWidget *parent)
     : QWidget(parent)
     , server_(0)
     , udp_discovery_(0)

@@ -1,5 +1,5 @@
-#ifndef SOCKET_HOST_WIDGET_H
-#define SOCKET_HOST_WIDGET_H
+#ifndef WEB_SOCKET_HOST_WIDGET_H
+#define WEB_SOCKET_HOST_WIDGET_H
 
 #include <QWidget>
 #include <QTextEdit>
@@ -13,7 +13,7 @@ class SocketHostWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit SocketHostWidget(Tile::GraphicsView* view, QWidget *parent = nullptr);
+    explicit SocketHostWidget(Tile::Canvas* view, QWidget *parent = nullptr);
 
 signals:
 
@@ -33,4 +33,4 @@ private:
     QPushButton* name_submit_;
 };
 
-#endif // SOCKET_HOST_WIDGET_H
+#endif // WEB_SOCKET_HOST_WIDGET_H

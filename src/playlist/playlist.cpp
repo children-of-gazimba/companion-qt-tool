@@ -1,20 +1,20 @@
-#include "companion_playlist.h"
+#include "playlist.h"
 
 #include <QDebug>
 
 #include "misc/json_mime_data_parser.h"
 
-CompanionPlaylist::CompanionPlaylist(QString name, QObject* parent)
+Playlist::Playlist(QString name, QObject* parent)
     : QMediaPlaylist(parent)
     , name_(name)
     , settings_(0)
     , model_(0)
     , records_()
 {
-    settings_ = new CompanionPlaylistSettings;
+    settings_ = new PlaylistSettings;
 }
 
-CompanionPlaylist::~CompanionPlaylist()
+Playlist::~Playlist()
 {
     QList<QMediaContent*> keys = records_.keys();
     while(keys.size() > 0) {
@@ -25,18 +25,18 @@ CompanionPlaylist::~CompanionPlaylist()
     delete settings_;
 }
 
-void CompanionPlaylist::setSettings(const CompanionPlaylistSettings &settings)
+void Playlist::setSettings(const PlaylistSettings &settings)
 {
     settings_->copyFrom(settings);
     emit changedSettings();
 }
 
-const CompanionPlaylistSettings& CompanionPlaylist::getSettings() const
+const PlaylistSettings& Playlist::getSettings() const
 {
     return *settings_;
 }
 
-void CompanionPlaylist::setSoundFileModel(SoundFileTableModel *m)
+void Playlist::setSoundFileModel(SoundFileTableModel *m)
 {
     model_ = m;
 
@@ -44,17 +44,17 @@ void CompanionPlaylist::setSoundFileModel(SoundFileTableModel *m)
             this, SLOT(onMediaAboutToBeRemoved(int,int)));
 }
 
-const SoundFileTableModel *CompanionPlaylist::getSoundFileModel() const
+const SoundFileTableModel *Playlist::getSoundFileModel() const
 {
     return model_;
 }
 
-bool CompanionPlaylist::addMedia(const SoundFileRecord &rec)
+bool Playlist::addMedia(const SoundFileRecord &rec)
 {
     return addMedia(rec.id);
 }
 
-bool CompanionPlaylist::addMedia(int record_id)
+bool Playlist::addMedia(int record_id)
 {
     if(model_ == 0)
         return false;
@@ -68,8 +68,8 @@ bool CompanionPlaylist::addMedia(int record_id)
     QList<QMediaContent*> delete_recs;
     foreach(QMediaContent* r_c, records_.keys()) {
         if(*r_c == *c) {
-            QString old_str = Misc::JsonMimeDataParser::toJsonMimeData(records_[r_c])->text();
-            QString new_str = Misc::JsonMimeDataParser::toJsonMimeData(rec)->text();
+            QString old_str = JsonMimeDataParser::toJsonMimeData(records_[r_c])->text();
+            QString new_str = JsonMimeDataParser::toJsonMimeData(rec)->text();
             qDebug() << "Sound file was already set for media content.";
             qDebug() << " > Record will be replaced.";
             qDebug() << " > old:" << old_str;
@@ -92,7 +92,7 @@ bool CompanionPlaylist::addMedia(int record_id)
     return true;
 }
 
-const QList<SoundFileRecord *> CompanionPlaylist::getSoundFileList(bool unique)
+const QList<SoundFileRecord *> Playlist::getSoundFileList(bool unique)
 {
     QList<SoundFileRecord*> sf_list;
 
@@ -118,7 +118,7 @@ const QList<SoundFileRecord *> CompanionPlaylist::getSoundFileList(bool unique)
     return sf_list;
 }
 
-void CompanionPlaylist::onMediaAboutToBeRemoved(int start, int end)
+void Playlist::onMediaAboutToBeRemoved(int start, int end)
 {
     for(int i = start; i <= end; ++i) {
         QMediaContent c = media(i);

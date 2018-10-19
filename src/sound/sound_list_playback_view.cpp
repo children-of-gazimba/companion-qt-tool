@@ -1,4 +1,4 @@
-#include "playback_view.h"
+#include "sound_list_playback_view.h"
 
 #include <QDebug>
 #include <QMimeData>
@@ -12,7 +12,7 @@
 #include "resources/lib.h"
 #include "misc/json_mime_data_parser.h"
 
-PlaybackView::PlaybackView(const QList<SoundFileRecord *> &sound_files, QWidget *parent)
+SoundListPlaybackView::SoundListPlaybackView(const QList<SoundFileRecord *> &sound_files, QWidget *parent)
     : QTableView(parent)
     , start_pos_()
     , model_(0)
@@ -25,7 +25,7 @@ PlaybackView::PlaybackView(const QList<SoundFileRecord *> &sound_files, QWidget 
     setSoundFiles(sound_files);
 }
 
-PlaybackView::PlaybackView(QWidget *parent)
+SoundListPlaybackView::SoundListPlaybackView(QWidget *parent)
     : QTableView(parent)
     , start_pos_()
     , model_(0)
@@ -37,10 +37,10 @@ PlaybackView::PlaybackView(QWidget *parent)
     init();
 }
 
-PlaybackView::~PlaybackView()
+SoundListPlaybackView::~SoundListPlaybackView()
 {}
 
-void PlaybackView::setSoundFiles(const QList<SoundFileRecord *> &sound_files)
+void SoundListPlaybackView::setSoundFiles(const QList<SoundFileRecord *> &sound_files)
 {
     model_->clear();
     foreach(SoundFileRecord* rec, sound_files)
@@ -48,18 +48,18 @@ void PlaybackView::setSoundFiles(const QList<SoundFileRecord *> &sound_files)
     setColumnWidth(0, verticalHeader()->defaultSectionSize());
 }
 
-void PlaybackView::setEditable(bool is_editable)
+void SoundListPlaybackView::setEditable(bool is_editable)
 {
     for(int i = 0; i < model_->columnCount(); ++i)
         model_->setColumnEditable(i, is_editable);
 }
 
-bool PlaybackView::getEditable()
+bool SoundListPlaybackView::getEditable()
 {
     return model_->getColumnEditable(0);
 }
 
-QItemSelectionModel::SelectionFlags PlaybackView::selectionCommand(const QModelIndex &index, const QEvent *event) const
+QItemSelectionModel::SelectionFlags SoundListPlaybackView::selectionCommand(const QModelIndex &index, const QEvent *event) const
 {
     if (event != 0 && event->type() == QEvent::MouseMove)
         return QItemSelectionModel::Select;
@@ -67,7 +67,7 @@ QItemSelectionModel::SelectionFlags PlaybackView::selectionCommand(const QModelI
         return QAbstractItemView::selectionCommand(index, event);
 }
 
-void PlaybackView::mousePressEvent(QMouseEvent *event)
+void SoundListPlaybackView::mousePressEvent(QMouseEvent *event)
 {
     if(state() == QAbstractItemView::DragSelectingState)
         setState(QAbstractItemView::NoState);
@@ -79,7 +79,7 @@ void PlaybackView::mousePressEvent(QMouseEvent *event)
     QTableView::mousePressEvent(event);
 }
 
-void PlaybackView::mouseMoveEvent(QMouseEvent *event)
+void SoundListPlaybackView::mouseMoveEvent(QMouseEvent *event)
 {
     if (event->buttons() & Qt::LeftButton) {
         int distance = (event->pos() - start_pos_).manhattanLength();
@@ -91,37 +91,37 @@ void PlaybackView::mouseMoveEvent(QMouseEvent *event)
     QTableView::mouseMoveEvent(event);
 }
 
-void PlaybackView::mouseReleaseEvent(QMouseEvent *event)
+void SoundListPlaybackView::mouseReleaseEvent(QMouseEvent *event)
 {
     if(state() == QAbstractItemView::DragSelectingState)
         setState(QAbstractItemView::NoState);
     QTableView::mouseReleaseEvent(event);
 }
 
-void PlaybackView::dragEnterEvent(QDragEnterEvent *event)
+void SoundListPlaybackView::dragEnterEvent(QDragEnterEvent *event)
 {
-    auto source = qobject_cast<PlaybackView*>(event->source());
+    auto source = qobject_cast<SoundListPlaybackView*>(event->source());
     if (source && source != this) {
         event->setDropAction(Qt::CopyAction);
         event->accept();
     }
 }
 
-void PlaybackView::dragMoveEvent(QDragMoveEvent *event)
+void SoundListPlaybackView::dragMoveEvent(QDragMoveEvent *event)
 {
-    auto source = qobject_cast<PlaybackView*>(event->source());
+    auto source = qobject_cast<SoundListPlaybackView*>(event->source());
     if (source && source != this) {
         event->setDropAction(Qt::CopyAction);
         event->accept();
     }
 }
 
-void PlaybackView::dropEvent(QDropEvent *event)
+void SoundListPlaybackView::dropEvent(QDropEvent *event)
 {
-    auto source = qobject_cast<PlaybackView*>(event->source());
+    auto source = qobject_cast<SoundListPlaybackView*>(event->source());
     if (source && source != this) {
         // extract TableRecord from mime data
-        QList<TableRecord*> records = Misc::JsonMimeDataParser::toTableRecordList(event->mimeData());
+        QList<TableRecord*> records = JsonMimeDataParser::toTableRecordList(event->mimeData());
 
         // validate parsing
         if(records.size() == 0) {
@@ -148,7 +148,7 @@ void PlaybackView::dropEvent(QDropEvent *event)
     }
 }
 
-void PlaybackView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
+void SoundListPlaybackView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
     if(skip_select_) {
         skip_select_ = false;
@@ -159,7 +159,7 @@ void PlaybackView::setSelection(const QRect &rect, QItemSelectionModel::Selectio
     QTableView::setSelection(rect, command);
 }
 
-void PlaybackView::onPlayButtonClicked()
+void SoundListPlaybackView::onPlayButtonClicked()
 {
     if(!playable_index_.isValid())
         return;
@@ -171,23 +171,23 @@ void PlaybackView::onPlayButtonClicked()
     emit play(rec);
 }
 
-void PlaybackView::addSoundFile(SoundFileRecord *rec)
+void SoundListPlaybackView::addSoundFile(SoundFileRecord *rec)
 {
      addSoundFile(rec->id, rec->name, rec->path);
 }
 
-void PlaybackView::onSoundFileAboutToBeDeleted(SoundFileRecord *)
+void SoundListPlaybackView::onSoundFileAboutToBeDeleted(SoundFileRecord *)
 {
     qDebug() << "TODO implement sound file about to be deleted.";
 }
 
-void PlaybackView::onDropSuccessful()
+void SoundListPlaybackView::onDropSuccessful()
 {
     QCoreApplication::processEvents();
     skip_select_ = true;
 }
 
-void PlaybackView::addSoundFile(int id, const QString &name, const QString &path)
+void SoundListPlaybackView::addSoundFile(int id, const QString &name, const QString &path)
 {
     QList<QStandardItem*> items;
     items.push_back(new QStandardItem(path));
@@ -199,7 +199,7 @@ void PlaybackView::addSoundFile(int id, const QString &name, const QString &path
     model_->setData(idx, QVariant(""), Qt::DisplayRole);
 }
 
-void PlaybackView::onEntered(const QModelIndex &idx)
+void SoundListPlaybackView::onEntered(const QModelIndex &idx)
 {
     if(idx.isValid()) {
         QModelIndex b_idx = model_->index(idx.row(), 0);
@@ -212,7 +212,7 @@ void PlaybackView::onEntered(const QModelIndex &idx)
             "}"
         );
         connect(button, &QPushButton::clicked,
-                this, &PlaybackView::onPlayButtonClicked);
+                this, &SoundListPlaybackView::onPlayButtonClicked);
         setIndexWidget(b_idx, button);
         if(playable_index_.isValid() && playable_index_ != b_idx)
             setIndexWidget(playable_index_, 0);
@@ -220,12 +220,12 @@ void PlaybackView::onEntered(const QModelIndex &idx)
     }
 }
 
-void PlaybackView::showCustomContextMenu(const QPoint &p)
+void SoundListPlaybackView::showCustomContextMenu(const QPoint &p)
 {
     context_menu_->exec(mapToGlobal(p));
 }
 
-void PlaybackView::onDeleteAction()
+void SoundListPlaybackView::onDeleteAction()
 {
     QModelIndexList selection = this->selectionModel()->selectedIndexes();
     if(selection.size() == 0)
@@ -237,7 +237,7 @@ void PlaybackView::onDeleteAction()
     emit deleteSoundFileRequested(id);
 }
 
-void PlaybackView::performDrag()
+void SoundListPlaybackView::performDrag()
 {
     QList<TableRecord*> records;
     QSet<int> rows;
@@ -258,7 +258,7 @@ void PlaybackView::performDrag()
     selectionModel()->clear();
 
     // create QMimeData
-    QMimeData* mime_data = Misc::JsonMimeDataParser::toJsonMimeData(records);
+    QMimeData* mime_data = JsonMimeDataParser::toJsonMimeData(records);
 
     // delete temporary TableRecords
     while(records.size() > 0) {
@@ -275,14 +275,14 @@ void PlaybackView::performDrag()
     drag->exec(Qt::CopyAction);
 }
 
-void PlaybackView::initContextMenu()
+void SoundListPlaybackView::initContextMenu()
 {
     setContextMenuPolicy(Qt::CustomContextMenu);
 
     context_menu_ = new QMenu(this);
 
-    connect(this, &PlaybackView::customContextMenuRequested,
-            this, &PlaybackView::showCustomContextMenu);
+    connect(this, &SoundListPlaybackView::customContextMenuRequested,
+            this, &SoundListPlaybackView::showCustomContextMenu);
 
     QList<QAction*> actions;
     actions.append(new QAction(tr("Delete"), context_menu_));
@@ -292,9 +292,9 @@ void PlaybackView::initContextMenu()
     context_menu_->addActions(actions);
 }
 
-void PlaybackView::init()
+void SoundListPlaybackView::init()
 {
-    model_ = new Misc::StandardItemModel(this);
+    model_ = new StandardItemModel(this);
     model_->setColumnCount(2);
     model_->setHorizontalHeaderItem(0, new QStandardItem("Path"));
     model_->setHorizontalHeaderItem(1, new QStandardItem("Name"));
@@ -302,8 +302,8 @@ void PlaybackView::init()
     play_icon_ = QIcon(*Resources::Lib::PX_PLAY);
 
     setMouseTracking(true);
-    connect(this, &PlaybackView::entered,
-            this, &PlaybackView::onEntered);
+    connect(this, &SoundListPlaybackView::entered,
+            this, &SoundListPlaybackView::onEntered);
 
     setModel(model_);
     setAcceptDrops(false);

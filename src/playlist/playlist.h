@@ -5,18 +5,18 @@
 #include <QMap>
 #include <QSet>
 
-#include "companion_playlist_settings.h"
+#include "playlist_settings.h"
 #include "db/model/sound_file_table_model.h"
 
-class CompanionPlaylist : public QMediaPlaylist
+class Playlist : public QMediaPlaylist
 {
     Q_OBJECT
 public:
-    CompanionPlaylist(QString name = "Playlist", QObject* parent = 0);
-    virtual ~CompanionPlaylist();
+    Playlist(QString name = "Playlist", QObject* parent = 0);
+    virtual ~Playlist();
 
-    void setSettings(const CompanionPlaylistSettings& settings);
-    const CompanionPlaylistSettings& getSettings() const;
+    void setSettings(const PlaylistSettings& settings);
+    const PlaylistSettings& getSettings() const;
 
     /**
      * Set database for the playlist
@@ -37,7 +37,7 @@ private slots:
 
 private:
     QString name_;
-    CompanionPlaylistSettings* settings_;
+    PlaylistSettings* settings_;
     SoundFileTableModel* model_;
     QMap<QMediaContent*, SoundFileRecord*> records_;
 

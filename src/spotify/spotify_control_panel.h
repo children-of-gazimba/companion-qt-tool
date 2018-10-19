@@ -9,7 +9,7 @@
 #include <QSlider>
 #include <QCheckBox>
 
-#include <spotify/spotify_remote_controller.h>
+#include "spotify_remote_controller.h"
 
 class SpotifyControlPanel : public QWidget
 {

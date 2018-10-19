@@ -8,9 +8,7 @@
 #include <QPainterPath>
 
 #include "db/table_records.h"
-#include "playlist/companion_playlist_settings.h"
-
-namespace Misc {
+#include "playlist/playlist_settings.h"
 
 /*
 * Class used for conversion of TableRecords to QMimeData.
@@ -76,9 +74,9 @@ public:
     static const QJsonObject toJsonObject(SoundFileRecord*);
 
     /* Creates JsonObject from given Settings */
-    static const QJsonObject toJsonObject(const CompanionPlaylistSettings&);
+    static const QJsonObject toJsonObject(const PlaylistSettings&);
 
-    static CompanionPlaylistSettings* toPlaylistSettings(const QJsonObject&);
+    static PlaylistSettings* toPlaylistSettings(const QJsonObject&);
 
     /** Creates JsonArray of QPainterPath::Elements */
     static const QJsonArray toJsonArray(const QPainterPath& path);
@@ -92,7 +90,5 @@ public:
     */
     static const QJsonObject toJsonObject(CategoryRecord*);
 };
-
-} // namespace Misc
 
 #endif // MISC_JSON_MIME_DATA_PARSER_H

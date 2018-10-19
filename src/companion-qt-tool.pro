@@ -36,9 +36,6 @@ SOURCES += main.cpp \
     misc/json_mime_data_parser.cpp \
     misc/standard_item_model.cpp \
     misc/char_input_dialog.cpp \
-    sound_file/list_view.cpp \
-    sound_file/list_view_dialog.cpp \
-    tile/graphics_view.cpp \
     db/model/resource_dir_table_model.cpp \
     resources/importer.cpp \
     resources/lib.cpp \
@@ -92,8 +89,6 @@ SOURCES += main.cpp \
     misc/volume_mapper.cpp \
     image/models/image_directory_model.cpp \
     image/thumbnail_list.cpp \
-    sound_file/playback_view.cpp \
-    sound_file/sound_file_player.cpp \
     tile/nested_path_widget.cpp \
     misc/progress_button.cpp \
     web/companion_server.cpp \
@@ -104,9 +99,14 @@ SOURCES += main.cpp \
     db/core/database_api.cpp \
     image/image_browser.cpp \
     image/image_canvas.cpp \
-    playlist/companion_playlist.cpp \
-    playlist/companion_playlist_settings_widget.cpp \
-    playlist/companion_playlist_player.cpp
+    sound/sound_file_player.cpp \
+    sound/sound_list_playback_view.cpp \
+    sound/sound_list_view.cpp \
+    sound/sound_list_view_dialog.cpp \
+    tile/canvas.cpp \
+    playlist/playlist.cpp \
+    playlist/playlist_player.cpp \
+    playlist/playlist_settings_widget.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -121,9 +121,6 @@ HEADERS  += main_window.h \
     misc/char_input_dialog.h \
     misc/json_mime_data_parser.h \
     misc/standard_item_model.h \
-    sound_file/list_view.h \
-    sound_file/list_view_dialog.h \
-    tile/graphics_view.h \
     db/model/resource_dir_table_model.h \
     resources/importer.h \
     resources/lib.h \
@@ -177,8 +174,6 @@ HEADERS  += main_window.h \
     misc/volume_mapper.h \
     image/models/image_directory_model.h \
     image/thumbnail_list.h \
-    sound_file/playback_view.h \
-    sound_file/sound_file_player.h \
     tile/nested_path_widget.h \
     misc/progress_button.h \
     web/companion_server.h \
@@ -189,10 +184,15 @@ HEADERS  += main_window.h \
     db/core/database_api.h \
     image/image_browser.h \
     image/image_canvas.h \
-    playlist/companion_playlist.h \
-    playlist/companion_playlist_settings.h \
-    playlist/companion_playlist_settings_widget.h \
-    playlist/companion_playlist_player.h
+    sound/sound_file_player.h \
+    sound/sound_list_playback_view.h \
+    sound/sound_list_view.h \
+    sound/sound_list_view_dialog.h \
+    tile/canvas.h \
+    playlist/playlist.h \
+    playlist/playlist_player.h \
+    playlist/playlist_settings.h \
+    playlist/playlist_settings_widget.h
 
 RESOURCES += \
     _RES/resources.qrc

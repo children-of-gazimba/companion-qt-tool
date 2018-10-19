@@ -10,8 +10,6 @@
 
 #include "resources/lib.h"
 
-namespace Preset {
-
 PresetView::PresetView(QWidget *parent)
     : QListView(parent)
     , start_pos_()
@@ -123,5 +121,3 @@ void PresetView::initContextMenu()
 
     context_menu_->addActions(actions);
 }
-
-} // namespace Preset
