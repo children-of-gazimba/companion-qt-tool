@@ -8,7 +8,7 @@
 
 namespace Resources {
 
-Importer::Importer(DB::Model::ResourceDirTableModel* model, QObject *parent)
+Importer::Importer(ResourceDirTableModel* model, QObject *parent)
     : QObject(parent)
     , model_(model)
 {

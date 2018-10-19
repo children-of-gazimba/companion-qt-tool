@@ -38,7 +38,7 @@ const Settings& MediaPlaylist::getSettings() const
     return *settings_;
 }
 
-void MediaPlaylist::setSoundFileModel(DB::Model::SoundFileTableModel *m)
+void MediaPlaylist::setSoundFileModel(SoundFileTableModel *m)
 {
     model_ = m;
 
@@ -46,7 +46,7 @@ void MediaPlaylist::setSoundFileModel(DB::Model::SoundFileTableModel *m)
             this, SLOT(onMediaAboutToBeRemoved(int,int)));
 }
 
-const DB::Model::SoundFileTableModel *MediaPlaylist::getSoundFileModel() const
+const SoundFileTableModel *MediaPlaylist::getSoundFileModel() const
 {
     return model_;
 }

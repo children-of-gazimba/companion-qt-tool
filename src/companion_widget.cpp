@@ -9,7 +9,7 @@
 #include <QCoreApplication>
 #include <QInputDialog>
 
-#include "db/core/api.h"
+#include "db/core/database_api.h"
 #include "resources/lib.h"
 #include "misc/json_mime_data_parser.h"
 #include "spotify/spotify_handler.h"
@@ -539,11 +539,11 @@ void CompanionWidget::initMenu()
 
 void CompanionWidget::initDB()
 {
-    DB::Core::Api* db_api = nullptr;
+    DatabaseApi* db_api = nullptr;
 #ifdef _WIN32
-    db_api = new DB::Core::Api(Resources::Lib::DATABASE_PATH, this);
+    db_api = new DatabaseApi(Resources::Lib::DATABASE_PATH, this);
 #else
-    db_api = new DB::Core::Api(QCoreApplication::applicationDirPath() + Resources::Lib::DATABASE_PATH, this);
+    db_api = new Api(QCoreApplication::applicationDirPath() + Resources::Lib::DATABASE_PATH, this);
 #endif
     db_handler_ = new DatabaseHandler(db_api, this);
 }

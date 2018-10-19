@@ -346,12 +346,12 @@ void BaseTile::setActivated(bool state)
     onActivate();
 }
 
-void BaseTile::setPresetModel(DB::Model::PresetTableModel *model)
+void BaseTile::setPresetModel(PresetTableModel *model)
 {
     preset_model_ = model;
 }
 
-DB::Model::PresetTableModel* BaseTile::getPresetModel()
+PresetTableModel* BaseTile::getPresetModel()
 {
     return preset_model_;
 }

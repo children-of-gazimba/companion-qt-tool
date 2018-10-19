@@ -3,10 +3,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 
-namespace DB {
-namespace Model {
-
-ResourceDirTableModel::ResourceDirTableModel(Core::Api* api, QObject* parent)
+ResourceDirTableModel::ResourceDirTableModel(DatabaseApi* api, QObject* parent)
     : QAbstractTableModel(parent)
     , api_(api)
     , source_model_(0)
@@ -197,7 +194,7 @@ void ResourceDirTableModel::select()
 {
     if(api_ == 0) {
         qDebug() << "FAILURE: cannot select ResourceDirTableModel";
-        qDebug() << " > (DB::Core::Api*) api is null";
+        qDebug() << " > (DB::Api*) api is null";
         return;
     }
 
@@ -337,7 +334,3 @@ void ResourceDirTableModel::clear()
         delete rec;
     }
 }
-
-} // namespace Model
-} // namespace DB
-

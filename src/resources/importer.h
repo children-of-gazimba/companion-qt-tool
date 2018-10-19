@@ -18,7 +18,7 @@ class Importer : public QObject
     Q_OBJECT
 
 public:
-    explicit Importer(DB::Model::ResourceDirTableModel* model, QObject *parent = 0);
+    explicit Importer(ResourceDirTableModel* model, QObject *parent = 0);
 
     /*
      * Imports folder with given url.
@@ -44,8 +44,7 @@ private:
     */
     ResourceDirRecord* createOrGetResourceDir(const QUrl& url);
 
-    DB::Model::ResourceDirTableModel* model_;
-
+    ResourceDirTableModel* model_;
 };
 
 } // namespace Resources

@@ -5,11 +5,7 @@
 
 class QMouseEvent;
 struct CategoryRecord;
-namespace DB {
-    namespace Model {
-        class CategoryTreeModel;
-    }
-}
+class CategoryTreeModel;
 
 class CategoryTreeView : public QTreeView
 {
@@ -17,7 +13,7 @@ class CategoryTreeView : public QTreeView
 public:
     explicit CategoryTreeView(QWidget *parent = 0);
 
-    void setCategoryTreeModel(DB::Model::CategoryTreeModel* model);
+    void setCategoryTreeModel(CategoryTreeModel* model);
 
     void mousePressEvent(QMouseEvent *event);
 
@@ -31,8 +27,7 @@ private slots:
     void onClicked(QModelIndex const&);
 
 private:
-    DB::Model::CategoryTreeModel* model_;
-
+    CategoryTreeModel* model_;
 };
 
-#endif // TREEVIEW_H
+#endif // CATEGORY_TREE_VIEW_H

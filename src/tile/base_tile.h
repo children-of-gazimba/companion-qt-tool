@@ -202,12 +202,12 @@ public:
     /**
      * sets the presetmodel for this Tile.
      */
-    void setPresetModel(DB::Model::PresetTableModel* model);
+    void setPresetModel(PresetTableModel* model);
 
     /**
      * gets the presetmodel for this Tile.
      */
-    DB::Model::PresetTableModel* getPresetModel();
+    PresetTableModel* getPresetModel();
 
     /**
      * Get alternative selection state to work around
@@ -359,7 +359,7 @@ protected:
     QString overlay_pixmap_path_;
     QUuid uuid_;
     bool is_activated_;
-    DB::Model::PresetTableModel* preset_model_;
+    PresetTableModel* preset_model_;
     bool is_selected_;
     bool ctrl_clicked_;
 };

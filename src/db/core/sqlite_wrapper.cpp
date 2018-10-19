@@ -6,9 +6,6 @@
 #include <QElapsedTimer>
 #include <QCoreApplication>
 
-namespace DB {
-namespace Core {
-
 SqliteWrapper::SqliteWrapper(QString const& db_path, QObject* parent):
     QObject(parent)
   , db_()
@@ -158,6 +155,3 @@ const QList<QSqlRecord> SqliteWrapper::executeQuery(const QString & qry_str)
 
     return results;
 }
-
-} // namespace Core
-} // namespace DB

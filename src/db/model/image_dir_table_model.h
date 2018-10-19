@@ -2,17 +2,14 @@
 #define DB_MODEL_IMAGE_DIR_TABLE_MODEL_H
 
 #include <QAbstractTableModel>
-#include "db/core/api.h"
+#include "db/core/database_api.h"
 #include "db/table_records.h"
-
-namespace DB {
-namespace Model {
 
 class ImageDirTableModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit ImageDirTableModel(Core::Api* api, QObject *parent = 0);
+    explicit ImageDirTableModel(DatabaseApi* api, QObject *parent = 0);
     ~ImageDirTableModel();
 
     //// inheritted functions (from pure virtual BC) - see docs for description
@@ -111,12 +108,9 @@ private:
     /* Clears all ImageDirRecords from records **/
     void clear();
 
-    Core::Api* api_;
+    DatabaseApi* api_;
     QSqlRelationalTableModel* source_model_;
     QList<ImageDirRecord*> records_;
 };
-
-} // namepace Model
-} // namespace DB
 
 #endif // DB_MODEL_IMAGE_DIR_TABLE_MODEL_H

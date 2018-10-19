@@ -5,7 +5,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 
-DatabaseHandler::DatabaseHandler(DB::Core::Api* api, QObject *parent)
+DatabaseHandler::DatabaseHandler(DatabaseApi* api, QObject *parent)
     : QObject(parent)
     , api_(api)
     , category_tree_model_(0)
@@ -20,55 +20,55 @@ DatabaseHandler::DatabaseHandler(DB::Core::Api* api, QObject *parent)
     }
 }
 
-DB::Core::Api *DatabaseHandler::getApi() const
+DatabaseApi *DatabaseHandler::getApi() const
 {
     return api_;
 }
 
-DB::Model::CategoryTreeModel *DatabaseHandler::getCategoryTreeModel()
+CategoryTreeModel *DatabaseHandler::getCategoryTreeModel()
 {
     if(category_tree_model_ == 0) {
-        category_tree_model_ = new DB::Model::CategoryTreeModel(api_, this);
+        category_tree_model_ = new CategoryTreeModel(api_, this);
         category_tree_model_->select();
     }
 
     return category_tree_model_;
 }
 
-DB::Model::SoundFileTableModel *DatabaseHandler::getSoundFileTableModel()
+SoundFileTableModel *DatabaseHandler::getSoundFileTableModel()
 {
     if(sound_file_table_model_ == 0) {
-        sound_file_table_model_ = new DB::Model::SoundFileTableModel(api_, this);
+        sound_file_table_model_ = new SoundFileTableModel(api_, this);
         sound_file_table_model_->select();
     }
 
     return sound_file_table_model_;
 }
 
-DB::Model::ResourceDirTableModel *DatabaseHandler::getResourceDirTableModel()
+ResourceDirTableModel *DatabaseHandler::getResourceDirTableModel()
 {
     if(resource_dir_table_model_ == 0) {
-        resource_dir_table_model_ = new DB::Model::ResourceDirTableModel(api_, this);
+        resource_dir_table_model_ = new ResourceDirTableModel(api_, this);
         resource_dir_table_model_->select();
     }
 
     return resource_dir_table_model_;
 }
 
-DB::Model::ImageDirTableModel *DatabaseHandler::getImageDirTableModel()
+ImageDirTableModel *DatabaseHandler::getImageDirTableModel()
 {
     if(image_dir_table_model_ == 0) {
-        image_dir_table_model_ = new DB::Model::ImageDirTableModel(api_, this);
+        image_dir_table_model_ = new ImageDirTableModel(api_, this);
         image_dir_table_model_->select();
     }
 
     return image_dir_table_model_;
 }
 
-DB::Model::PresetTableModel *DatabaseHandler::getPresetTableModel()
+PresetTableModel *DatabaseHandler::getPresetTableModel()
 {
     if(preset_table_model_ == 0) {
-        preset_table_model_ = new DB::Model::PresetTableModel(api_, this);
+        preset_table_model_ = new PresetTableModel(api_, this);
         preset_table_model_->select();
     }
 

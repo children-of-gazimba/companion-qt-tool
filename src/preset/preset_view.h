@@ -18,8 +18,8 @@ public:
     explicit PresetView(QWidget *parent = 0);
     ~PresetView();
 
-    void setPresetTableModel(DB::Model::PresetTableModel* model);
-    DB::Model::PresetTableModel* getPresetTableModel();
+    void setPresetTableModel(PresetTableModel* model);
+    PresetTableModel* getPresetTableModel();
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -41,7 +41,7 @@ protected:
     void initContextMenu();
 
     QPoint start_pos_;
-    DB::Model::PresetTableModel* model_;
+    PresetTableModel* model_;
     QMenu* context_menu_;
 };
 

@@ -50,11 +50,11 @@ public:
     */
     bool setFromJsonObject(const QJsonObject& obj);
 
-    void setSoundFileModel(DB::Model::SoundFileTableModel* m);
-    DB::Model::SoundFileTableModel* getSoundFileModel();
+    void setSoundFileModel(SoundFileTableModel* m);
+    SoundFileTableModel* getSoundFileModel();
 
-    void setPresetModel(DB::Model::PresetTableModel* m);
-    DB::Model::PresetTableModel* getPresetModel();
+    void setPresetModel(PresetTableModel* m);
+    PresetTableModel* getPresetModel();
 
     void clear();
 
@@ -266,8 +266,8 @@ private:
     */
     void initWidgets();
 
-    DB::Model::SoundFileTableModel* sound_model_;
-    DB::Model::PresetTableModel* preset_model_;
+    SoundFileTableModel* sound_model_;
+    PresetTableModel* preset_model_;
     QGraphicsScene* main_scene_;
     QStack<QGraphicsScene*> scene_stack_;
     QMap<QGraphicsScene*, QString> scene_names_;

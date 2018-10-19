@@ -23,13 +23,13 @@ Browser::~Browser()
 {
 }
 
-void Browser::setImageDirTableModel(DB::Model::ImageDirTableModel* model)
+void Browser::setImageDirTableModel(ImageDirTableModel* model)
 {
     model_ = model;
     recent_directories_->setModel(model);
 }
 
-DB::Model::ImageDirTableModel *Browser::getImageDirTableModel()
+ImageDirTableModel *Browser::getImageDirTableModel()
 {
     return model_;
 }

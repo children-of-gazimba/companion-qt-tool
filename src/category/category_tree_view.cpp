@@ -13,7 +13,7 @@ CategoryTreeView::CategoryTreeView(QWidget *parent)
             this, SLOT(onClicked(const QModelIndex&)));
 }
 
-void CategoryTreeView::setCategoryTreeModel(DB::Model::CategoryTreeModel *model)
+void CategoryTreeView::setCategoryTreeModel(CategoryTreeModel *model)
 {
     model_ = model;
     setModel(model);

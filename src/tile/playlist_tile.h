@@ -32,8 +32,8 @@ public:
     bool addMedia(const SoundFileRecord& r);
     bool addMedia(int record_id);
 
-    void setSoundFileModel(DB::Model::SoundFileTableModel* m);
-    DB::Model::SoundFileTableModel* getSoundFileModel();
+    void setSoundFileModel(SoundFileTableModel* m);
+    SoundFileTableModel* getSoundFileModel();
 
     /**
      * Returns a QJsonObject holding all information about the tile
@@ -99,7 +99,7 @@ protected:
 
     Playlist::SettingsWidget* playlist_settings_widget_;
     Playlist::MediaPlaylist* playlist_;
-    DB::Model::SoundFileTableModel* model_;
+    SoundFileTableModel* model_;
 
     bool is_playing_;
     bool draw_filled_volume_indicator_;

@@ -23,8 +23,8 @@ public:
     /**
      * Set database for the playlist
      */
-    void setSoundFileModel(DB::Model::SoundFileTableModel* m);
-    const DB::Model::SoundFileTableModel* getSoundFileModel() const;
+    void setSoundFileModel(SoundFileTableModel* m);
+    const SoundFileTableModel* getSoundFileModel() const;
 
     bool addMedia(const SoundFileRecord& rec);
     bool addMedia(int record_id);
@@ -40,7 +40,7 @@ private slots:
 private:
     QString name_;
     Settings* settings_;
-    DB::Model::SoundFileTableModel* model_;
+    SoundFileTableModel* model_;
     QMap<QMediaContent*, SoundFileRecord*> records_;
 
 };

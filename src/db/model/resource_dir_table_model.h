@@ -2,17 +2,14 @@
 #define DB_MODEL_RESOURCE_DIR_TABLE_MODEL_H
 
 #include <QAbstractTableModel>
-#include "db/core/api.h"
+#include "db/core/database_api.h"
 #include "db/table_records.h"
-
-namespace DB {
-namespace Model {
 
 class ResourceDirTableModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit ResourceDirTableModel(Core::Api* api, QObject *parent = 0);
+    explicit ResourceDirTableModel(DatabaseApi* api, QObject *parent = 0);
     ~ResourceDirTableModel();
 
     //// inheritted functions (from pure virtual BC) - see docs for description
@@ -111,12 +108,9 @@ private:
     /* Clears all ResourceDirRecords from records **/
     void clear();
 
-    Core::Api* api_;
+    DatabaseApi* api_;
     QSqlRelationalTableModel* source_model_;
     QList<ResourceDirRecord*> records_;
 };
-
-} // namepace Model
-} // namespace DB
 
 #endif // DB_MODEL_RESOURCE_DIR_TABLE_MODEL_H

@@ -3,10 +3,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 
-namespace DB {
-namespace Model {
-
-ImageDirTableModel::ImageDirTableModel(Core::Api* api, QObject* parent)
+ImageDirTableModel::ImageDirTableModel(DatabaseApi* api, QObject* parent)
     : QAbstractTableModel(parent)
     , api_(api)
     , source_model_(0)
@@ -189,7 +186,7 @@ void ImageDirTableModel::select()
 {
     if(api_ == 0) {
         qDebug() << "FAILURE: cannot select ImageDirTableModel";
-        qDebug() << " > (DB::Core::Api*) api is null";
+        qDebug() << " > (DB::Api*) api is null";
         return;
     }
 
@@ -324,7 +321,3 @@ void ImageDirTableModel::clear()
         delete rec;
     }
 }
-
-} // namespace Model
-} // namespace DB
-

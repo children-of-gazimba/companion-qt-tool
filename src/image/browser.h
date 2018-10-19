@@ -20,8 +20,8 @@ public:
     explicit Browser(QWidget *parent = 0);
     virtual ~Browser();
 
-    void setImageDirTableModel(DB::Model::ImageDirTableModel*);
-    DB::Model::ImageDirTableModel* getImageDirTableModel();
+    void setImageDirTableModel(ImageDirTableModel*);
+    ImageDirTableModel* getImageDirTableModel();
 
     View *getView() const;
     ImageDisplayWidget* getDisplayWidget() const;
@@ -42,7 +42,7 @@ private:
 //    List* list_view_;
     ThumbnailList *list_view_;
     QSplitter* v_splitter_;
-    DB::Model::ImageDirTableModel* model_;
+    ImageDirTableModel* model_;
 };
 
 } // namespace Image

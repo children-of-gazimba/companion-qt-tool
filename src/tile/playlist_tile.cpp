@@ -153,13 +153,13 @@ bool PlaylistTile::addMedia(const SoundFileRecord &r)
     return playlist_->addMedia(r);
 }
 
-void PlaylistTile::setSoundFileModel(DB::Model::SoundFileTableModel *m)
+void PlaylistTile::setSoundFileModel(SoundFileTableModel *m)
 {
     model_ = m;
     playlist_->setSoundFileModel(model_);
 }
 
-DB::Model::SoundFileTableModel *PlaylistTile::getSoundFileModel()
+SoundFileTableModel *PlaylistTile::getSoundFileModel()
 {
     return model_;
 }

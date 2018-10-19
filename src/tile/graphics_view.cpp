@@ -226,22 +226,22 @@ bool GraphicsView::setFromJsonObject(const QJsonObject &obj)
     return true;
 }
 
-void GraphicsView::setSoundFileModel(DB::Model::SoundFileTableModel *m)
+void GraphicsView::setSoundFileModel(SoundFileTableModel *m)
 {
     sound_model_ = m;
 }
 
-DB::Model::SoundFileTableModel *GraphicsView::getSoundFileModel()
+SoundFileTableModel *GraphicsView::getSoundFileModel()
 {
     return sound_model_;
 }
 
-void GraphicsView::setPresetModel(DB::Model::PresetTableModel *m)
+void GraphicsView::setPresetModel(PresetTableModel *m)
 {
     preset_model_ = m;
 }
 
-DB::Model::PresetTableModel *GraphicsView::getPresetModel()
+PresetTableModel *GraphicsView::getPresetModel()
 {
     return preset_model_;
 }

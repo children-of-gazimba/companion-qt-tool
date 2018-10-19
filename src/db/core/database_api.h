@@ -1,5 +1,5 @@
-#ifndef DB_CORE_API_H
-#define DB_CORE_API_H
+#ifndef CORE_DATABASE_API_H
+#define CORE_DATABASE_API_H
 
 #include <QObject>
 
@@ -8,18 +8,15 @@
 
 #include "sqlite_wrapper.h"
 
-namespace DB {
-namespace Core {
-
 /*
- * Class that Provides interface to DB::SqliteWrapper,
+ * Class that Provides interface to SqliteWrapper,
  * based on structure of application database.
 */
-class Api : public SqliteWrapper
+class DatabaseApi : public SqliteWrapper
 {
     Q_OBJECT
 public:
-    Api(QString const& db_path, QObject *parent = 0);
+    DatabaseApi(QString const& db_path, QObject *parent = 0);
 
     QSqlRelationalTableModel* getSoundFileTable();
     QSqlRelationalTableModel* getCategoryTable();
@@ -67,7 +64,4 @@ protected:
     TableIndex getRelationTable(TableIndex first, TableIndex second);
 };
 
-} // namespace Core
-} // namespace DB
-
-#endif // API_H
+#endif // CORE_DATABASE_API_H

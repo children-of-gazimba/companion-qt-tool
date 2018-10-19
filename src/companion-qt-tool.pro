@@ -28,7 +28,6 @@ SOURCES += main.cpp \
     _TEST/content_browser.cpp \
     _TEST/multi_track_media_player.cpp \
     _TEST/player_controls.cpp \
-    db/core/api.cpp \
     db/core/sqlite_wrapper.cpp \
     db/model/category_tree_model.cpp \
     db/model/sound_file_table_model.cpp \
@@ -107,14 +106,14 @@ SOURCES += main.cpp \
     web/companion_udp_discovery.cpp \
     web/socket_host_widget.cpp \
     category/category_tree_view.cpp \
-    db/database_handler.cpp
+    db/database_handler.cpp \
+    db/core/database_api.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
     _TEST/content_browser.h \
     _TEST/multi_track_media_player.h \
     _TEST/player_controls.h \
-    db/core/api.h \
     db/core/sqlite_wrapper.h \
     db/model/category_tree_model.h \
     db/model/sound_file_table_model.h \
@@ -194,7 +193,8 @@ HEADERS  += main_window.h \
     web/companion_udp_discovery.h \
     web/socket_host_widget.h \
     category/category_tree_view.h \
-    db/database_handler.h
+    db/database_handler.h \
+    db/core/database_api.h
 
 RESOURCES += \
     _RES/resources.qrc

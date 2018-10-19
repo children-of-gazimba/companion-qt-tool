@@ -27,13 +27,13 @@ PresetView::PresetView(QWidget *parent)
 PresetView::~PresetView()
 {}
 
-void PresetView::setPresetTableModel(DB::Model::PresetTableModel *model)
+void PresetView::setPresetTableModel(PresetTableModel *model)
 {
     model_ = model;
     setModel(model_);
 }
 
-DB::Model::PresetTableModel *PresetView::getPresetTableModel()
+PresetTableModel *PresetView::getPresetTableModel()
 {
     return model_;
 }
