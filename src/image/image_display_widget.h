@@ -16,7 +16,7 @@ class ImageDisplayWidget : public QWidget
 public:
     explicit ImageDisplayWidget(QWidget *parent = nullptr);
 
-    ImageCanvas* getView() const;
+    ImageCanvas* getCanvas() const;
     void popOpen();
 
 private slots:

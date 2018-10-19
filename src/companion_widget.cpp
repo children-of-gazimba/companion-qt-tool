@@ -308,7 +308,7 @@ void CompanionWidget::onLayoutAdded(const QString &name)
 void CompanionWidget::clearAll()
 {
     graphics_view_->clear();
-    image_browser_->getView()->clear();
+    image_browser_->getCanvas()->clear();
     setProjectPath("");
 }
 

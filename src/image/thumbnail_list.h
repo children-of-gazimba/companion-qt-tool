@@ -37,7 +37,7 @@ public:
     virtual void resizeEvent(QResizeEvent *event) override;
 
     void openDirectory(const QString&);
-    ImageCanvas *getView() const;
+    ImageCanvas *getCanvas() const;
     ImageDisplayWidget *getDisplayWidget() const;
 
 signals:

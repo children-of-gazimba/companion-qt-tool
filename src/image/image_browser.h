@@ -5,7 +5,6 @@
 #include <QTreeView>
 #include <QSplitter>
 
-#include "list.h"
 #include "thumbnail_list.h"
 #include "image_canvas.h"
 #include "image_display_widget.h"
@@ -21,7 +20,7 @@ public:
     void setImageDirTableModel(ImageDirTableModel*);
     ImageDirTableModel* getImageDirTableModel();
 
-    ImageCanvas *getView() const;
+    ImageCanvas *getCanvas() const;
     ImageDisplayWidget* getDisplayWidget() const;
 
 signals:

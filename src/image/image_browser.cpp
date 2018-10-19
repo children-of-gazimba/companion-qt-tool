@@ -5,6 +5,7 @@
 #include <QString>
 #include <QHeaderView>
 #include <QFileInfo>
+#include <QStandardItemModel>
 
 ImageBrowser::ImageBrowser(QWidget *parent)
     : QWidget(parent)
@@ -32,9 +33,9 @@ ImageDirTableModel *ImageBrowser::getImageDirTableModel()
     return model_;
 }
 
-ImageCanvas *ImageBrowser::getView() const
+ImageCanvas *ImageBrowser::getCanvas() const
 {
-    return list_view_->getView();
+    return list_view_->getCanvas();
 }
 
 ImageDisplayWidget *ImageBrowser::getDisplayWidget() const

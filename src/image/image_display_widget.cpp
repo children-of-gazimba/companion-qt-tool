@@ -25,7 +25,7 @@ ImageDisplayWidget::ImageDisplayWidget(QWidget *parent)
     initLayout();
 }
 
-ImageCanvas *ImageDisplayWidget::getView() const
+ImageCanvas *ImageDisplayWidget::getCanvas() const
 {
     return view_;
 }
