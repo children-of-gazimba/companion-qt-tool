@@ -6,7 +6,7 @@
 #include <QJsonArray>
 
 #include "resources/lib.h"
-#include "misc/json_mime_data_parser.h"
+#include "json/json_mime_data_parser.h"
 
 InteractiveImageShape::InteractiveImageShape(const QPainterPath& path, QGraphicsItem* parent)
     : QGraphicsObject(parent)

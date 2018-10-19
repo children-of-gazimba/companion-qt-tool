@@ -11,7 +11,7 @@
 
 #include "db/core/database_api.h"
 #include "resources/lib.h"
-#include "misc/json_mime_data_parser.h"
+#include "json/json_mime_data_parser.h"
 #include "spotify/spotify_handler.h"
 
 CompanionWidget::CompanionWidget(QWidget *parent)

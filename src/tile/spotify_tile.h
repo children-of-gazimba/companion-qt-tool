@@ -7,7 +7,7 @@
 #include <QDrag>
 
 #include "base_tile.h"
-#include "misc/json_mime_data_parser.h"
+#include "json/json_mime_data_parser.h"
 #include "spotify/spotify_remote_controller.h"
 #include "resources/web_pixmap.h"
 

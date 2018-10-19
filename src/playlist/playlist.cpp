@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-#include "misc/json_mime_data_parser.h"
+#include "json/json_mime_data_parser.h"
 
 Playlist::Playlist(QString name, QObject* parent)
     : QMediaPlaylist(parent)

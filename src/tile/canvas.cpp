@@ -12,7 +12,7 @@
 #include "nested_tile.h"
 #include "spotify_tile.h"
 #include "map_tile.h"
-#include "misc/json_mime_data_parser.h"
+#include "json/json_mime_data_parser.h"
 #include "resources/lib.h"
 
 namespace Tile {

@@ -10,7 +10,7 @@
 #include <QPushButton>
 
 #include "resources/lib.h"
-#include "misc/json_mime_data_parser.h"
+#include "json/json_mime_data_parser.h"
 
 SoundListView::SoundListView(QList<SoundFileRecord*> const& sound_files, QWidget *parent)
     : QListView(parent)

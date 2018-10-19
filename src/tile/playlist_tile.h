@@ -11,7 +11,7 @@
 #include "playlist/playlist_settings_widget.h"
 #include "playlist/playlist.h"
 #include "playlist/playlist_settings.h"
-#include "misc/json_mime_data_parser.h"
+#include "json/json_mime_data_parser.h"
 #include "db/model/sound_file_table_model.h"
 
 namespace Tile {

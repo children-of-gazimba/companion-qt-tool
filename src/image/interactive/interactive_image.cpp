@@ -10,7 +10,7 @@
 #include <QJsonArray>
 
 #include "resources/lib.h"
-#include "misc/json_mime_data_parser.h"
+#include "json/json_mime_data_parser.h"
 
 InteractiveImage::InteractiveImage(const QSize &size, QGraphicsItem* parent)
     : QGraphicsObject(parent)

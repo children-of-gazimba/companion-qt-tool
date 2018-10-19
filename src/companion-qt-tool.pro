@@ -33,7 +33,6 @@ SOURCES += main.cpp \
     db/model/sound_file_table_model.cpp \
     db/table_records.cpp \
     misc/drop_group_box.cpp \
-    misc/json_mime_data_parser.cpp \
     misc/standard_item_model.cpp \
     misc/char_input_dialog.cpp \
     db/model/resource_dir_table_model.cpp \
@@ -106,7 +105,8 @@ SOURCES += main.cpp \
     tile/canvas.cpp \
     playlist/playlist.cpp \
     playlist/playlist_player.cpp \
-    playlist/playlist_settings_widget.cpp
+    playlist/playlist_settings_widget.cpp \
+    json/json_mime_data_parser.cpp
 
 HEADERS  += main_window.h \
     _TEST/audio_widget.h \
@@ -119,7 +119,6 @@ HEADERS  += main_window.h \
     db/table_records.h \
     misc/drop_group_box.h \
     misc/char_input_dialog.h \
-    misc/json_mime_data_parser.h \
     misc/standard_item_model.h \
     db/model/resource_dir_table_model.h \
     resources/importer.h \
@@ -192,7 +191,8 @@ HEADERS  += main_window.h \
     playlist/playlist.h \
     playlist/playlist_player.h \
     playlist/playlist_settings.h \
-    playlist/playlist_settings_widget.h
+    playlist/playlist_settings_widget.h \
+    json/json_mime_data_parser.h
 
 RESOURCES += \
     _RES/resources.qrc

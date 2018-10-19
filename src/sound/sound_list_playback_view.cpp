@@ -10,7 +10,7 @@
 #include <QHeaderView>
 
 #include "resources/lib.h"
-#include "misc/json_mime_data_parser.h"
+#include "json/json_mime_data_parser.h"
 
 SoundListPlaybackView::SoundListPlaybackView(const QList<SoundFileRecord *> &sound_files, QWidget *parent)
     : QTableView(parent)
