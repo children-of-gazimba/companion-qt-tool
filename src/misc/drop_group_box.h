@@ -7,8 +7,6 @@
 #include <QMouseEvent>
 #include <QMimeData>
 
-namespace Misc {
-
 class DropGroupBox : public QGroupBox
 {
     Q_OBJECT
@@ -24,7 +22,5 @@ signals:
 
 public slots:
 };
-
-} // namespace Misc
 
 #endif // MISC_DROP_GROUP_BOX_H

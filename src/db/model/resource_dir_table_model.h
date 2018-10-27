@@ -2,17 +2,14 @@
 #define DB_MODEL_RESOURCE_DIR_TABLE_MODEL_H
 
 #include <QAbstractTableModel>
-#include "db/core/api.h"
+#include "db/core/database_api.h"
 #include "db/table_records.h"
-
-namespace DB {
-namespace Model {
 
 class ResourceDirTableModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit ResourceDirTableModel(Core::Api* api, QObject *parent = 0);
+    explicit ResourceDirTableModel(DatabaseApi* api, QObject *parent = 0);
     ~ResourceDirTableModel();
 
     //// inheritted functions (from pure virtual BC) - see docs for description
@@ -57,7 +54,7 @@ public:
      * Gets the row of ResourceDirRecord.
      * Returns -1 if none found
     */
-    int getRowByResourceDir(DB::ResourceDirRecord* rec);
+    int getRowByResourceDir(ResourceDirRecord* rec);
 
     /*
      * Gets ResourceDirRecord based on path.
@@ -91,15 +88,15 @@ public:
     /*
     * Returns all ResourceDirRecords held by this model
     */
-    QList<DB::ResourceDirRecord*> const& getResourceDirs() const;
+    QList<ResourceDirRecord*> const& getResourceDirs() const;
 
 
 signals:   
    /* triggered and processed before ResourceDirRecord gets deleted */
-   void aboutToBeDeleted(DB::ResourceDirRecord*);
+   void aboutToBeDeleted(ResourceDirRecord*);
 
    /* triggered and processed before ResourceDirRecords get deleted */
-   void aboutToBeDeleted(const QList<DB::ResourceDirRecord*>&);
+   void aboutToBeDeleted(const QList<ResourceDirRecord*>&);
 
 public slots:
     void deleteResourceDir(int id);
@@ -111,12 +108,9 @@ private:
     /* Clears all ResourceDirRecords from records **/
     void clear();
 
-    Core::Api* api_;
+    DatabaseApi* api_;
     QSqlRelationalTableModel* source_model_;
     QList<ResourceDirRecord*> records_;
 };
-
-} // namepace Model
-} // namespace DB
 
 #endif // DB_MODEL_RESOURCE_DIR_TABLE_MODEL_H

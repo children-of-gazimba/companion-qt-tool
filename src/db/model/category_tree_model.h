@@ -5,10 +5,7 @@
 #include <QSqlRelationalTableModel>
 
 #include "db/table_records.h"
-#include "db/core/api.h"
-
-namespace DB {
-namespace Model {
+#include "db/core/database_api.h"
 
 /*
  * Class derived from QStandartItemModel
@@ -23,7 +20,7 @@ class CategoryTreeModel : public QStandardItemModel
 {
     Q_OBJECT
 public:
-    CategoryTreeModel(Core::Api* api, QObject* parent = 0);
+    CategoryTreeModel(DatabaseApi* api, QObject* parent = 0);
 
     /* Fills model with data from Category database table **/
     void select();
@@ -130,7 +127,7 @@ private:
     // underlying QSqlrelationalTableModel referencing DB Category table.
     QSqlRelationalTableModel* table_model_;
 
-    Core::Api* api_;
+    DatabaseApi* api_;
 
     QMap<int, CategoryRecord*> categories_;
     QMap<CategoryRecord*, QStandardItem*> category_to_item_;
@@ -138,6 +135,4 @@ private:
     bool editable_;
 };
 
-} // namespace Model
-} // namespace DB
 #endif // DB_MODEL_CATEGORY_TREE_MODEL_H

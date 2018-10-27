@@ -1,7 +1,5 @@
 #include "table_records.h"
 
-namespace DB {
-
 QString const toString(TableIndex idx)
 {
     QString idx_str = "";
@@ -29,6 +27,12 @@ QString const toString(TableIndex idx)
         case IMAGE_FILE_TAG:
             idx_str = "image_file_tag";
             break;
+        case IMAGE_DIRECTORY:
+            idx_str = "image_directory";
+            break;
+        case PRESET:
+            idx_str = "preset";
+            break;
         default:
             break;
     }
@@ -52,9 +56,11 @@ TableIndex toTableIndex(QString const& idx_str)
         return TAG;
     } else if(idx_str.compare("image_file_tag") == 0) {
         return IMAGE_FILE_TAG;
+    } else if(idx_str.compare("image_directory") == 0) {
+        return IMAGE_DIRECTORY;
+    } else if(idx_str.compare("preset") == 0) {
+        return PRESET;
     } else {
         return NONE;
     }
-}
-
 }

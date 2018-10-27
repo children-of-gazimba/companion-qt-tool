@@ -17,7 +17,7 @@ namespace Resources {
 class ResourceFile
 {
 public:
-    ResourceFile(QFileInfo const&, DB::ResourceDirRecord const&);
+    ResourceFile(QFileInfo const&, ResourceDirRecord const&);
     virtual ~ResourceFile();
 
     /*
@@ -31,10 +31,10 @@ public:
     QFileInfo const& getFileInfo() const;
 
     /* Gets the resource directory of this instace. */
-    DB::ResourceDirRecord const& getResourceDir() const;
+    ResourceDirRecord const& getResourceDir() const;
 
     /* Pure virtual function to retrieve table index of this instance. */
-    virtual DB::TableIndex getTableIndex() = 0;
+    virtual TableIndex getTableIndex() = 0;
 
 protected:
     /*
@@ -47,7 +47,7 @@ protected:
 
     QFileInfo file_info_;
     QStringList category_path_;
-    DB::ResourceDirRecord resource_dir_;
+    ResourceDirRecord resource_dir_;
 };
 
 } // namespace DB

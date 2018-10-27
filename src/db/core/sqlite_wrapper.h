@@ -8,9 +8,6 @@
 
 #include "db/table_records.h"
 
-namespace DB {
-namespace Core {
-
 /*
  * Class that can establish and manage connection to a Sqlite database.
  * Provides low-level access to data contained in db.
@@ -38,15 +35,12 @@ public:
     /* returns a safe version of given string as string value for sql query */
     static QString const escape(QString const& str);
 
-private:
+protected:
     void initDB(QString const&);
 
     QList<QSqlRecord> const executeQuery(QString const&);
 
     QSqlDatabase db_;
 };
-
-} // namespace Core
-} // namespace DB
 
 #endif // DB_SQLITE_WRAPPER_H

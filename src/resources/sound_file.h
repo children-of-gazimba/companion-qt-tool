@@ -13,10 +13,10 @@ namespace Resources {
 class SoundFile : public ResourceFile
 {
 public:
-    SoundFile(QFileInfo const&, DB::ResourceDirRecord const&);
+    SoundFile(QFileInfo const&, ResourceDirRecord const&);
     ~SoundFile();
 
-    /*virtual*/ DB::TableIndex getTableIndex();
+    /*virtual*/ TableIndex getTableIndex();
 };
 
 } // namespace Resources

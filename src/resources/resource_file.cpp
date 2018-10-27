@@ -4,7 +4,7 @@
 
 namespace Resources {
 
-ResourceFile::ResourceFile(QFileInfo const& info, DB::ResourceDirRecord const& resource_dir)
+ResourceFile::ResourceFile(QFileInfo const& info, ResourceDirRecord const& resource_dir)
     : file_info_(info)
     , category_path_()
     , resource_dir_(resource_dir)
@@ -25,7 +25,7 @@ const QFileInfo &ResourceFile::getFileInfo() const
     return file_info_;
 }
 
-const DB::ResourceDirRecord &ResourceFile::getResourceDir() const
+const ResourceDirRecord &ResourceFile::getResourceDir() const
 {
     return resource_dir_;
 }

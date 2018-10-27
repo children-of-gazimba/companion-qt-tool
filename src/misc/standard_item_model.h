@@ -4,8 +4,6 @@
 #include <QStandardItemModel>
 #include <QSet>
 
-namespace Misc {
-
 /*
 * Class that extends implementation of QStandardItemModel,
 * for added general functionality.
@@ -30,7 +28,5 @@ private:
     QSet<int> none_editable_columns_;
 
 };
-
-} // Misc
 
 #endif // MISC_STANDARD_ITEM_MODEL_H
