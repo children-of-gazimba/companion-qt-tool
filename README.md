@@ -1,6 +1,6 @@
 # Companion
 
-Companion is a software toolkit to digitally aid the pen & paper tabletop roleplaying experience. It provides ui based features that should help game masters create and manage media contents, which they wish to incorporate in their game sessions. The codebase and docs for this project are still work-in-progress. Check out our [proceedings from UIST 2018](https://dl.acm.org/citation.cfm?id=3266097) for more info. 
+Companion is a software toolkit to digitally aid the pen & paper tabletop roleplaying experience. It provides ui based features that help game masters create and manage media contents, such as sound scapes, images and interactive maps. The codebase and docs for this project are still work-in-progress. Check out our [proceedings from UIST 2018](https://dl.acm.org/citation.cfm?id=3266097) for more info. 
 
 ## Companion codebase 
 
