@@ -24,3 +24,4 @@ env/
 
 # don't include spotify api credentials to git
 src/_RES/spotify_credentials.json
+src/_RES/pinterest_credentials.json
