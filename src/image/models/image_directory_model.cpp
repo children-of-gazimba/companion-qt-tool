@@ -10,7 +10,8 @@ ImageDirectoryModel::ImageDirectoryModel(QObject* parent)
     : QFileSystemModel(parent)
     , mutex_()
     , thumbnails_()
-    , pixmap_cache_()
+    //, pixmap_cache_()
+    , pixmaps_()
     , active_threads_()
     , thumbnail_size_(200)
     , display_mode_(ThumbnailMode::Full)
@@ -24,7 +25,8 @@ ImageDirectoryModel::ImageDirectoryModel(int thumbnail_size, QObject* parent)
     : QFileSystemModel(parent)
     , mutex_()
     , thumbnails_()
-    , pixmap_cache_()
+    //, pixmap_cache_()
+    , pixmaps_()
     , active_threads_()
     , thumbnail_size_(thumbnail_size)
     , display_mode_(ThumbnailMode::Full)
@@ -37,7 +39,7 @@ ImageDirectoryModel::ImageDirectoryModel(int thumbnail_size, ThumbnailMode mode,
     : QFileSystemModel(parent)
     , mutex_()
     , thumbnails_()
-    , pixmap_cache_()
+    //, pixmap_cache_()
     , active_threads_()
     , thumbnail_size_(thumbnail_size)
     , display_mode_(mode)
@@ -51,7 +53,8 @@ ImageDirectoryModel::~ImageDirectoryModel()
     QMutexLocker lock(&mutex_);
     active_threads_.clear();
     thumbnails_.clear();
-    pixmap_cache_.clear();
+    //pixmap_cache_.clear();
+    pixmaps_.clear();
 }
 
 QVariant ImageDirectoryModel::data(const QModelIndex& index, int role) const
@@ -69,7 +72,11 @@ QVariant ImageDirectoryModel::data(const QModelIndex& index, int role) const
             if (it != thumbnails_.end()) {
                 if (it.value().isValid()) {
                     if (it.value() <= info.lastModified()) {
-                        in_cache = pixmap_cache_.find(info.filePath(), &pixmap);
+                        //in_cache = pixmap_cache_.find(info.filePath(), &pixmap);
+                        QMap<QString, QPixmap>::iterator pixmap_it = pixmaps_.find(info.filePath());
+                        in_cache = pixmap_it != pixmaps_.end();
+                        if(in_cache)
+                            pixmap = pixmap_it.value();
                         found = true;
                     }
                     else {
@@ -124,13 +131,13 @@ void ImageDirectoryModel::toggleFileNames()
 bool ImageDirectoryModel::isImageAvailable(const QModelIndex &index) const
 {
     QFileInfo info = fileInfo(index);
-    QPixmap pixmap;
+    //QPixmap pixmap;
     QMutexLocker lock(&mutex_);
     auto it = thumbnails_.find(info.filePath());
     if (it != thumbnails_.end()) {
         if (it.value().isValid()) {
             if (it.value() <= info.lastModified()) {
-                return pixmap_cache_.find(info.filePath(), &pixmap);
+                return pixmaps_.contains(info.filePath());//pixmap_cache_.find(info.filePath(), &pixmap);
             }
         }
     }
@@ -167,10 +174,10 @@ void ImageDirectoryModel::loadThumbnail(const QString& path, const QDateTime &ti
         if (loaded) {
             *it = time;
 
-            QPixmap new_image;
+            //QPixmap new_image;
             if(!pixmap.isNull()) {
                 createSquareThumbnail(pixmap);
-                if(!pixmap_cache_.insert(path, pixmap)) {
+                if(pixmaps_.insert(path, pixmap) == pixmaps_.end()/*pixmap_cache_.insert(path, pixmap)*/) {
                     qDebug().nospace() << Q_FUNC_INFO << " :" << __LINE__;
                     qDebug() << "  >" << "Error: inserting image with path:" << path;
                 }
@@ -179,7 +186,8 @@ void ImageDirectoryModel::loadThumbnail(const QString& path, const QDateTime &ti
         }
         else {
             thumbnails_.erase(it);
-            pixmap_cache_.remove(path);
+            pixmaps_.remove(path);
+            //pixmap_cache_.remove(path);
         }
         changed = true;
     }
@@ -245,7 +253,7 @@ void ImageDirectoryModel::createSquareThumbnail(QPixmap &pixmap) const
 
 void ImageDirectoryModel::initialize()
 {
-    pixmap_cache_.setCacheLimit(100000);
+    //pixmap_cache_.setCacheLimit(100000);
 
     connect(this, &ImageDirectoryModel::thumbnailLoaded,
             this, &ImageDirectoryModel::updateThumbnail , Qt::QueuedConnection);
@@ -284,7 +292,8 @@ void ImageDirectoryModel::onRootPathChanged(const QString &new_path)
     }
     active_threads_.clear();
 
-    pixmap_cache_.clear();
+    //pixmap_cache_.clear();
+    pixmaps_.clear();
     thumbnails_.clear();
 }
 
@@ -298,6 +307,7 @@ void ImageDirectoryModel::onDirectoryLoaded(const QString &new_path)
     }
     active_threads_.clear();
 
-    pixmap_cache_.clear();
+    //pixmap_cache_.clear();
+    pixmaps_.clear();
     thumbnails_.clear();
 }
