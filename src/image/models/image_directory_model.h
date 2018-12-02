@@ -6,7 +6,6 @@
 
 #include <QHash>
 #include <QMutex>
-#include <QPixmapCache>
 #include <QFuture>
 #include <QVector>
 
@@ -92,7 +91,8 @@ protected:
     // members
     mutable QMutex mutex_;
     mutable QHash<QString, QDateTime> thumbnails_;
-    mutable QPixmapCache pixmap_cache_;
+    //mutable QPixmapCache pixmap_cache_;
+    mutable QMap<QString, QPixmap> pixmaps_;
 
     // vector containing all active created threads
     mutable QVector<QFuture<void>> active_threads_;
