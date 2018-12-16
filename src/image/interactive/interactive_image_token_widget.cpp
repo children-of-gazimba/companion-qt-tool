@@ -179,6 +179,8 @@ void InteractiveImageTokenWidget::contentsModifiedEvent()
     if(block_modified_event_)
         return;
 
+    float epsilon = 0.000001f;
+
     bool tracking_enabled = tracker_picker_->currentText().size() > 0;
     link_select_->setEnabled(tracking_enabled);
     grab_select_->setEnabled(tracking_enabled);
@@ -187,12 +189,21 @@ void InteractiveImageTokenWidget::contentsModifiedEvent()
         title_label_->setText(title_label_->text()+"*");
 
     grab_radius_slider_->setEnabled(grab_select_->isChecked());
-    token_->setShowUncoverIndicator(true);
-    token_->setUncoverRadius(uncover_radius_slider_->value());
+    float old_rad = token_->getUncoverRadius();
+    float diff = qAbs(old_rad - uncover_radius_slider_->value());
+    if(diff > epsilon) {
+        token_->setShowUncoverIndicator(true);
+        token_->setUncoverRadius(uncover_radius_slider_->value());
+    }
 
-    token_->setShowGrabIndicator(true);
-    if(grab_radius_slider_->isEnabled())
-        token_->setGrabRadius(grab_radius_slider_->value());
+    if(grab_radius_slider_->isEnabled()) {
+        old_rad = token_->getGrabRadius();
+        diff = qAbs(old_rad - grab_radius_slider_->value());
+        if(diff > epsilon) {
+            token_->setShowGrabIndicator(true);
+            token_->setGrabRadius(grab_radius_slider_->value());
+        }
+    }
 }
 
 void InteractiveImageTokenWidget::updateUI()
