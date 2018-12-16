@@ -23,8 +23,6 @@ public:
 
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
-    virtual void receiveWheelEvent(QWheelEvent *event);
-
     /**
      * Parses all tiles in scene to JSON object.
     */
@@ -47,6 +45,7 @@ public:
      * Override for derived class behavior.
     */
     virtual void receiveExternalData(const QMimeData* data);
+    virtual void receiveWheelEvent(QWheelEvent *event);
 
     void setProgress(qreal v);
 
