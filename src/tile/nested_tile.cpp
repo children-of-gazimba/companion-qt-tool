@@ -206,6 +206,18 @@ void NestedTile::addTiles(const QList<BaseTile *> &tiles)
     }
 }
 
+const QList<BaseTile *> NestedTile::getTiles() const
+{
+    QList<BaseTile*> tiles;
+    foreach(auto it, scene_->items()) {
+        BaseTile* tile = qgraphicsitem_cast<BaseTile*>(it);
+        if(tile) {
+            tiles.append(tile);
+        }
+    }
+    return tiles;
+}
+
 void NestedTile::receiveExternalData(const QMimeData *data)
 {
     Q_UNUSED(data);
@@ -215,6 +227,16 @@ void NestedTile::receiveExternalData(const QMimeData *data)
         progress_animation_->deleteLater();
         progress_animation_ = nullptr;
         setProgress(-1.0);
+    }
+}
+
+void NestedTile::receiveWheelEvent(QWheelEvent *event)
+{
+    // TODO:
+    // - add visual feedback
+    // - use scaling factor instead of direct mapping
+    foreach(auto t, getTiles()) {
+        t->receiveWheelEvent(event);
     }
 }
 
