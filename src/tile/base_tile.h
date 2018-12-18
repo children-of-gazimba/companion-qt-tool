@@ -112,6 +112,22 @@ public:
     virtual qreal getSize() const;
 
     /**
+     * Set master scale factor. [0,1]
+     * This will be used differently dependent on tile type.
+     * Sound Tiles for instance adjust a group master volume
+     * using this property.
+    */
+    void setMasterScale(float master);
+
+    /**
+     * Get master scale factor. [0,1]
+     * This will be used differently dependent on tile type.
+     * Sound Tiles for instance adjust a group master volume
+     * using this property.
+    */
+    float getMasterScale() const;
+
+    /**
      * Animated change of tile size.
      * (will preserve non overlapping state with other tiles)
     */
@@ -285,6 +301,11 @@ protected:
     virtual void dropEvent(QGraphicsSceneDragDropEvent *event);
 
     /**
+     * called after setMasterScale has be executed.
+    */
+    virtual void masterScaleChangedEvent(float old_master);
+
+    /**
      * creates a drag from this tile
     */
     virtual void performDrag();
@@ -362,6 +383,7 @@ protected:
     PresetTableModel* preset_model_;
     bool is_selected_;
     bool ctrl_clicked_;
+    float master_scale_;
 };
 
 } // namespace Tile

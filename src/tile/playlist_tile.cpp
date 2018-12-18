@@ -390,7 +390,12 @@ void PlaylistTile::savePlaylistSettings(const PlaylistSettings &settings)
     else
         clearOverlayPixmap();
 
-    playlist_->setSettings(settings);
+    PlaylistSettings copied_settings = playlist_->getSettings();
+    int master = copied_settings.master;
+    copied_settings.copyFrom(settings);
+    copied_settings.master = master;
+
+    playlist_->setSettings(copied_settings);
     playlist_settings_widget_->hide();
     playlist_settings_widget_->deleteLater();
     playlist_settings_widget_ = nullptr;
@@ -422,6 +427,15 @@ const QPixmap PlaylistTile::getPlayStatePixmap() const
         return *Resources::Lib::PX_STOP;
     else
         return *Resources::Lib::PX_PLAY;
+}
+
+void PlaylistTile::masterScaleChangedEvent(float old_master)
+{
+    BaseTile::masterScaleChangedEvent(old_master);
+    PlaylistSettings settings = player_->getPlaylist()->getSettings();
+    int master_volume = static_cast<int>(master_scale_*100.0f);
+    settings.master = VolumeMapper::logarithmicToLinear(master_volume);
+    player_->getPlaylist()->setSettings(settings);
 }
 
 void PlaylistTile::volumeChangedEvent()

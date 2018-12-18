@@ -69,6 +69,7 @@ protected:
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* e);
     virtual void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
     virtual void dragLeaveEvent(QGraphicsSceneDragDropEvent *event);
+    virtual void masterScaleChangedEvent(float old_master);
 
     /**
      * creates context menu
@@ -80,11 +81,18 @@ protected:
     */
     virtual const QPixmap getPlayStatePixmap() const;
 
+    /**
+     * Returns the QRectF definition for the volume visualization.
+    */
+    const QRectF getMasterRect() const;
+
     Canvas* master_view_;
     QGraphicsScene* scene_;
     QTimer enter_timer_;
     qreal progress_;
     QPropertyAnimation* progress_animation_;
+    bool draw_filled_master_indicator_;
+    QTimer filled_master_timer_;
 };
 
 } // namespace Tile

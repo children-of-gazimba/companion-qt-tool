@@ -89,6 +89,9 @@ protected:
     */
     virtual const QPixmap getPlayStatePixmap() const;
 
+    /** See BC */
+    virtual void masterScaleChangedEvent(float old_master);
+
     void volumeChangedEvent();
 
     void setIsPlaying(bool);
