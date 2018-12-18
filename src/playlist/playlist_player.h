@@ -33,6 +33,8 @@ public slots:
 
 private:
     int getRandomIntInRange(int min, int max);
+    static int getMasteredVolume(int v, int master_v);
+    static int getMasteredVolume(const PlaylistSettings& settings);
 
     bool activated_;
     int current_content_index_;

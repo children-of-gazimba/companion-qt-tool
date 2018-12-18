@@ -18,9 +18,19 @@ NestedTile::NestedTile(Canvas* master_view, QGraphicsItem *parent)
     , enter_timer_()
     , progress_(-1.0)
     , progress_animation_(nullptr)
+    , draw_filled_master_indicator_(false)
+    , filled_master_timer_()
 {
     scene_ = new QGraphicsScene(QRectF(0,0,100,100), this);
     enter_timer_.setSingleShot(true);
+
+    filled_master_timer_.setSingleShot(true);
+    connect(&filled_master_timer_, &QTimer::timeout,
+            this, [=]() {
+        prepareGeometryChange();
+        draw_filled_master_indicator_ = false;
+    });
+
     connect(&enter_timer_, &QTimer::timeout,
             this, &NestedTile::onContents);
 }
@@ -36,6 +46,18 @@ void NestedTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
     QRectF p_rect(getPaintRect());
     if(p_rect.width() > 0 && p_rect.height() > 0) {
+        // draw current master volume
+        // draw current volume
+        QRectF master_rect(getMasterRect());
+        QLineF master_line(master_rect.topLeft(), master_rect.topRight());
+        qreal op = painter->opacity();
+        painter->setOpacity(0.5);
+        painter->setPen(QPen(QBrush(Qt::green), 5));
+        painter->drawLine(master_line);
+        if(draw_filled_master_indicator_)
+            painter->fillRect(master_rect, Qt::green);
+        painter->setOpacity(op);
+
         painter->drawPixmap(
                     (int) p_rect.x(),
                     (int) p_rect.y(),
@@ -43,6 +65,7 @@ void NestedTile::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
                     (int) p_rect.height(),
                     *Resources::Lib::PX_FOLDER
                     );
+
         painter->drawPixmap(
                     (int) p_rect.x(),
                     (int) p_rect.y(),
@@ -202,8 +225,21 @@ void NestedTile::addTiles(const QList<BaseTile *> &tiles)
     foreach(auto t, tiles) {
         if(t == this)
             continue;
+        t->setMasterScale(master_scale_);
         scene_->addItem(t);
     }
+}
+
+const QList<BaseTile *> NestedTile::getTiles() const
+{
+    QList<BaseTile*> tiles;
+    foreach(auto it, scene_->items()) {
+        BaseTile* tile = qgraphicsitem_cast<BaseTile*>(it);
+        if(tile) {
+            tiles.append(tile);
+        }
+    }
+    return tiles;
 }
 
 void NestedTile::receiveExternalData(const QMimeData *data)
@@ -216,6 +252,22 @@ void NestedTile::receiveExternalData(const QMimeData *data)
         progress_animation_ = nullptr;
         setProgress(-1.0);
     }
+}
+
+void NestedTile::receiveWheelEvent(QWheelEvent *event)
+{
+    float temp_master = master_scale_;
+    if (event->delta() < 0) {
+        temp_master -= 0.05f;
+        if (temp_master < 0)
+            temp_master = 0.0f;
+    }
+    else if(event->delta() >= 0) {
+        temp_master += 0.05;
+        if (temp_master > 1.0f)
+            temp_master = 1.0f;
+    }
+    setMasterScale(temp_master);
 }
 
 void NestedTile::setProgress(qreal v)
@@ -302,6 +354,17 @@ void NestedTile::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
     }
 }
 
+void NestedTile::masterScaleChangedEvent(float old_master)
+{
+    prepareGeometryChange();
+    draw_filled_master_indicator_ = true;
+    filled_master_timer_.start(2500);
+    BaseTile::masterScaleChangedEvent(old_master);
+    foreach(auto tile, getTiles()) {
+        tile->setMasterScale(master_scale_);
+    }
+}
+
 void NestedTile::createContextMenu()
 {
     QAction* contents_action = new QAction(tr("Contents..."),this);
@@ -327,6 +390,13 @@ const QPixmap NestedTile::getPlayStatePixmap() const
         return *Resources::Lib::PX_STOP;
     else
         return *Resources::Lib::PX_PLAY;
+}
+
+const QRectF NestedTile::getMasterRect() const
+{
+    QRectF master_rect(getPaintRect());
+    master_rect.setTop(master_rect.bottom()-master_rect.height()*master_scale_);
+    return master_rect;
 }
 
 }

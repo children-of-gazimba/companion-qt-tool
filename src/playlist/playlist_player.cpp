@@ -19,7 +19,7 @@ void PlaylistPlayer::play()
     Playlist* playlist = getPlaylist();
     if(playlist) {
         PlaylistSettings settings = playlist->getSettings();
-        setVolume(settings.volume);
+        setVolume(getMasteredVolume(settings));
         // if delay interval is turned on
         if (settings.order == PlayOrder::ORDERED){
             if (settings.loop_flag){
@@ -27,7 +27,6 @@ void PlaylistPlayer::play()
 
             }else if (!settings.loop_flag){
                 playlist->setPlaybackMode(QMediaPlaylist::Sequential);
-
             }
         } else if (settings.order == PlayOrder::SHUFFLE){
             playlist->setPlaybackMode(QMediaPlaylist::Random);
@@ -98,6 +97,16 @@ int PlaylistPlayer::getRandomIntInRange(int min, int max)
     return (qrand() % (range+1)) + min;
 }
 
+int PlaylistPlayer::getMasteredVolume(int v, int master_v)
+{
+    return static_cast<int>((master_v/100.0f) * v);
+}
+
+int PlaylistPlayer::getMasteredVolume(const PlaylistSettings &settings)
+{
+    return getMasteredVolume(settings.volume, settings.master);
+}
+
 void PlaylistPlayer::onCurrentMediaIndexChanged(int position)
 {
     current_content_index_ = position;
@@ -109,29 +118,34 @@ void PlaylistPlayer::onCurrentMediaIndexChanged(int position)
 void PlaylistPlayer::onMediaSettingsChanged()
 {
     PlaylistSettings settings = getPlaylist()->getSettings();
-    setVolume(settings.volume);
-    if (settings.interval_flag){
+    setVolume(getMasteredVolume(settings));
+    if (settings.interval_flag) {
         delay_flag_ = true;
         delay_ = getRandomIntInRange(settings.min_delay_interval,
                                      settings.max_delay_interval);
-    } else {
+    }
+    else {
         delay_flag_ = false;
         delay_ = 0;
     }
 
-    if (settings.order == PlayOrder::ORDERED){
+    if (settings.order == PlayOrder::ORDERED) {
 
-    } else if (settings.order == PlayOrder::SHUFFLE){
+    }
+    else if (settings.order == PlayOrder::SHUFFLE) {
         getPlaylist()->setPlaybackMode(QMediaPlaylist::Random);
-    } else if (settings.order == PlayOrder::WEIGHTED){
+    }
+    else if (settings.order == PlayOrder::WEIGHTED) {
         qDebug() << "weigthed not implemented yet";
     }
 }
 
 void PlaylistPlayer::onMediaVolumeChanged(int val)
 {
-    if (val >= 0 && val <= 100)
-        setVolume(val);
+    if (val >= 0 && val <= 100) {
+        int mastered_volume = getMasteredVolume(val, getPlaylist()->getSettings().master);
+        setVolume(mastered_volume);
+    }
 }
 
 

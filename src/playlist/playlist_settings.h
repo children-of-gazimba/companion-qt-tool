@@ -28,6 +28,7 @@ struct PlaylistSettings {
     int max_delay_interval;
     int volume;
     QString image_path;
+    int master;
 
     PlaylistSettings()
         : name("Settings")
@@ -38,9 +39,10 @@ struct PlaylistSettings {
         , max_delay_interval(0)
         , volume(100)
         , image_path()
+        , master(100)
     {}
 
-    PlaylistSettings(QString n,PlayOrder ord, bool loop, bool interval, int min_interval, int max_interval, int vol, QString img_path)
+    PlaylistSettings(QString n,PlayOrder ord, bool loop, bool interval, int min_interval, int max_interval, int vol, QString img_path, int m)
         : name(n)
         , order(ord)
         , loop_flag(loop)
@@ -49,6 +51,7 @@ struct PlaylistSettings {
         , max_delay_interval(max_interval)
         , volume(vol)
         , image_path(img_path)
+        , master(m)
     {}
 
     void copyFrom(const PlaylistSettings& settings)
@@ -61,6 +64,7 @@ struct PlaylistSettings {
         max_delay_interval = settings.max_delay_interval;
         volume = settings.volume;
         image_path = settings.image_path;
+        master = settings.master;
     }
 };
 

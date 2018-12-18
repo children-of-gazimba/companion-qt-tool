@@ -42,6 +42,7 @@ BaseTile::BaseTile(QGraphicsItem* parent)
     , preset_model_(0)
     , is_selected_(false)
     , ctrl_clicked_(false)
+    , master_scale_(1.0f)
 {    
     long_click_timer_ = new QTimer(this);
     connect(long_click_timer_, SIGNAL(timeout()),
@@ -180,6 +181,20 @@ qreal BaseTile::getSize() const
     return size_;
 }
 
+
+
+void BaseTile::setMasterScale(float master)
+{
+    float old_master = master_scale_;
+    master_scale_ = master;
+    masterScaleChangedEvent(old_master);
+}
+
+float BaseTile::getMasterScale() const
+{
+    return master_scale_;
+}
+
 void BaseTile::setSizeAnimated(qreal size, int duration)
 {
     qreal prev_size = size_;
@@ -260,6 +275,7 @@ const QJsonObject BaseTile::toJsonObject() const
         obj["activate_key"] = QString(activate_key_);
     if(getTrackableName().size() > 0)
         obj["trackable_name"] = getTrackableName();
+    obj["master_scale"] = master_scale_;
     obj["uuid"] = uuid_.toString();
 
     return obj;
@@ -298,6 +314,10 @@ bool BaseTile::setFromJsonObject(const QJsonObject &obj)
     // set trackable name
     if(obj.contains("trackable_name") && obj["trackable_name"].isString())
         setTrackableName(obj["trackable_name"].toString());
+
+    // set master scale
+    if(obj.contains(("master_scale")))
+        setMasterScale(static_cast<float>(obj["master_scale"].toDouble()));
 
     return true;
 }
@@ -510,6 +530,11 @@ void BaseTile::dropEvent(QGraphicsSceneDragDropEvent *event)
     QGraphicsItem::dropEvent(event);
 }
 
+void BaseTile::masterScaleChangedEvent(float old_master)
+{
+    Q_UNUSED(old_master);
+}
+
 void BaseTile::performDrag()
 {
     if(!scene())
@@ -524,6 +549,9 @@ void BaseTile::performDrag()
 
     QMimeData* mime_data = new QMimeData;
     mime_data->setText(QString(doc.toJson()));
+
+    // reset master
+    setMasterScale(1.0f);
 
     // create Drag
     QDrag *drag = new QDrag(this);
