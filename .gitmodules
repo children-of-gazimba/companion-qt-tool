@@ -4,3 +4,6 @@
 [submodule "qtuio"]
 	path = qtuio
 	url = https://github.com/children-of-gazimba/companion-qtuio
+[submodule "api"]
+	path = api
+	url = https://github.com/children-of-gazimba/companion-qt-api-client

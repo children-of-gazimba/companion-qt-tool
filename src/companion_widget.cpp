@@ -543,7 +543,7 @@ void CompanionWidget::initDB()
 #ifdef _WIN32
     db_api = new DatabaseApi(Resources::Lib::DATABASE_PATH, this);
 #else
-    db_api = new Api(QCoreApplication::applicationDirPath() + Resources::Lib::DATABASE_PATH, this);
+    db_api = new DatabaseApi(QCoreApplication::applicationDirPath() + Resources::Lib::DATABASE_PATH, this);
 #endif
     db_handler_ = new DatabaseHandler(db_api, this);
 }

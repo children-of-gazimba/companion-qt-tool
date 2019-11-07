@@ -21,6 +21,7 @@ QT       += core \
 
 include(../sockets/src/companion-qt-sockets.pri)
 include(../qtuio/src/companion-qtuio.pri)
+include(../api/src/companion-qt-api-client.pri)
 
 SOURCES += main.cpp \
     main_window.cpp \
