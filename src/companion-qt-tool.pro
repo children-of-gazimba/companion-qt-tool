@@ -45,6 +45,7 @@ SOURCES += main.cpp \
     resources/sound_file.cpp \
     log/file_logger.cpp \
     db/model/image_dir_table_model.cpp \
+    sound/sound_stream_player.cpp \
     tile/nested_tile.cpp \
     preset/preset_view.cpp \
     db/model/preset_table_model.cpp \
@@ -130,6 +131,7 @@ HEADERS  += main_window.h \
     resources/sound_file.h \
     log/file_logger.h \
     db/model/image_dir_table_model.h \
+    sound/sound_stream_player.h \
     tile/nested_tile.h \
     preset/preset_view.h \
     db/model/preset_table_model.h \
