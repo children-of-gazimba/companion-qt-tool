@@ -17,6 +17,7 @@
 
 #include "misc/drop_group_box.h"
 #include "resources/importer.h"
+#include "sound/sound_list_playback_view_deprecated.h"
 #include "sound/sound_list_playback_view.h"
 #include "db/database_handler.h"
 #include "category/category_tree_view.h"
@@ -81,6 +82,7 @@ private:
     QMenu* main_menu_;
 
     // WIDGETS
+    SoundListPlaybackViewDeprecated* sound_file_view_deprecated_;
     SoundListPlaybackView* sound_file_view_;
     SoundFilePlayer* global_player_;
     CategoryTreeView* category_view_;

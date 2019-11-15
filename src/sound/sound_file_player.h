@@ -8,6 +8,7 @@
 #include <QSlider>
 
 #include "db/table_records.h"
+#include "data_types.h"
 
 class SoundFilePlayer : public QWidget
 {
@@ -17,6 +18,7 @@ public:
     virtual ~SoundFilePlayer();
 
     void setSoundFile(const SoundFileRecord& sf, bool auto_play=false);
+    void setSound(const SoundData& sound, bool auto_play=false);
 
 signals:
 

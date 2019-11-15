@@ -1,5 +1,5 @@
-#ifndef SOUND_LIST_PLAYBACK_VIEW_H
-#define SOUND_LIST_PLAYBACK_VIEW_H
+#ifndef SOUND_LIST_PLAYBACK_VIEW_DEPRECATED_H
+#define SOUND_LIST_PLAYBACK_VIEW_DEPRECATED_H
 
 #include <QTableView>
 
@@ -9,19 +9,18 @@
 #include <QPushButton>
 #include <QMenu>
 
-#include "data_types.h"
+#include "db/table_records.h"
 #include "misc/standard_item_model.h"
-#include "model/sound_table_model.h"
 
-class SoundListPlaybackView : public QTableView
+class SoundListPlaybackViewDeprecated : public QTableView
 {
     Q_OBJECT
 public:
-    explicit SoundListPlaybackView(QList<SoundData> const& sound_files, QWidget *parent = nullptr);
-    explicit SoundListPlaybackView(QWidget *parent = nullptr);
-    virtual ~SoundListPlaybackView();
+    explicit SoundListPlaybackViewDeprecated(QList<SoundFileRecord*> const& sound_files, QWidget *parent = nullptr);
+    explicit SoundListPlaybackViewDeprecated(QWidget *parent = nullptr);
+    virtual ~SoundListPlaybackViewDeprecated();
 
-    void setSounds(QList<SoundData> const&);
+    void setSoundFiles(QList<SoundFileRecord*> const&);
     void setEditable(bool);
     bool getEditable();
 
@@ -41,16 +40,16 @@ protected slots:
     void onPlayButtonClicked();
 
 signals:
-    void play(const SoundData&);
-    void deleteSoundRequested(const QString& uuid);
+    void play(const SoundFileRecord&);
+    void deleteSoundFileRequested(int id);
 
 public slots:
-    void addSound(SoundData rec);
-    void onSoundAboutToBeDeleted(SoundData rec);
+    void addSoundFile(SoundFileRecord* rec);
+    void onSoundFileAboutToBeDeleted(SoundFileRecord* rec);
     void onDropSuccessful();
 
 private slots:
-    void addSound(const QString &uuid, QString const& name, QString const& path);
+    void addSoundFile(int id, QString const& name, QString const& path);
     void onEntered(const QModelIndex&);
     void showCustomContextMenu(const QPoint&);
     void onDeleteAction();
@@ -66,7 +65,6 @@ protected:
     QPersistentModelIndex playable_index_;
     QIcon play_icon_;
     QMenu* context_menu_;
-    SoundTableModel* table_model_;
 };
 
-#endif // SOUND_LIST_PLAYBACK_VIEW_H
+#endif // SOUND_LIST_PLAYBACK_VIEW_DEPRECATED_H

@@ -5,6 +5,8 @@
 #include <QHBoxLayout>
 #include <QMediaPlaylist>
 
+#include "repository/sound_repository.h"
+
 SoundFilePlayer::SoundFilePlayer(QWidget *parent)
     : QWidget(parent)
     , player_(0)
@@ -38,6 +40,30 @@ void SoundFilePlayer::setSoundFile(const SoundFileRecord &sf, bool auto_play)
     play_button_->setEnabled(playlist_->mediaCount() > 0);
     if(auto_play)
         play();
+}
+
+void SoundFilePlayer::setSound(const SoundData &sound, bool auto_play)
+{
+    // TODO: GENERALIZE
+    auto repo = new SoundRepository;
+    QNetworkRequest req;
+    QSslConfiguration conf = QSslConfiguration::defaultConfiguration();
+    conf.setPeerVerifyMode(QSslSocket::VerifyNone);
+    req.setUrl(repo->getStreamUrl(sound));
+    req.setSslConfiguration(conf);
+
+    resetPlayer();
+    current_sound_->setText(sound.resource.name);
+    playlist_->addMedia(req);
+    /*if(url.isValid()) {
+        playlist_->addMedia(url);
+    }*/
+    current_time_->setText("0:00");
+    play_button_->setEnabled(playlist_->mediaCount() > 0);
+    if(auto_play)
+        play();
+
+    repo->deleteLater();
 }
 
 void SoundFilePlayer::play()

@@ -17,26 +17,27 @@
 CompanionWidget::CompanionWidget(QWidget *parent)
     : QWidget(parent)
     , project_name_("")
-    , progress_bar_(0)
+    , progress_bar_(nullptr)
     , actions_()
-    , main_menu_(0)
-    , sound_file_view_(0)
-    , global_player_(0)
-    , category_view_(0)
-    , preset_view_(0)
-    , graphics_view_(0)
-    , sound_file_importer_(0)
-    , center_h_splitter_(0)
-    , left_v_splitter_(0)
-    , left_box_(0)
-    , right_box_(0)
-    , socket_host_(0)
-    , image_browser_(0)
-    , spotify_authenticator_widget_(0)
-    , tuio_control_panel_(0)
-    , left_tabwidget_(0)
-    , spotify_menu_(0)
-    , db_handler_(0)
+    , main_menu_(nullptr)
+    , sound_file_view_deprecated_(nullptr)
+    , sound_file_view_(nullptr)
+    , global_player_(nullptr)
+    , category_view_(nullptr)
+    , preset_view_(nullptr)
+    , graphics_view_(nullptr)
+    , sound_file_importer_(nullptr)
+    , center_h_splitter_(nullptr)
+    , left_v_splitter_(nullptr)
+    , left_box_(nullptr)
+    , right_box_(nullptr)
+    , socket_host_(nullptr)
+    , image_browser_(nullptr)
+    , spotify_authenticator_widget_(nullptr)
+    , tuio_control_panel_(nullptr)
+    , left_tabwidget_(nullptr)
+    , spotify_menu_(nullptr)
+    , db_handler_(nullptr)
 {
     initDB();
     initWidgets();
@@ -92,7 +93,7 @@ void CompanionWidget::onSelectedCategoryChanged(CategoryRecord *rec)
     if(rec != 0)
         id = rec->id;
 
-    sound_file_view_->setSoundFiles(db_handler_->getSoundFileRecordsByCategoryId(id));
+    sound_file_view_deprecated_->setSoundFiles(db_handler_->getSoundFileRecordsByCategoryId(id));
 }
 
 void CompanionWidget::onDeleteDatabase()
@@ -327,15 +328,20 @@ void CompanionWidget::setProjectPath(const QString &path)
 
 void CompanionWidget::initWidgets()
 {
-    sound_file_view_ = new SoundListPlaybackView(
+    sound_file_view_deprecated_ = new SoundListPlaybackViewDeprecated(
         db_handler_->getSoundFileTableModel()->getSoundFiles(),
         this
     );
+    sound_file_view_ = new SoundListPlaybackView(this);
 
     global_player_ = new SoundFilePlayer(this);
-    connect(sound_file_view_, &SoundListPlaybackView::play,
+    connect(sound_file_view_deprecated_, &SoundListPlaybackViewDeprecated::play,
             this, [=](const SoundFileRecord& rec) {
         global_player_->setSoundFile(rec, true);
+    });
+    connect(sound_file_view_, &SoundListPlaybackView::play,
+            this, [=](const SoundData& rec) {
+        global_player_->setSound(rec, true);
     });
 
     progress_bar_ = new QProgressBar;
@@ -372,7 +378,8 @@ void CompanionWidget::initWidgets()
 
     QWidget* sound_container = new QWidget(this);
     QVBoxLayout* container_layout = new QVBoxLayout;
-    container_layout->addWidget(sound_file_view_, 10);
+    container_layout->addWidget(sound_file_view_deprecated_, 10);
+    container_layout->addWidget(sound_file_view_, 5);
     container_layout->addWidget(global_player_, -1);
     container_layout->setContentsMargins(0,0,0,0);
     container_layout->setSpacing(0);
@@ -401,12 +408,12 @@ void CompanionWidget::initWidgets()
             this, SLOT(onProgressChanged(int)));
     connect(category_view_, SIGNAL(categorySelected(CategoryRecord*)),
             this, SLOT(onSelectedCategoryChanged(CategoryRecord*)));
-    connect(sound_file_view_, SIGNAL(deleteSoundFileRequested(int)),
+    connect(sound_file_view_deprecated_, SIGNAL(deleteSoundFileRequested(int)),
             db_handler_->getSoundFileTableModel(), SLOT(deleteSoundFile(int)));
     connect(db_handler_->getSoundFileTableModel(), SIGNAL(aboutToBeDeleted(SoundFileRecord*)),
-            sound_file_view_, SLOT(onSoundFileAboutToBeDeleted(SoundFileRecord*)));
+            sound_file_view_deprecated_, SLOT(onSoundFileAboutToBeDeleted(SoundFileRecord*)));
     connect(graphics_view_, SIGNAL(dropAccepted()),
-            sound_file_view_, SLOT(onDropSuccessful()));
+            sound_file_view_deprecated_, SLOT(onDropSuccessful()));
     connect(graphics_view_, SIGNAL(layoutAdded(const QString&)),
             this, SLOT(onLayoutAdded(const QString&)));
 }

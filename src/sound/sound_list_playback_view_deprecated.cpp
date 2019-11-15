@@ -1,4 +1,4 @@
-#include "sound_list_playback_view.h"
+#include "sound_list_playback_view_deprecated.h"
 
 #include <QDebug>
 #include <QMimeData>
@@ -12,57 +12,54 @@
 #include "resources/lib.h"
 #include "json/json_mime_data_parser.h"
 
-SoundListPlaybackView::SoundListPlaybackView(const QList<SoundData> &sound_files, QWidget *parent)
+SoundListPlaybackViewDeprecated::SoundListPlaybackViewDeprecated(const QList<SoundFileRecord *> &sound_files, QWidget *parent)
     : QTableView(parent)
     , start_pos_()
-    , model_(nullptr)
+    , model_(0)
     , skip_select_(false)
     , playable_index_()
     , play_icon_()
-    , context_menu_(nullptr)
-    , table_model_(new SoundTableModel(this))
+    , context_menu_(0)
 {
     init();
-    setSounds(sound_files);
+    setSoundFiles(sound_files);
 }
 
-SoundListPlaybackView::SoundListPlaybackView(QWidget *parent)
+SoundListPlaybackViewDeprecated::SoundListPlaybackViewDeprecated(QWidget *parent)
     : QTableView(parent)
     , start_pos_()
-    , model_(nullptr)
+    , model_(0)
     , skip_select_(false)
     , playable_index_()
     , play_icon_()
-    , context_menu_(nullptr)
-    , table_model_(new SoundTableModel(this))
+    , context_menu_(0)
 {
     init();
 }
 
-SoundListPlaybackView::~SoundListPlaybackView()
+SoundListPlaybackViewDeprecated::~SoundListPlaybackViewDeprecated()
 {}
 
-void SoundListPlaybackView::setSounds(const QList<SoundData> &sound_files)
+void SoundListPlaybackViewDeprecated::setSoundFiles(const QList<SoundFileRecord *> &sound_files)
 {
     model_->clear();
-    foreach(auto rec, sound_files)
-        addSound(rec);
-    //table_model_->setSounds(sound_files);
+    foreach(SoundFileRecord* rec, sound_files)
+        addSoundFile(rec);
     setColumnWidth(0, verticalHeader()->defaultSectionSize());
 }
 
-void SoundListPlaybackView::setEditable(bool is_editable)
+void SoundListPlaybackViewDeprecated::setEditable(bool is_editable)
 {
     for(int i = 0; i < model_->columnCount(); ++i)
         model_->setColumnEditable(i, is_editable);
 }
 
-bool SoundListPlaybackView::getEditable()
+bool SoundListPlaybackViewDeprecated::getEditable()
 {
     return model_->getColumnEditable(0);
 }
 
-QItemSelectionModel::SelectionFlags SoundListPlaybackView::selectionCommand(const QModelIndex &index, const QEvent *event) const
+QItemSelectionModel::SelectionFlags SoundListPlaybackViewDeprecated::selectionCommand(const QModelIndex &index, const QEvent *event) const
 {
     if (event != 0 && event->type() == QEvent::MouseMove)
         return QItemSelectionModel::Select;
@@ -70,7 +67,7 @@ QItemSelectionModel::SelectionFlags SoundListPlaybackView::selectionCommand(cons
         return QAbstractItemView::selectionCommand(index, event);
 }
 
-void SoundListPlaybackView::mousePressEvent(QMouseEvent *event)
+void SoundListPlaybackViewDeprecated::mousePressEvent(QMouseEvent *event)
 {
     if(state() == QAbstractItemView::DragSelectingState)
         setState(QAbstractItemView::NoState);
@@ -82,7 +79,7 @@ void SoundListPlaybackView::mousePressEvent(QMouseEvent *event)
     QTableView::mousePressEvent(event);
 }
 
-void SoundListPlaybackView::mouseMoveEvent(QMouseEvent *event)
+void SoundListPlaybackViewDeprecated::mouseMoveEvent(QMouseEvent *event)
 {
     if (event->buttons() & Qt::LeftButton) {
         int distance = (event->pos() - start_pos_).manhattanLength();
@@ -94,36 +91,35 @@ void SoundListPlaybackView::mouseMoveEvent(QMouseEvent *event)
     QTableView::mouseMoveEvent(event);
 }
 
-void SoundListPlaybackView::mouseReleaseEvent(QMouseEvent *event)
+void SoundListPlaybackViewDeprecated::mouseReleaseEvent(QMouseEvent *event)
 {
     if(state() == QAbstractItemView::DragSelectingState)
         setState(QAbstractItemView::NoState);
     QTableView::mouseReleaseEvent(event);
 }
 
-void SoundListPlaybackView::dragEnterEvent(QDragEnterEvent *event)
+void SoundListPlaybackViewDeprecated::dragEnterEvent(QDragEnterEvent *event)
 {
-    auto source = qobject_cast<SoundListPlaybackView*>(event->source());
+    auto source = qobject_cast<SoundListPlaybackViewDeprecated*>(event->source());
     if (source && source != this) {
         event->setDropAction(Qt::CopyAction);
         event->accept();
     }
 }
 
-void SoundListPlaybackView::dragMoveEvent(QDragMoveEvent *event)
+void SoundListPlaybackViewDeprecated::dragMoveEvent(QDragMoveEvent *event)
 {
-    auto source = qobject_cast<SoundListPlaybackView*>(event->source());
+    auto source = qobject_cast<SoundListPlaybackViewDeprecated*>(event->source());
     if (source && source != this) {
         event->setDropAction(Qt::CopyAction);
         event->accept();
     }
 }
 
-void SoundListPlaybackView::dropEvent(QDropEvent *event)
+void SoundListPlaybackViewDeprecated::dropEvent(QDropEvent *event)
 {
-    auto source = qobject_cast<SoundListPlaybackView*>(event->source());
+    auto source = qobject_cast<SoundListPlaybackViewDeprecated*>(event->source());
     if (source && source != this) {
-        /*
         // extract TableRecord from mime data
         QList<TableRecord*> records = JsonMimeDataParser::toTableRecordList(event->mimeData());
 
@@ -136,8 +132,8 @@ void SoundListPlaybackView::dropEvent(QDropEvent *event)
         // handle extracted data
         foreach(TableRecord* rec, records) {
             if(rec->index == SOUND_FILE) {
-                SoundData* sound_rec = (SoundData*) rec;
-                addSound(sound_rec->id, sound_rec->name, sound_rec->path);
+                SoundFileRecord* sound_rec = (SoundFileRecord*) rec;
+                addSoundFile(sound_rec->id, sound_rec->name, sound_rec->path);
             }
         }
 
@@ -149,11 +145,10 @@ void SoundListPlaybackView::dropEvent(QDropEvent *event)
 
         event->setDropAction(Qt::CopyAction);
         event->accept();
-        */
     }
 }
 
-void SoundListPlaybackView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
+void SoundListPlaybackViewDeprecated::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
     if(skip_select_) {
         skip_select_ = false;
@@ -164,43 +159,47 @@ void SoundListPlaybackView::setSelection(const QRect &rect, QItemSelectionModel:
     QTableView::setSelection(rect, command);
 }
 
-void SoundListPlaybackView::onPlayButtonClicked()
+void SoundListPlaybackViewDeprecated::onPlayButtonClicked()
 {
     if(!playable_index_.isValid())
         return;
 
-    emit play(table_model_->getSound(playable_index_.row()));
+    SoundFileRecord rec;
+    rec.id = model_->data(model_->index(playable_index_.row(), 0), Qt::UserRole).toInt();
+    rec.path = model_->data(model_->index(playable_index_.row(), 0), Qt::UserRole+1).toString();
+    rec.name = model_->data(model_->index(playable_index_.row(), 1)).toString();
+    emit play(rec);
 }
 
-void SoundListPlaybackView::addSound(SoundData rec)
+void SoundListPlaybackViewDeprecated::addSoundFile(SoundFileRecord *rec)
 {
-    addSound(rec.uuid, rec.resource.name, rec.local_path);
+     addSoundFile(rec->id, rec->name, rec->path);
 }
 
-void SoundListPlaybackView::onSoundAboutToBeDeleted(SoundData rec)
+void SoundListPlaybackViewDeprecated::onSoundFileAboutToBeDeleted(SoundFileRecord *)
 {
-    qDebug() << "TODO implement sound about to be deleted.";
+    qDebug() << "TODO implement sound file about to be deleted.";
 }
 
-void SoundListPlaybackView::onDropSuccessful()
+void SoundListPlaybackViewDeprecated::onDropSuccessful()
 {
     QCoreApplication::processEvents();
     skip_select_ = true;
 }
 
-void SoundListPlaybackView::addSound(const QString &uuid , const QString &name, const QString &path)
+void SoundListPlaybackViewDeprecated::addSoundFile(int id, const QString &name, const QString &path)
 {
     QList<QStandardItem*> items;
     items.push_back(new QStandardItem(path));
     items.push_back(new QStandardItem(name));
     model_->appendRow(items);
     QModelIndex idx = model_->index(model_->rowCount()-1, 0);
-    model_->setData(idx, QVariant(uuid), Qt::UserRole);
+    model_->setData(idx, QVariant(id), Qt::UserRole);
     model_->setData(idx, QVariant(path), Qt::UserRole+1);
     model_->setData(idx, QVariant(""), Qt::DisplayRole);
 }
 
-void SoundListPlaybackView::onEntered(const QModelIndex &idx)
+void SoundListPlaybackViewDeprecated::onEntered(const QModelIndex &idx)
 {
     if(idx.isValid()) {
         QModelIndex b_idx = model_->index(idx.row(), 0);
@@ -213,7 +212,7 @@ void SoundListPlaybackView::onEntered(const QModelIndex &idx)
             "}"
         );
         connect(button, &QPushButton::clicked,
-                this, &SoundListPlaybackView::onPlayButtonClicked);
+                this, &SoundListPlaybackViewDeprecated::onPlayButtonClicked);
         setIndexWidget(b_idx, button);
         if(playable_index_.isValid() && playable_index_ != b_idx)
             setIndexWidget(playable_index_, 0);
@@ -221,31 +220,31 @@ void SoundListPlaybackView::onEntered(const QModelIndex &idx)
     }
 }
 
-void SoundListPlaybackView::showCustomContextMenu(const QPoint &p)
+void SoundListPlaybackViewDeprecated::showCustomContextMenu(const QPoint &p)
 {
     context_menu_->exec(mapToGlobal(p));
 }
 
-void SoundListPlaybackView::onDeleteAction()
+void SoundListPlaybackViewDeprecated::onDeleteAction()
 {
     QModelIndexList selection = this->selectionModel()->selectedIndexes();
     if(selection.size() == 0)
         return;
 
     int row = selection.first().row();
-    auto uuid = model_->data(model_->index(row, 0), Qt::UserRole).toString();
+    int id = model_->data(model_->index(row, 0), Qt::UserRole).toInt();
     model_->removeRow(row);
-    emit deleteSoundRequested(uuid);
+    emit deleteSoundFileRequested(id);
 }
 
-void SoundListPlaybackView::performDrag()
+void SoundListPlaybackViewDeprecated::performDrag()
 {
-    /*QList<TableRecord*> records;
+    QList<TableRecord*> records;
     QSet<int> rows;
     foreach(QModelIndex idx, selectionModel()->selectedIndexes()) {
         if(rows.contains(idx.row()))
             continue;
-        SoundData* temp_rec = new SoundData;
+        SoundFileRecord* temp_rec = new SoundFileRecord;
         temp_rec->id = model_->data(model_->index(idx.row(), 0), Qt::UserRole).toInt();
         temp_rec->path = model_->data(model_->index(idx.row(), 0), Qt::UserRole+1).toString();
         temp_rec->name = model_->data(model_->index(idx.row(), 1)).toString();
@@ -273,17 +272,17 @@ void SoundListPlaybackView::performDrag()
     drag->setPixmap(*Resources::Lib::PX_SOUND_FILE_DRAG);
 
     // will block until drag done
-    drag->exec(Qt::CopyAction);*/
+    drag->exec(Qt::CopyAction);
 }
 
-void SoundListPlaybackView::initContextMenu()
+void SoundListPlaybackViewDeprecated::initContextMenu()
 {
     setContextMenuPolicy(Qt::CustomContextMenu);
 
     context_menu_ = new QMenu(this);
 
-    connect(this, &SoundListPlaybackView::customContextMenuRequested,
-            this, &SoundListPlaybackView::showCustomContextMenu);
+    connect(this, &SoundListPlaybackViewDeprecated::customContextMenuRequested,
+            this, &SoundListPlaybackViewDeprecated::showCustomContextMenu);
 
     QList<QAction*> actions;
     actions.append(new QAction(tr("Delete"), context_menu_));
@@ -293,7 +292,7 @@ void SoundListPlaybackView::initContextMenu()
     context_menu_->addActions(actions);
 }
 
-void SoundListPlaybackView::init()
+void SoundListPlaybackViewDeprecated::init()
 {
     model_ = new StandardItemModel(this);
     model_->setColumnCount(2);
@@ -303,8 +302,8 @@ void SoundListPlaybackView::init()
     play_icon_ = QIcon(*Resources::Lib::PX_PLAY);
 
     setMouseTracking(true);
-    connect(this, &SoundListPlaybackView::entered,
-            this, &SoundListPlaybackView::onEntered);
+    connect(this, &SoundListPlaybackViewDeprecated::entered,
+            this, &SoundListPlaybackViewDeprecated::onEntered);
 
     setModel(model_);
     setAcceptDrops(false);
@@ -318,11 +317,6 @@ void SoundListPlaybackView::init()
     horizontalHeader()->hide();
     horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
     horizontalHeader()->setStretchLastSection(true);
-
-    connect(table_model_, &SoundTableModel::layoutChanged,
-            this, [=](){
-        setSounds(table_model_->getSounds());
-    });
 
     initContextMenu();
 }

@@ -45,6 +45,8 @@ SOURCES += main.cpp \
     resources/sound_file.cpp \
     log/file_logger.cpp \
     db/model/image_dir_table_model.cpp \
+    sound/sound_list_playback_view.cpp \
+    sound/sound_list_playback_view_deprecated.cpp \
     sound/sound_stream_player.cpp \
     tile/nested_tile.cpp \
     preset/preset_view.cpp \
@@ -101,7 +103,6 @@ SOURCES += main.cpp \
     image/image_browser.cpp \
     image/image_canvas.cpp \
     sound/sound_file_player.cpp \
-    sound/sound_list_playback_view.cpp \
     sound/sound_list_view.cpp \
     sound/sound_list_view_dialog.cpp \
     tile/canvas.cpp \
@@ -131,6 +132,8 @@ HEADERS  += main_window.h \
     resources/sound_file.h \
     log/file_logger.h \
     db/model/image_dir_table_model.h \
+    sound/sound_list_playback_view.h \
+    sound/sound_list_playback_view_deprecated.h \
     sound/sound_stream_player.h \
     tile/nested_tile.h \
     preset/preset_view.h \
@@ -187,7 +190,6 @@ HEADERS  += main_window.h \
     image/image_browser.h \
     image/image_canvas.h \
     sound/sound_file_player.h \
-    sound/sound_list_playback_view.h \
     sound/sound_list_view.h \
     sound/sound_list_view_dialog.h \
     tile/canvas.h \
