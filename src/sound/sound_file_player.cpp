@@ -46,6 +46,7 @@ void SoundFilePlayer::setSound(const SoundData &sound, bool auto_play)
 {
     // TODO: GENERALIZE
     auto repo = new SoundRepository;
+    repo->loadApiTokenFromJsonFile();
     QNetworkRequest req;
     QSslConfiguration conf = QSslConfiguration::defaultConfiguration();
     conf.setPeerVerifyMode(QSslSocket::VerifyNone);

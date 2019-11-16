@@ -295,6 +295,9 @@ void SoundListPlaybackView::initContextMenu()
 
 void SoundListPlaybackView::init()
 {
+    table_model_->loadApiTokenFromJsonFile();
+    table_model_->update();
+
     model_ = new StandardItemModel(this);
     model_->setColumnCount(2);
     model_->setHorizontalHeaderItem(0, new QStandardItem("Path"));
