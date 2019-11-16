@@ -28,6 +28,8 @@ struct Lib
     */
     static QString DATABASE_PATH;
     static QString DEFAULT_PROJECT_PATH;
+    static QUrl LOCAL_SERVER_URL;
+    static QString SECRETS_PATH;
 
     /*
     * ICONS

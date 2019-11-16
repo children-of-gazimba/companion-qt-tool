@@ -112,7 +112,8 @@ void SoundStreamPlayer::resetPlayer()
 
 void SoundStreamPlayer::initWidgets()
 {
-    repo_->loadApiTokenFromJsonFile();
+    repo_->loadApiTokenFromJsonFile(Resources::Lib::SECRETS_PATH);
+    repo_->setServerUrl(Resources::Lib::LOCAL_SERVER_URL);
 
     play_icon_ = QIcon(*Resources::Lib::PX_PLAY);
     pause_icon_ = QIcon(*Resources::Lib::PX_PAUSE);

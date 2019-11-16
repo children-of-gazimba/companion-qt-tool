@@ -5,6 +5,7 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <QStandardPaths>
+#include <QUrl>
 
 namespace Resources {
 
@@ -393,6 +394,8 @@ TrackerTableModel* Lib::TRACKER_MODEL = nullptr;
 QString Lib::DATABASE_PATH = ""; // set in init()
 //QString Lib::DATABASE_PATH = "../../../../companion-shared-files/companion.db";
 QString Lib::DEFAULT_PROJECT_PATH = "../../companion-shared-files";
+QUrl Lib::LOCAL_SERVER_URL = QUrl("http://0.0.0.0:44100");
+QString Lib::SECRETS_PATH = "../src/_RES/secret.json";
 
 /*
 * ICONS

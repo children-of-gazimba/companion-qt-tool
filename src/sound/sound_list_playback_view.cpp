@@ -295,7 +295,8 @@ void SoundListPlaybackView::initContextMenu()
 
 void SoundListPlaybackView::init()
 {
-    table_model_->loadApiTokenFromJsonFile();
+    table_model_->setServerUrl(Resources::Lib::LOCAL_SERVER_URL);
+    table_model_->loadApiTokenFromJsonFile(Resources::Lib::SECRETS_PATH);
     table_model_->update();
 
     model_ = new StandardItemModel(this);
