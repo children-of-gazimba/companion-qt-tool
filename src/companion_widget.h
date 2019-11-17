@@ -5,9 +5,7 @@
 #include <QProgressBar>
 #include <QComboBox>
 
-#include "resources/importer.h"
 #include "sound/sound_list_playback_view.h"
-#include "db/database_handler.h"
 #include "tile/canvas.h"
 #include "spotify/spotify_control_panel.h"
 #include "web/socket_host_widget.h"
@@ -33,7 +31,6 @@ public slots:
 
 private slots:
     void onProgressChanged(int);
-    void onDeleteDatabase();
     void onSaveProjectAs();
     void onSaveProject();
     void onOpenProject();
@@ -54,7 +51,6 @@ private:
     void initLayout();
     void initActions();
     void initMenu();
-    void initDB();
 
     // PROJECT
     QString project_name_;
@@ -66,23 +62,20 @@ private:
     // MENU & ACTIONS
     QMap<QString, QAction*> actions_;
     QMenu* main_menu_;
+    QMenu* spotify_menu_;
 
-    // WIDGETS
+    // MAIN WIDGETS
     QComboBox* server_selection_;
     QLabel* server_selection_label_;
     SoundListPlaybackView* sound_file_view_;
     SoundFilePlayer* global_player_;
-
     Tile::Canvas* graphics_view_;
-    Resources::Importer* sound_file_importer_;
+
+    // TOOLS
     SocketHostWidget* socket_host_;
     SpotifyControlPanel *spotify_authenticator_widget_;
     TuioControlPanel *tuio_control_panel_;
     CloudControlPanel* cloud_control_panel_;
-    QMenu* spotify_menu_;
-
-    // DB handler
-    DatabaseHandler* db_handler_;
 };
 
 #endif // DSAMEDIACONTROLKIT_H

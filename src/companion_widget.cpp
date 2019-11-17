@@ -1,17 +1,14 @@
 #include "companion_widget.h"
 
 #include <QDebug>
-#include <QDir>
 #include <QKeySequence>
 #include <QJsonDocument>
 #include <QFileDialog>
 #include <QMessageBox>
-#include <QCoreApplication>
 #include <QInputDialog>
 #include <QVBoxLayout>
 #include <QGroupBox>
 
-#include "db/core/database_api.h"
 #include "resources/lib.h"
 #include "json/json_mime_data_parser.h"
 #include "spotify/spotify_handler.h"
@@ -22,19 +19,16 @@ CompanionWidget::CompanionWidget(QWidget *parent)
     , progress_bar_(nullptr)
     , actions_()
     , main_menu_(nullptr)
+    , spotify_menu_(nullptr)
     , server_selection_(nullptr)
     , sound_file_view_(nullptr)
     , global_player_(nullptr)
     , graphics_view_(nullptr)
-    , sound_file_importer_(nullptr)
     , socket_host_(nullptr)
     , spotify_authenticator_widget_(nullptr)
     , tuio_control_panel_(nullptr)
     , cloud_control_panel_(nullptr)
-    , spotify_menu_(nullptr)
-    , db_handler_(nullptr)
 {
-    initDB();
     initWidgets();
     initLayout();
     initActions();
@@ -79,11 +73,6 @@ void CompanionWidget::onProgressChanged(int value)
         progress_bar_->hide();
     }
     progress_bar_->setValue(value);
-}
-
-void CompanionWidget::onDeleteDatabase()
-{
-    db_handler_->deleteAll();
 }
 
 void CompanionWidget::onSaveProjectAs()
@@ -346,18 +335,6 @@ void CompanionWidget::initWidgets()
     progress_bar_->hide();
 
     graphics_view_ = new Tile::Canvas(this);
-    graphics_view_->setSoundFileModel(db_handler_->getSoundFileTableModel());
-    graphics_view_->setPresetModel(db_handler_->getPresetTableModel());
-
-    sound_file_importer_ = new Resources::Importer(
-        db_handler_->getResourceDirTableModel(),
-        this
-    );
-
-    connect(sound_file_importer_, &Resources::Importer::folderImported,
-            db_handler_, &DatabaseHandler::insertSoundFilesAndCategories);
-    connect(db_handler_, &DatabaseHandler::progressChanged,
-            this, &CompanionWidget::onProgressChanged);
     connect(graphics_view_, &Tile::Canvas::layoutAdded,
             this, &CompanionWidget::onLayoutAdded);
 }
@@ -408,13 +385,6 @@ void CompanionWidget::initLayout()
 
 void CompanionWidget::initActions()
 {
-    actions_["Import Resource Folder..."] = new QAction(tr("Import Resource Folder..."), this);
-    actions_["Import Resource Folder..."]->setToolTip(tr("Imports a folder of resources into the program."));
-    actions_["Import Resource Folder..."]->setShortcut(QKeySequence(tr("Ctrl+Shift+O")));
-
-    actions_["Delete Database Contents..."] = new QAction(tr("Delete Database Contents..."), this);
-    actions_["Delete Database Contents..."]->setToolTip(tr("Deletes all contents from application database."));
-
     actions_["Close Project"] = new QAction(tr("Close Project"), this);
     actions_["Close Project"]->setToolTip(tr("Closes the current project, clearing the canvas and clearing image display."));
 
@@ -462,10 +432,6 @@ void CompanionWidget::initActions()
     actions_["Cloud Control Panel..."] = new QAction(tr("Cloud Control Panel..."), this);
     actions_["Cloud Control Panel..."]->setToolTip(tr("Shows the Cloud control panel."));
 
-    connect(actions_["Import Resource Folder..."] , &QAction::triggered,
-            sound_file_importer_, &Resources::Importer::startBrowseFolder);
-    connect(actions_["Delete Database Contents..."], &QAction::triggered,
-            this, &CompanionWidget::onDeleteDatabase);
     connect(actions_["Close Project"], &QAction::triggered,
             this, &CompanionWidget::onCloseProject);
     connect(actions_["Save Project As..."], &QAction::triggered,
@@ -504,9 +470,6 @@ void CompanionWidget::initMenu()
     file_menu->addAction(actions_["Save Project As..."]);
     file_menu->addAction(actions_["Save View as Layout..."]);
     file_menu->addSeparator();
-    file_menu->addAction(actions_["Import Resource Folder..."]);
-    file_menu->addSeparator();
-    file_menu->addAction(actions_["Delete Database Contents..."]);
     QMenu* tool_menu = main_menu_->addMenu(tr("Tools"));
     spotify_menu_ = tool_menu->addMenu(tr("Spotify"));
     spotify_menu_->addAction(actions_["Connect to Spotify"]);
@@ -517,15 +480,4 @@ void CompanionWidget::initMenu()
 
     main_menu_->addMenu(file_menu);
     main_menu_->addMenu(tool_menu);
-}
-
-void CompanionWidget::initDB()
-{
-    DatabaseApi* db_api = nullptr;
-#ifdef _WIN32
-    db_api = new DatabaseApi(Resources::Lib::DATABASE_PATH, this);
-#else
-    db_api = new DatabaseApi(QCoreApplication::applicationDirPath() + Resources::Lib::DATABASE_PATH, this);
-#endif
-    db_handler_ = new DatabaseHandler(db_api, this);
 }
