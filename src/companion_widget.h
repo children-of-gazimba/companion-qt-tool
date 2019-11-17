@@ -28,6 +28,7 @@
 #include "web/socket_host_widget.h"
 #include "tuio/tuio_control_panel.h"
 #include "sound/sound_file_player.h"
+#include "api/cloud_control_panel.h"
 
 class CompanionWidget : public QWidget
 {
@@ -58,6 +59,7 @@ private slots:
     void onStartSpotifyControlWidget();
     void onStartTuioControlPanel();
     void onStartSocketServer();
+    void onStartCloudControlPanel();
     void onLayoutAdded(const QString& name);
 
 private:
@@ -98,6 +100,7 @@ private:
     ImageBrowser* image_browser_;
     SpotifyControlPanel *spotify_authenticator_widget_;
     TuioControlPanel *tuio_control_panel_;
+    CloudControlPanel* cloud_control_panel_;
     QTabWidget* left_tabwidget_;
     QMenu* spotify_menu_;
 

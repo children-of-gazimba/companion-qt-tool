@@ -9,17 +9,17 @@
 
 SoundFilePlayer::SoundFilePlayer(QWidget *parent)
     : QWidget(parent)
-    , player_(0)
-    , playlist_(0)
-    , play_button_(0)
-    , current_sound_(0)
-    , progress_(0)
-    , current_time_(0)
-    , total_time_(0)
+    , player_(nullptr)
+    , playlist_(nullptr)
+    , play_button_(nullptr)
+    , current_sound_(nullptr)
+    , progress_(nullptr)
+    , current_time_(nullptr)
+    , total_time_(nullptr)
     , is_playing_(false)
     , play_icon_()
     , pause_icon_()
-    ,ignore_progress_change_(false)
+    , ignore_progress_change_(false)
 {
     initWidgets();
     initLayout();
@@ -42,16 +42,16 @@ void SoundFilePlayer::setSoundFile(const SoundFileRecord &sf, bool auto_play)
         play();
 }
 
-void SoundFilePlayer::setSound(const SoundData &sound, bool auto_play)
+void SoundFilePlayer::setSound(const SoundData &sound, const QString& server, bool auto_play)
 {
-    // TODO: GENERALIZE
-    auto repo = new SoundRepository;
-    repo->loadApiTokenFromJsonFile(Resources::Lib::SECRETS_PATH);
-    repo->setServerUrl(Resources::Lib::LOCAL_SERVER_URL);
+    SoundRepository repo;
+    auto cfg = (*Resources::Lib::API_CONFIG_MODEL)[server];
+    repo.setApiToken(cfg.access_token);
+    repo.setServerUrl(cfg.server_url);
     QNetworkRequest req;
     QSslConfiguration conf = QSslConfiguration::defaultConfiguration();
     conf.setPeerVerifyMode(QSslSocket::VerifyNone);
-    req.setUrl(repo->getStreamUrl(sound));
+    req.setUrl(repo.getStreamUrl(sound));
     req.setSslConfiguration(conf);
 
     resetPlayer();
@@ -64,8 +64,6 @@ void SoundFilePlayer::setSound(const SoundData &sound, bool auto_play)
     play_button_->setEnabled(playlist_->mediaCount() > 0);
     if(auto_play)
         play();
-
-    repo->deleteLater();
 }
 
 void SoundFilePlayer::play()

@@ -18,7 +18,7 @@ public:
     virtual ~SoundFilePlayer();
 
     void setSoundFile(const SoundFileRecord& sf, bool auto_play=false);
-    void setSound(const SoundData& sound, bool auto_play=false);
+    void setSound(const SoundData& sound, const QString& server, bool auto_play=false);
 
 signals:
 

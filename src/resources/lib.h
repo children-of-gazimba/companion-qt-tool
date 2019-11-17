@@ -6,7 +6,9 @@
 #include <QMap>
 #include <QSettings>
 #include <QFile>
+
 #include "tracking/models/tracker_table_model.h"
+#include "api/api_config_model.h"
 
 namespace Resources {
 
@@ -15,13 +17,15 @@ struct Lib
     static void init();
     static void cleanup();
     static const QString loadFileToString(QString const& path);
+    static const QJsonDocument loadFileToJson(QString const& path);
 
     static QPixmap* getKeyPixmap(const QChar& k);
 
     /**
-     * Global models
+     * Global models & configs
     */
     static TrackerTableModel* TRACKER_MODEL;
+    static ApiConfigModel* API_CONFIG_MODEL;
 
     /*
     * general paths

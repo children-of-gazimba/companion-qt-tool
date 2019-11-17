@@ -6,6 +6,8 @@
 #include <QCoreApplication>
 #include <QStandardPaths>
 #include <QUrl>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 namespace Resources {
 
@@ -32,6 +34,19 @@ void Lib::init()
 #endif
     if(!TRACKER_MODEL)
         TRACKER_MODEL = new TrackerTableModel;
+    if(!API_CONFIG_MODEL) {
+        API_CONFIG_MODEL = new ApiConfigModel;
+        auto secrets_doc = loadFileToJson("/"+SECRETS_PATH);
+        if(secrets_doc.isObject()) {
+            auto secrets_obj = secrets_doc.object();
+            if(secrets_obj.contains("access_token") && secrets_obj["access_token"].isString()) {
+                ApiConfig local_config;
+                local_config.server_url = LOCAL_SERVER_URL;
+                local_config.access_token = secrets_obj["access_token"].toString();
+                API_CONFIG_MODEL->setApiConfig("local", local_config);
+            }
+        }
+    }
     if(PX_IMG_UNAVAILABLE == 0)
         PX_IMG_UNAVAILABLE = new QPixmap(IMG_UNAVAILABLE_PATH);
     if(PX_COMPANION == 0)
@@ -136,6 +151,8 @@ void Lib::cleanup()
 {
     if(TRACKER_MODEL)
         TRACKER_MODEL->deleteLater();
+    if(API_CONFIG_MODEL)
+        API_CONFIG_MODEL->deleteLater();
     if(PX_IMG_UNAVAILABLE != 0)
         delete PX_IMG_UNAVAILABLE;
     if(PX_COMPANION != 0)
@@ -236,6 +253,7 @@ void Lib::cleanup()
         delete PX_Z_KEY;
 
     TRACKER_MODEL = nullptr;
+    API_CONFIG_MODEL = nullptr;
     PX_IMG_UNAVAILABLE = 0;
     PX_COMPANION = 0;
     PX_CRACKED_STONE = 0;
@@ -300,6 +318,11 @@ const QString Lib::loadFileToString(const QString &path)
     qDebug() << file.errorString();
     qDebug() << " > " << load_path;
     return QString("");
+}
+
+const QJsonDocument Lib::loadFileToJson(const QString &path)
+{
+    return QJsonDocument::fromJson(loadFileToString(path).toUtf8());
 }
 
 QPixmap *Lib::getKeyPixmap(const QChar &k)
@@ -386,6 +409,7 @@ QPixmap *Lib::getKeyPixmap(const QChar &k)
  * Global models
 */
 TrackerTableModel* Lib::TRACKER_MODEL = nullptr;
+ApiConfigModel* Lib::API_CONFIG_MODEL = nullptr;
 
 /*
 * DATABASE

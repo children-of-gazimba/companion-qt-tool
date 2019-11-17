@@ -24,6 +24,8 @@ include(../qtuio/src/companion-qtuio.pri)
 include(../api/src/companion-qt-api-client.pri)
 
 SOURCES += main.cpp \
+    api/api_config_model.cpp \
+    api/cloud_control_panel.cpp \
     main_window.cpp \
     _TEST/audio_widget.cpp \
     _TEST/content_browser.cpp \
@@ -116,6 +118,9 @@ HEADERS  += main_window.h \
     _TEST/content_browser.h \
     _TEST/multi_track_media_player.h \
     _TEST/player_controls.h \
+    api/api_config.h \
+    api/api_config_model.h \
+    api/cloud_control_panel.h \
     db/core/sqlite_wrapper.h \
     db/model/category_tree_model.h \
     db/model/sound_file_table_model.h \

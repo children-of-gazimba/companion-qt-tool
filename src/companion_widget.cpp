@@ -35,6 +35,7 @@ CompanionWidget::CompanionWidget(QWidget *parent)
     , image_browser_(nullptr)
     , spotify_authenticator_widget_(nullptr)
     , tuio_control_panel_(nullptr)
+    , cloud_control_panel_(nullptr)
     , left_tabwidget_(nullptr)
     , spotify_menu_(nullptr)
     , db_handler_(nullptr)
@@ -48,14 +49,13 @@ CompanionWidget::CompanionWidget(QWidget *parent)
 
 CompanionWidget::~CompanionWidget()
 {
-    if(spotify_authenticator_widget_) {
-        spotify_authenticator_widget_->deleteLater();
-    }
-    if(tuio_control_panel_) {
-        tuio_control_panel_->deleteLater();
-    }
-    if(socket_host_)
-        socket_host_->deleteLater();
+    QList<QWidget*> control_panels;
+    control_panels << spotify_authenticator_widget_
+                   << tuio_control_panel_
+                   << cloud_control_panel_
+                   << socket_host_;
+    for(auto cp: control_panels)
+        if(cp) cp->deleteLater();
 }
 
 QMenu *CompanionWidget::getMenu()
@@ -286,7 +286,6 @@ void CompanionWidget::onStartTuioControlPanel()
     else {
         tuio_control_panel_->show();
     }
-
 }
 
 void CompanionWidget::onStartSocketServer()
@@ -294,6 +293,21 @@ void CompanionWidget::onStartSocketServer()
     if(socket_host_ == 0)
         socket_host_ = new SocketHostWidget(graphics_view_);
     socket_host_->show();
+}
+
+void CompanionWidget::onStartCloudControlPanel()
+{
+    if(cloud_control_panel_ == 0) {
+        cloud_control_panel_ = new CloudControlPanel;
+    }
+    if(cloud_control_panel_->isVisible()) {
+        cloud_control_panel_->raise();
+        cloud_control_panel_->activateWindow();
+    }
+    else {
+        cloud_control_panel_->show();
+    }
+
 }
 
 void CompanionWidget::onLayoutAdded(const QString &name)
@@ -340,8 +354,8 @@ void CompanionWidget::initWidgets()
         global_player_->setSoundFile(rec, true);
     });
     connect(sound_file_view_, &SoundListPlaybackView::play,
-            this, [=](const SoundData& rec) {
-        global_player_->setSound(rec, true);
+            this, [=](const SoundData& rec, const QString& server) {
+        global_player_->setSound(rec, server, true);
     });
 
     progress_bar_ = new QProgressBar;
@@ -490,6 +504,9 @@ void CompanionWidget::initActions()
     actions_["Tuio Control Panel..."] = new QAction(tr("Tuio Control Panel..."), this);
     actions_["Tuio Control Panel..."]->setToolTip(tr("Shows the Tuio control panel."));
 
+    actions_["Cloud Control Panel..."] = new QAction(tr("Cloud Control Panel..."), this);
+    actions_["Cloud Control Panel..."]->setToolTip(tr("Shows the Cloud control panel."));
+
     connect(actions_["Import Resource Folder..."] , SIGNAL(triggered(bool)),
             sound_file_importer_, SLOT(startBrowseFolder(bool)));
     connect(actions_["Delete Database Contents..."], SIGNAL(triggered()),
@@ -514,6 +531,8 @@ void CompanionWidget::initActions()
             this, SLOT(onStartSocketServer()));
     connect(actions_["Tuio Control Panel..."], SIGNAL(triggered()),
             this, SLOT(onStartTuioControlPanel()));
+    connect(actions_["Cloud Control Panel..."], SIGNAL(triggered()),
+            this, SLOT(onStartCloudControlPanel()));
 }
 
 void CompanionWidget::initMenu()
@@ -539,6 +558,7 @@ void CompanionWidget::initMenu()
     spotify_menu_->addAction(actions_["Spotify Control Panel..."]);
     tool_menu->addAction(actions_["Run Socket Host..."]);
     tool_menu->addAction(actions_["Tuio Control Panel..."]);
+    tool_menu->addAction(actions_["Cloud Control Panel..."]);
 
     main_menu_->addMenu(file_menu);
     main_menu_->addMenu(tool_menu);

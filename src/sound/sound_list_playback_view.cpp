@@ -21,6 +21,7 @@ SoundListPlaybackView::SoundListPlaybackView(const QList<SoundData> &sound_files
     , play_icon_()
     , context_menu_(nullptr)
     , table_model_(new SoundTableModel(this))
+    , server_name_("local")
 {
     init();
     setSounds(sound_files);
@@ -35,6 +36,7 @@ SoundListPlaybackView::SoundListPlaybackView(QWidget *parent)
     , play_icon_()
     , context_menu_(nullptr)
     , table_model_(new SoundTableModel(this))
+    , server_name_("local")
 {
     init();
 }
@@ -169,7 +171,13 @@ void SoundListPlaybackView::onPlayButtonClicked()
     if(!playable_index_.isValid())
         return;
 
-    emit play(table_model_->getSound(playable_index_.row()));
+    emit play(table_model_->getSound(playable_index_.row()), server_name_);
+}
+
+void SoundListPlaybackView::setServerName(const QString &name)
+{
+    server_name_ = name;
+    applyServerConfig();
 }
 
 void SoundListPlaybackView::addSound(SoundData rec)
@@ -177,7 +185,7 @@ void SoundListPlaybackView::addSound(SoundData rec)
     addSound(rec.uuid, rec.resource.name, rec.local_path);
 }
 
-void SoundListPlaybackView::onSoundAboutToBeDeleted(SoundData rec)
+void SoundListPlaybackView::onSoundAboutToBeDeleted(SoundData)
 {
     qDebug() << "TODO implement sound about to be deleted.";
 }
@@ -186,6 +194,11 @@ void SoundListPlaybackView::onDropSuccessful()
 {
     QCoreApplication::processEvents();
     skip_select_ = true;
+}
+
+void SoundListPlaybackView::clear()
+{
+    setSounds(QList<SoundData>());
 }
 
 void SoundListPlaybackView::addSound(const QString &uuid , const QString &name, const QString &path)
@@ -236,6 +249,16 @@ void SoundListPlaybackView::onDeleteAction()
     auto uuid = model_->data(model_->index(row, 0), Qt::UserRole).toString();
     model_->removeRow(row);
     emit deleteSoundRequested(uuid);
+}
+
+void SoundListPlaybackView::applyServerConfig()
+{
+    if(!Resources::Lib::API_CONFIG_MODEL->hasApiConfig(server_name_))
+        return;
+    auto cfg = (*Resources::Lib::API_CONFIG_MODEL)[server_name_];
+    table_model_->setServerUrl(cfg.server_url);
+    table_model_->setApiToken(cfg.access_token);
+    table_model_->update();
 }
 
 void SoundListPlaybackView::performDrag()
@@ -295,9 +318,7 @@ void SoundListPlaybackView::initContextMenu()
 
 void SoundListPlaybackView::init()
 {
-    table_model_->setServerUrl(Resources::Lib::LOCAL_SERVER_URL);
-    table_model_->loadApiTokenFromJsonFile(Resources::Lib::SECRETS_PATH);
-    table_model_->update();
+    applyServerConfig();
 
     model_ = new StandardItemModel(this);
     model_->setColumnCount(2);
@@ -326,6 +347,26 @@ void SoundListPlaybackView::init()
     connect(table_model_, &SoundTableModel::layoutChanged,
             this, [=](){
         setSounds(table_model_->getSounds());
+    });
+
+    connect(Resources::Lib::API_CONFIG_MODEL, &ApiConfigModel::configurationAdded,
+            this, [=](const QString& name) {
+        if(name.compare(server_name_) == 0)
+            applyServerConfig();
+    });
+
+    connect(Resources::Lib::API_CONFIG_MODEL, &ApiConfigModel::configurationChanged,
+            this, [=](const QString& name) {
+        if(name.compare(server_name_) == 0) {
+            clear();
+            applyServerConfig();
+        }
+    });
+
+    connect(Resources::Lib::API_CONFIG_MODEL, &ApiConfigModel::configurationRemoved,
+            this, [=](const QString& name) {
+        if(name.compare(server_name_) == 0)
+            clear();
     });
 
     initContextMenu();

@@ -41,13 +41,15 @@ protected slots:
     void onPlayButtonClicked();
 
 signals:
-    void play(const SoundData&);
+    void play(const SoundData&, const QString& server);
     void deleteSoundRequested(const QString& uuid);
 
 public slots:
+    void setServerName(const QString& name);
     void addSound(SoundData rec);
     void onSoundAboutToBeDeleted(SoundData rec);
     void onDropSuccessful();
+    void clear();
 
 private slots:
     void addSound(const QString &uuid, QString const& name, QString const& path);
@@ -56,6 +58,7 @@ private slots:
     void onDeleteAction();
 
 protected:
+    void applyServerConfig();
     void performDrag();
     void initContextMenu();
     void init();
@@ -67,6 +70,7 @@ protected:
     QIcon play_icon_;
     QMenu* context_menu_;
     SoundTableModel* table_model_;
+    QString server_name_;
 };
 
 #endif // SOUND_LIST_PLAYBACK_VIEW_H

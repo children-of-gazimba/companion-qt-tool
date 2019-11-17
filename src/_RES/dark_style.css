@@ -93,6 +93,18 @@ TuioControlPanel > QLineEdit {
     border: 1px solid gray;
 }
 
+CloudControlPanel {
+   background-color: #373738;
+   color: white;
+}
+
+CloudControlPanel > QLineEdit {
+    background-color: #545556;
+    color: white;
+    selection-background-color: rgba(50, 152, 253, 80);
+    border: 1px solid gray;
+}
+
 QGroupBox::title {
     subcontrol-origin: margin;
     subcontrol-position: top left;
