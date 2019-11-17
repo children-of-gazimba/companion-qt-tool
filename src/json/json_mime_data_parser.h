@@ -9,6 +9,8 @@
 
 #include "db/table_records.h"
 #include "playlist/playlist_settings.h"
+#include "data_types.h"
+#include "api/extended_data_types.h"
 
 /*
 * Class used for conversion of TableRecords to QMimeData.
@@ -38,6 +40,38 @@ public:
      * returns 0 if parsing fails.
     */
     static QMimeData* toJsonMimeData(const QList<TableRecord*>&);
+
+    /*
+     * creates QMimeData with text set to a string
+     * wrapping a json serialized object, referencing
+     * given all given SoundData objects.
+     * returns 0 if parsing fails.
+    */
+    static QMimeData* toJsonMimeData(const QList<SoundData>&);
+
+    /*
+     * creates QMimeData with text set to a string
+     * wrapping a json serialized object, referencing
+     * given all given SoundData objects.
+     * returns 0 if parsing fails.
+    */
+    static const QList<SoundData> toSoundList(const QMimeData*);
+
+    /*
+     * creates QMimeData with text set to a string
+     * wrapping a json serialized object, referencing
+     * given all given SoundData objects.
+     * returns 0 if parsing fails.
+    */
+    static QMimeData* toJsonMimeData(const QList<QualifiedSoundData>&);
+
+    /*
+     * creates QMimeData with text set to a string
+     * wrapping a json serialized object, referencing
+     * given all given SoundData objects.
+     * returns 0 if parsing fails.
+    */
+    static const QList<QualifiedSoundData> toQualifiedSoundList(const QMimeData*);
 
     /*
      * Extracts TableRecord from given QMimeData.

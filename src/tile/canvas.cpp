@@ -715,6 +715,8 @@ void Canvas::dropEvent(QDropEvent *event)
     QString spotify_class = SpotifyTile::staticMetaObject.className();
     QString map_class = MapTile::staticMetaObject.className();
 
+    QList<QualifiedSoundData> sounds;
+
     // validate parsing
     if(records.size() == 0 || records[0]->index != SOUND_FILE) {
         // TODO make pretty
@@ -822,25 +824,25 @@ void Canvas::dropEvent(QDropEvent *event)
             return;
         }
         else {
-            event->ignore();
-            return;
+            sounds = JsonMimeDataParser::toQualifiedSoundList(event->mimeData());
+            if(sounds.size() == 0) {
+                event->ignore();
+                return;
+            }
         }
     }
 
     // create graphics item
     PlaylistTile* tile = new PlaylistTile;
-    tile->setSoundFileModel(sound_model_);
     tile->setPresetModel(preset_model_);
     tile->setFlag(QGraphicsItem::ItemIsMovable, true);
-    tile->setName(records[0]->name);
+    tile->setName(sounds[0].resource.name);
     tile->init();
     tile->setPos(p);
     tile->setSize(0);
 
-    foreach(TableRecord* rec, records) {
-        if(rec->index == SOUND_FILE)
-            tile->addMedia(*((SoundFileRecord*) rec));
-    }
+    foreach(auto sound, sounds)
+        tile->addMedia(sound);
 
     // add to scene
     scene()->addItem(tile);

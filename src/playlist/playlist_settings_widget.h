@@ -10,7 +10,7 @@
 #include <QRadioButton>
 #include <QGroupBox>
 
-#include "playlist.h"
+#include "playlist_deprecated.h"
 
 class PlaylistSettingsWidget : public QWidget
 {

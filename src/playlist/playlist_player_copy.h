@@ -1,10 +1,10 @@
-#ifndef PLAYLIST_PLAYER_H
-#define PLAYLIST_PLAYER_H
+#ifndef PLAYLIST_PLAYLIST_PLAYER_H
+#define PLAYLIST_PLAYLIST_PLAYER_H
 
 #include <QMediaPlayer>
 #include <QTimer>
 
-#include "playlist/playlist.h"
+#include "playlist/playlist_deprecated.h"
 #include "playlist/playlist_settings.h"
 
 class PlaylistPlayer : public QMediaPlayer
@@ -12,6 +12,7 @@ class PlaylistPlayer : public QMediaPlayer
     Q_OBJECT
 public:
     PlaylistPlayer(QObject* parent = 0);
+    //explicit CustomMediaPlayer(QObject* parent = 0, Flags* flags = 0);
 
     Playlist *getPlaylist() const;
     void setPlaylist(Playlist* playlist);
@@ -42,4 +43,4 @@ private:
     QTimer* delay_timer_;
 };
 
-#endif // PLAYLIST_PLAYER_H
+#endif // PLAYLIST_PLAYLIST_PLAYER_H

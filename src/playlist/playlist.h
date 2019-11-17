@@ -1,5 +1,5 @@
-#ifndef PLAYLIST_PLAYLIST_H
-#define PLAYLIST_PLAYLIST_H
+#ifndef PLAYLIST_H
+#define PLAYLIST_H
 
 #include <QMediaPlaylist>
 #include <QMap>
@@ -7,40 +7,31 @@
 
 #include "playlist_settings.h"
 #include "db/model/sound_file_table_model.h"
+#include "api/extended_data_types.h"
+#include "repository/sound_repository.h"
 
 class Playlist : public QMediaPlaylist
 {
     Q_OBJECT
-public:
+public:    
     Playlist(QString name = "Playlist", QObject* parent = 0);
     virtual ~Playlist();
 
     void setSettings(const PlaylistSettings& settings);
     const PlaylistSettings& getSettings() const;
 
-    /**
-     * Set database for the playlist
-     */
-    void setSoundFileModel(SoundFileTableModel* m);
-    const SoundFileTableModel* getSoundFileModel() const;
+    bool addMedia(const QualifiedSoundData &sound);
 
-    bool addMedia(const SoundFileRecord& rec);
-    bool addMedia(int record_id);
-
-    const QList<SoundFileRecord*> getSoundFileList(bool unique = false);
+    const QList<QualifiedSoundData> getSounds() const;
 
 signals:
     void changedSettings();
 
-private slots:
-    void onMediaAboutToBeRemoved(int start, int end);
-
 private:
     QString name_;
     PlaylistSettings* settings_;
-    SoundFileTableModel* model_;
-    QMap<QMediaContent*, SoundFileRecord*> records_;
-
+    QList<QualifiedSoundData> sounds_;
+    SoundRepository* repo_;
 };
 
-#endif // PLAYLIST_PLAYLIST_H
+#endif // PLAYLIST_H

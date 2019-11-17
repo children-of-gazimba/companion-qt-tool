@@ -91,25 +91,12 @@ void PlaylistTile::paint(QPainter *painter, const QStyleOptionGraphicsItem* opti
 
 void PlaylistTile::receiveExternalData(const QMimeData *data)
 {
-    // extract TableRecord from mime data
-    QList<TableRecord*> records = JsonMimeDataParser::toTableRecordList(data);
-
-    // validate parsing
-    if(records.size() == 0)
+    auto sounds = JsonMimeDataParser::toSoundList(data);
+    if(sounds.size() == 0)
         return;
 
-    // add media for each sound file record
-    foreach(TableRecord* rec, records) {
-        if(rec->index != SOUND_FILE)
-            continue;
-        addMedia(*((SoundFileRecord*) rec));
-    }
-
-    // delete temp records
-    while(records.size() > 0) {
-        delete records[0];
-        records.pop_front();
-    }
+    foreach(auto sound, sounds)
+        addMedia(QualifiedSoundData(sound, "local"));
 }
 
 
@@ -137,26 +124,15 @@ void PlaylistTile::receiveWheelEvent(QWheelEvent *event)
     }
 }
 
-bool PlaylistTile::addMedia(int record_id)
+bool PlaylistTile::addMedia(const QualifiedSoundData& sound)
 {
-    if(model_ == 0)
-        return false;
-
-    return playlist_->addMedia(record_id);
-}
-
-bool PlaylistTile::addMedia(const SoundFileRecord &r)
-{
-    if(model_ == 0)
-        return false;
-
-    return playlist_->addMedia(r);
+    return playlist_->addMedia(sound);
 }
 
 void PlaylistTile::setSoundFileModel(SoundFileTableModel *m)
 {
     model_ = m;
-    playlist_->setSoundFileModel(model_);
+    //playlist_->setSoundFileModel(model_);
 }
 
 SoundFileTableModel *PlaylistTile::getSoundFileModel()
@@ -170,8 +146,8 @@ const QJsonObject PlaylistTile::toJsonObject() const
 
     // store playlist
     QJsonArray arr_pl;
-    foreach(SoundFileRecord* rec, playlist_->getSoundFileList())
-        arr_pl.append(JsonMimeDataParser::toJsonObject(rec));
+    foreach(auto sound, playlist_->getSounds())
+        arr_pl.append(sound.toJsonObject());
     obj["playlist"] = arr_pl;
 
     //store settings
@@ -184,7 +160,8 @@ const QJsonObject PlaylistTile::toJsonObject() const
 
 bool PlaylistTile::setFromJsonObject(const QJsonObject &obj)
 {
-    if(!BaseTile::setFromJsonObject(obj))
+    return false;
+    /*if(!BaseTile::setFromJsonObject(obj))
         return false;
 
     // parse playlist
@@ -264,7 +241,7 @@ bool PlaylistTile::setFromJsonObject(const QJsonObject &obj)
         settings = 0;
     }
 
-    return true;
+    return true;*/
 }
 
 void PlaylistTile::setMedia(const QMediaContent &c)
@@ -354,12 +331,12 @@ void PlaylistTile::onConfigurePlaylist()
 
 void PlaylistTile::onContents()
 {
-    SoundListViewDialog d(playlist_->getSoundFileList());
+    /*SoundListViewDialog d(playlist_->getSounds());
     d.setAcceptDrops(false);
 
     if(d.exec()) {
 
-    }
+    }*/
 }
 
 void PlaylistTile::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)

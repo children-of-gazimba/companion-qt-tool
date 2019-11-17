@@ -263,32 +263,23 @@ void SoundListPlaybackView::applyServerConfig()
 
 void SoundListPlaybackView::performDrag()
 {
-    /*QList<TableRecord*> records;
+    QList<QualifiedSoundData> sounds;
     QSet<int> rows;
     foreach(QModelIndex idx, selectionModel()->selectedIndexes()) {
         if(rows.contains(idx.row()))
             continue;
-        SoundData* temp_rec = new SoundData;
-        temp_rec->id = model_->data(model_->index(idx.row(), 0), Qt::UserRole).toInt();
-        temp_rec->path = model_->data(model_->index(idx.row(), 0), Qt::UserRole+1).toString();
-        temp_rec->name = model_->data(model_->index(idx.row(), 1)).toString();
-        records.append(temp_rec);
-        rows.insert(idx.row());
+        sounds.append(
+            QualifiedSoundData(table_model_->getSound(idx.row()),server_name_)
+        );
     }
 
-    if(records.size() == 0)
+    if(sounds.size() == 0)
         return;
 
     selectionModel()->clear();
 
     // create QMimeData
-    QMimeData* mime_data = JsonMimeDataParser::toJsonMimeData(records);
-
-    // delete temporary TableRecords
-    while(records.size() > 0) {
-        delete records[0];
-        records.pop_front();
-    }
+    QMimeData* mime_data = JsonMimeDataParser::toJsonMimeData(sounds);
 
     // create Drag
     QDrag *drag = new QDrag(this);
@@ -296,7 +287,7 @@ void SoundListPlaybackView::performDrag()
     drag->setPixmap(*Resources::Lib::PX_SOUND_FILE_DRAG);
 
     // will block until drag done
-    drag->exec(Qt::CopyAction);*/
+    drag->exec(Qt::CopyAction);
 }
 
 void SoundListPlaybackView::initContextMenu()

@@ -46,6 +46,84 @@ QMimeData *JsonMimeDataParser::toJsonMimeData(const QList<TableRecord *>& record
     return data;
 }
 
+QMimeData *JsonMimeDataParser::toJsonMimeData(const QList<SoundData> &sounds)
+{
+    QMimeData* data = nullptr;
+    if(sounds.size() == 0)
+        return data;
+
+    QJsonArray arr;
+    foreach(auto sound, sounds)
+        arr.append(sound.toJsonObject());
+
+    QJsonObject root;
+    root["sounds"] = arr;
+    QJsonDocument doc(root);
+
+    data = new QMimeData;
+    data->setText(QString(doc.toJson()));
+
+    return data;
+}
+
+const QList<SoundData> JsonMimeDataParser::toSoundList(const QMimeData *mime)
+{
+    QList<SoundData> sounds;
+    if(mime == nullptr || !mime->hasText())
+        return sounds;
+
+    QJsonDocument doc = QJsonDocument::fromJson(mime->text().toUtf8());
+    if(doc.isNull() || doc.isEmpty() || !doc.isObject())
+        return sounds;
+
+    auto obj = doc.object();
+    if(obj.contains("sounds") && obj["sounds"].isArray()) {
+        foreach(auto value, obj["sounds"].toArray())
+            sounds.append(SoundData(value.toObject()));
+    }
+
+    return sounds;
+}
+
+QMimeData *JsonMimeDataParser::toJsonMimeData(const QList<QualifiedSoundData> &sounds)
+{
+    QMimeData* data = nullptr;
+    if(sounds.size() == 0)
+        return data;
+
+    QJsonArray arr;
+    foreach(auto sound, sounds)
+        arr.append(sound.toJsonObject());
+
+    QJsonObject root;
+    root["sounds"] = arr;
+    QJsonDocument doc(root);
+
+    data = new QMimeData;
+    data->setText(QString(doc.toJson()));
+
+    return data;
+}
+
+const QList<QualifiedSoundData> JsonMimeDataParser::toQualifiedSoundList(const QMimeData *mime)
+{
+    QList<QualifiedSoundData> sounds;
+    if(mime == nullptr || !mime->hasText())
+        return sounds;
+
+    QJsonDocument doc = QJsonDocument::fromJson(mime->text().toUtf8());
+    if(doc.isNull() || doc.isEmpty() || !doc.isObject())
+        return sounds;
+
+    auto obj = doc.object();
+    if(obj.contains("sounds") && obj["sounds"].isArray()) {
+        foreach(auto value, obj["sounds"].toArray())
+            sounds.append(QualifiedSoundData(value.toObject()));
+    }
+
+    return sounds;
+}
+
 TableRecord *JsonMimeDataParser::toTableRecord(const QMimeData* mime)
 {
     if(mime == 0 || !mime->hasText())

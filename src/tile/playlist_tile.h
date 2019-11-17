@@ -29,8 +29,7 @@ public:
     virtual void receiveExternalData(const QMimeData* data);
     virtual void receiveWheelEvent(QWheelEvent *event);
 
-    bool addMedia(const SoundFileRecord& r);
-    bool addMedia(int record_id);
+    bool addMedia(const QualifiedSoundData& sound);
 
     void setSoundFileModel(SoundFileTableModel* m);
     SoundFileTableModel* getSoundFileModel();

@@ -26,6 +26,7 @@ include(../api/src/companion-qt-api-client.pri)
 SOURCES += main.cpp \
     api/api_config_model.cpp \
     api/cloud_control_panel.cpp \
+    api/extended_data_types.cpp \
     main_window.cpp \
     _TEST/audio_widget.cpp \
     _TEST/content_browser.cpp \
@@ -39,6 +40,8 @@ SOURCES += main.cpp \
     misc/standard_item_model.cpp \
     misc/char_input_dialog.cpp \
     db/model/resource_dir_table_model.cpp \
+    playlist/playlist.cpp \
+    playlist/playlist_deprecated.cpp \
     resources/importer.cpp \
     resources/lib.cpp \
     resources/path_fixer.cpp \
@@ -108,7 +111,6 @@ SOURCES += main.cpp \
     sound/sound_list_view.cpp \
     sound/sound_list_view_dialog.cpp \
     tile/canvas.cpp \
-    playlist/playlist.cpp \
     playlist/playlist_player.cpp \
     playlist/playlist_settings_widget.cpp \
     json/json_mime_data_parser.cpp
@@ -121,6 +123,7 @@ HEADERS  += main_window.h \
     api/api_config.h \
     api/api_config_model.h \
     api/cloud_control_panel.h \
+    api/extended_data_types.h \
     db/core/sqlite_wrapper.h \
     db/model/category_tree_model.h \
     db/model/sound_file_table_model.h \
@@ -129,6 +132,8 @@ HEADERS  += main_window.h \
     misc/char_input_dialog.h \
     misc/standard_item_model.h \
     db/model/resource_dir_table_model.h \
+    playlist/playlist.h \
+    playlist/playlist_deprecated.h \
     resources/importer.h \
     resources/lib.h \
     resources/path_fixer.h \
@@ -198,7 +203,6 @@ HEADERS  += main_window.h \
     sound/sound_list_view.h \
     sound/sound_list_view_dialog.h \
     tile/canvas.h \
-    playlist/playlist.h \
     playlist/playlist_player.h \
     playlist/playlist_settings.h \
     playlist/playlist_settings_widget.h \

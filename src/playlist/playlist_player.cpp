@@ -6,9 +6,8 @@ PlaylistPlayer::PlaylistPlayer(QObject* parent)
     , current_content_index_(0)
     , delay_flag_(false)
     , delay_(0)
-    , delay_timer_(0)
+    , delay_timer_(new QTimer(this))
 {
-    delay_timer_ = new QTimer(this);
     connect(delay_timer_, SIGNAL(timeout()),
             this, SLOT(onDelayIsOver()));
 }
@@ -56,7 +55,7 @@ void PlaylistPlayer::play()
     }
 }
 
-void PlaylistPlayer::setPlaylist(Playlist *playlist)
+void PlaylistPlayer::setPlaylist(Playlist* playlist)
 {
     connect(playlist, SIGNAL(currentIndexChanged(int)),
             this, SLOT(onCurrentMediaIndexChanged(int)) );
@@ -151,7 +150,6 @@ void PlaylistPlayer::onMediaVolumeChanged(int val)
 
 Playlist *PlaylistPlayer::getPlaylist() const
 {
-
     Playlist* pl = qobject_cast<Playlist*>( playlist() );
     if(pl){
         return pl;
