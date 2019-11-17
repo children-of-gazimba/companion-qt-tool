@@ -22,6 +22,7 @@ CompanionWidget::CompanionWidget(QWidget *parent)
     , progress_bar_(nullptr)
     , actions_()
     , main_menu_(nullptr)
+    , server_selection_(nullptr)
     , sound_file_view_(nullptr)
     , global_player_(nullptr)
     , graphics_view_(nullptr)
@@ -332,6 +333,12 @@ void CompanionWidget::initWidgets()
         global_player_->setSound(rec, server, true);
     });
 
+    server_selection_ = new QComboBox(this);
+    server_selection_->setModel(Resources::Lib::API_CONFIG_MODEL);
+    server_selection_label_ = new QLabel(tr("Server"), this);
+    connect(server_selection_, &QComboBox::currentTextChanged,
+            sound_file_view_, &SoundListPlaybackView::setServerName);
+
     progress_bar_ = new QProgressBar;
     progress_bar_->setMaximum(100);
     progress_bar_->setMinimum(0);
@@ -370,9 +377,14 @@ void CompanionWidget::initLayout()
 
     tab_widget->addTab(sound_container, tr("Sounds"));
 
+    auto server_selection_layout = new QHBoxLayout;
+    server_selection_layout->addWidget(server_selection_label_, -1);
+    server_selection_layout->addWidget(server_selection_, 10);
+
     // left layout
     auto left_box = new QGroupBox(this);
     QVBoxLayout* left_layout = new QVBoxLayout;
+    left_layout->addLayout(server_selection_layout);
     left_layout->addWidget(tab_widget);
     left_box->setLayout(left_layout);
 

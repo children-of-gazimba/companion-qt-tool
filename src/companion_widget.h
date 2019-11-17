@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QProgressBar>
+#include <QComboBox>
 
 #include "resources/importer.h"
 #include "sound/sound_list_playback_view.h"
@@ -67,6 +68,8 @@ private:
     QMenu* main_menu_;
 
     // WIDGETS
+    QComboBox* server_selection_;
+    QLabel* server_selection_label_;
     SoundListPlaybackView* sound_file_view_;
     SoundFilePlayer* global_player_;
 

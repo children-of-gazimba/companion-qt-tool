@@ -7,6 +7,21 @@ Container {
    color: white;
 }
 
+QComboBox {
+    background-color: #373738;
+    color: white;
+}
+
+QComboBox::item {
+    background-color: #373738;
+    color: white;
+}
+
+QComboBox::item:selected {
+    background-color: #4a6a8a;
+    color: white;
+}
+
 QSplitter {
    background-color: #373738;
    color: white;

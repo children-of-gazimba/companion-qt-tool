@@ -177,6 +177,7 @@ void SoundListPlaybackView::onPlayButtonClicked()
 void SoundListPlaybackView::setServerName(const QString &name)
 {
     server_name_ = name;
+    clear();
     applyServerConfig();
 }
 
