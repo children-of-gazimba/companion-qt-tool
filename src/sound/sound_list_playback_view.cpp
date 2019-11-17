@@ -49,7 +49,6 @@ void SoundListPlaybackView::setSounds(const QList<SoundData> &sound_files)
     model_->clear();
     foreach(auto rec, sound_files)
         addSound(rec);
-    //table_model_->setSounds(sound_files);
     setColumnWidth(0, verticalHeader()->defaultSectionSize());
 }
 
