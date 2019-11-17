@@ -8,6 +8,8 @@
 #include <QMessageBox>
 #include <QCoreApplication>
 #include <QInputDialog>
+#include <QVBoxLayout>
+#include <QGroupBox>
 
 #include "db/core/database_api.h"
 #include "resources/lib.h"
@@ -20,23 +22,14 @@ CompanionWidget::CompanionWidget(QWidget *parent)
     , progress_bar_(nullptr)
     , actions_()
     , main_menu_(nullptr)
-    , sound_file_view_deprecated_(nullptr)
     , sound_file_view_(nullptr)
     , global_player_(nullptr)
-    , category_view_(nullptr)
-    , preset_view_(nullptr)
     , graphics_view_(nullptr)
     , sound_file_importer_(nullptr)
-    , center_h_splitter_(nullptr)
-    , left_v_splitter_(nullptr)
-    , left_box_(nullptr)
-    , right_box_(nullptr)
     , socket_host_(nullptr)
-    , image_browser_(nullptr)
     , spotify_authenticator_widget_(nullptr)
     , tuio_control_panel_(nullptr)
     , cloud_control_panel_(nullptr)
-    , left_tabwidget_(nullptr)
     , spotify_menu_(nullptr)
     , db_handler_(nullptr)
 {
@@ -87,19 +80,9 @@ void CompanionWidget::onProgressChanged(int value)
     progress_bar_->setValue(value);
 }
 
-void CompanionWidget::onSelectedCategoryChanged(CategoryRecord *rec)
-{
-    int id = -1;
-    if(rec != 0)
-        id = rec->id;
-
-    sound_file_view_deprecated_->setSoundFiles(db_handler_->getSoundFileRecordsByCategoryId(id));
-}
-
 void CompanionWidget::onDeleteDatabase()
 {
     db_handler_->deleteAll();
-    category_view_->selectRoot();
 }
 
 void CompanionWidget::onSaveProjectAs()
@@ -262,7 +245,7 @@ void CompanionWidget::onLoadLayout()
 
 void CompanionWidget::onStartSpotifyControlWidget()
 {
-    if(spotify_authenticator_widget_ == 0) {
+    if(spotify_authenticator_widget_ == nullptr) {
         spotify_authenticator_widget_ = new SpotifyControlPanel;
     }
     if(spotify_authenticator_widget_->isVisible()) {
@@ -276,7 +259,7 @@ void CompanionWidget::onStartSpotifyControlWidget()
 
 void CompanionWidget::onStartTuioControlPanel()
 {
-    if(tuio_control_panel_ == 0) {
+    if(tuio_control_panel_ == nullptr) {
         tuio_control_panel_ = new TuioControlPanel;
     }
     if(tuio_control_panel_->isVisible()) {
@@ -290,14 +273,14 @@ void CompanionWidget::onStartTuioControlPanel()
 
 void CompanionWidget::onStartSocketServer()
 {
-    if(socket_host_ == 0)
+    if(socket_host_ == nullptr)
         socket_host_ = new SocketHostWidget(graphics_view_);
     socket_host_->show();
 }
 
 void CompanionWidget::onStartCloudControlPanel()
 {
-    if(cloud_control_panel_ == 0) {
+    if(cloud_control_panel_ == nullptr) {
         cloud_control_panel_ = new CloudControlPanel;
     }
     if(cloud_control_panel_->isVisible()) {
@@ -323,7 +306,6 @@ void CompanionWidget::onLayoutAdded(const QString &name)
 void CompanionWidget::clearAll()
 {
     graphics_view_->clear();
-    image_browser_->getCanvas()->clear();
     setProjectPath("");
 }
 
@@ -342,17 +324,9 @@ void CompanionWidget::setProjectPath(const QString &path)
 
 void CompanionWidget::initWidgets()
 {
-    sound_file_view_deprecated_ = new SoundListPlaybackViewDeprecated(
-        db_handler_->getSoundFileTableModel()->getSoundFiles(),
-        this
-    );
-    sound_file_view_ = new SoundListPlaybackView(this);
-
     global_player_ = new SoundFilePlayer(this);
-    connect(sound_file_view_deprecated_, &SoundListPlaybackViewDeprecated::play,
-            this, [=](const SoundFileRecord& rec) {
-        global_player_->setSoundFile(rec, true);
-    });
+
+    sound_file_view_ = new SoundListPlaybackView(this);
     connect(sound_file_view_, &SoundListPlaybackView::play,
             this, [=](const SoundData& rec, const QString& server) {
         global_player_->setSound(rec, server, true);
@@ -373,81 +347,50 @@ void CompanionWidget::initWidgets()
         this
     );
 
-    category_view_ = new CategoryTreeView(this);
-    category_view_->setCategoryTreeModel(db_handler_->getCategoryTreeModel());
-
-    preset_view_ = new PresetView(this);
-    preset_view_->setPresetTableModel(db_handler_->getPresetTableModel());
-
-    left_box_ = new QGroupBox(this);
-    right_box_ = new QGroupBox(this);
-
-    center_h_splitter_ = new QSplitter(Qt::Horizontal);
-    center_h_splitter_->addWidget(left_box_);
-    center_h_splitter_->addWidget(right_box_);
-    center_h_splitter_->setStretchFactor(0, 0);
-    center_h_splitter_->setStretchFactor(1, 10);
-
-    left_tabwidget_ = new QTabWidget(this);
-
-    QWidget* sound_container = new QWidget(this);
-    QVBoxLayout* container_layout = new QVBoxLayout;
-    container_layout->addWidget(sound_file_view_deprecated_, 10);
-    container_layout->addWidget(sound_file_view_, 5);
-    container_layout->addWidget(global_player_, -1);
-    container_layout->setContentsMargins(0,0,0,0);
-    container_layout->setSpacing(0);
-    sound_container->setLayout(container_layout);
-
-    left_v_splitter_ = new QSplitter(Qt::Vertical, left_tabwidget_);
-    left_v_splitter_->addWidget(category_view_);
-    left_v_splitter_->addWidget(sound_container);
-    left_v_splitter_->setStretchFactor(0, 2);
-    left_v_splitter_->setStretchFactor(1, 8);
-
-    image_browser_ = new ImageBrowser(left_tabwidget_);
-    image_browser_->layout()->setMargin(0);
-    image_browser_->setImageDirTableModel(db_handler_->getImageDirTableModel());
-    graphics_view_->setImageDisplay(image_browser_->getDisplayWidget());
-
-    left_tabwidget_->addTab(left_v_splitter_, tr("Sounds"));
-    left_tabwidget_->addTab(image_browser_, tr("Images"));
-    left_tabwidget_->addTab(preset_view_, tr("Presets"));
-
-    connect(sound_file_importer_, SIGNAL(folderImported(QList<Resources::SoundFile> const&)),
-            db_handler_, SLOT(insertSoundFilesAndCategories(QList<Resources::SoundFile> const&)));
-    connect(sound_file_importer_, SIGNAL(folderImported()),
-            category_view_, SLOT(selectRoot()));
-    connect(db_handler_, SIGNAL(progressChanged(int)),
-            this, SLOT(onProgressChanged(int)));
-    connect(category_view_, SIGNAL(categorySelected(CategoryRecord*)),
-            this, SLOT(onSelectedCategoryChanged(CategoryRecord*)));
-    connect(sound_file_view_deprecated_, SIGNAL(deleteSoundFileRequested(int)),
-            db_handler_->getSoundFileTableModel(), SLOT(deleteSoundFile(int)));
-    connect(db_handler_->getSoundFileTableModel(), SIGNAL(aboutToBeDeleted(SoundFileRecord*)),
-            sound_file_view_deprecated_, SLOT(onSoundFileAboutToBeDeleted(SoundFileRecord*)));
-    connect(graphics_view_, SIGNAL(dropAccepted()),
-            sound_file_view_deprecated_, SLOT(onDropSuccessful()));
-    connect(graphics_view_, SIGNAL(layoutAdded(const QString&)),
-            this, SLOT(onLayoutAdded(const QString&)));
+    connect(sound_file_importer_, &Resources::Importer::folderImported,
+            db_handler_, &DatabaseHandler::insertSoundFilesAndCategories);
+    connect(db_handler_, &DatabaseHandler::progressChanged,
+            this, &CompanionWidget::onProgressChanged);
+    connect(graphics_view_, &Tile::Canvas::layoutAdded,
+            this, &CompanionWidget::onLayoutAdded);
 }
 
 void CompanionWidget::initLayout()
 {
-    QHBoxLayout* layout = new QHBoxLayout;
+    auto tab_widget = new QTabWidget(this);
+
+    // Sound tab
+    QWidget* sound_container = new QWidget(this);
+    QVBoxLayout* sound_container_layout = new QVBoxLayout;
+    sound_container_layout->addWidget(sound_file_view_, 5);
+    sound_container_layout->addWidget(global_player_, -1);
+    sound_container_layout->setContentsMargins(0,0,0,0);
+    sound_container_layout->setSpacing(0);
+    sound_container->setLayout(sound_container_layout);
+
+    tab_widget->addTab(sound_container, tr("Sounds"));
 
     // left layout
-    QVBoxLayout* l_layout = new QVBoxLayout;
-    l_layout->addWidget(left_tabwidget_);
-    left_box_->setLayout(l_layout);
+    auto left_box = new QGroupBox(this);
+    QVBoxLayout* left_layout = new QVBoxLayout;
+    left_layout->addWidget(tab_widget);
+    left_box->setLayout(left_layout);
 
     // right layout
-    QVBoxLayout* r_layout = new QVBoxLayout;
-    r_layout->addWidget(graphics_view_);
-    right_box_->setLayout(r_layout);
+    auto right_box = new QGroupBox(this);
+    QVBoxLayout* right_layout = new QVBoxLayout;
+    right_layout->addWidget(graphics_view_);
+    right_box->setLayout(right_layout);
 
-    layout->addWidget(center_h_splitter_);
+    auto center_splitter = new QSplitter(Qt::Horizontal);
+    center_splitter->addWidget(left_box);
+    center_splitter->addWidget(right_box);
+    center_splitter->setStretchFactor(0, 0);
+    center_splitter->setStretchFactor(1, 10);
 
+    // root layout
+    QHBoxLayout* layout = new QHBoxLayout;
+    layout->addWidget(center_splitter);
     setLayout(layout);
 }
 
@@ -507,32 +450,32 @@ void CompanionWidget::initActions()
     actions_["Cloud Control Panel..."] = new QAction(tr("Cloud Control Panel..."), this);
     actions_["Cloud Control Panel..."]->setToolTip(tr("Shows the Cloud control panel."));
 
-    connect(actions_["Import Resource Folder..."] , SIGNAL(triggered(bool)),
-            sound_file_importer_, SLOT(startBrowseFolder(bool)));
-    connect(actions_["Delete Database Contents..."], SIGNAL(triggered()),
-            this, SLOT(onDeleteDatabase()));
-    connect(actions_["Close Project"], SIGNAL(triggered()),
-            this, SLOT(onCloseProject()));
-    connect(actions_["Save Project As..."], SIGNAL(triggered()),
-            this, SLOT(onSaveProjectAs()));
-    connect(actions_["Save Project"], SIGNAL(triggered()),
-            this, SLOT(onSaveProject()));
-    connect(actions_["Open Project..."], SIGNAL(triggered()),
-            this, SLOT(onOpenProject()));
-    connect(actions_["Load Layout..."], SIGNAL(triggered()),
-            this, SLOT(onLoadLayout()));
-    connect(actions_["Save View as Layout..."], SIGNAL(triggered()),
-            this, SLOT(onSaveViewAsLayout()));
-    connect(actions_["Connect to Spotify"], SIGNAL(triggered()),
-            this, SLOT(onStartSpotifyControlWidget()));
-    connect(actions_["Spotify Control Panel..."], SIGNAL(triggered()),
-            this, SLOT(onStartSpotifyControlWidget()));
-    connect(actions_["Run Socket Host..."], SIGNAL(triggered()),
-            this, SLOT(onStartSocketServer()));
-    connect(actions_["Tuio Control Panel..."], SIGNAL(triggered()),
-            this, SLOT(onStartTuioControlPanel()));
-    connect(actions_["Cloud Control Panel..."], SIGNAL(triggered()),
-            this, SLOT(onStartCloudControlPanel()));
+    connect(actions_["Import Resource Folder..."] , &QAction::triggered,
+            sound_file_importer_, &Resources::Importer::startBrowseFolder);
+    connect(actions_["Delete Database Contents..."], &QAction::triggered,
+            this, &CompanionWidget::onDeleteDatabase);
+    connect(actions_["Close Project"], &QAction::triggered,
+            this, &CompanionWidget::onCloseProject);
+    connect(actions_["Save Project As..."], &QAction::triggered,
+            this, &CompanionWidget::onSaveProjectAs);
+    connect(actions_["Save Project"], &QAction::triggered,
+            this, &CompanionWidget::onSaveProject);
+    connect(actions_["Open Project..."], &QAction::triggered,
+            this, &CompanionWidget::onOpenProject);
+    connect(actions_["Load Layout..."], &QAction::triggered,
+            this, &CompanionWidget::onLoadLayout);
+    connect(actions_["Save View as Layout..."], &QAction::triggered,
+            this, &CompanionWidget::onSaveViewAsLayout);
+    connect(actions_["Connect to Spotify"], &QAction::triggered,
+            this, &CompanionWidget::onStartSpotifyControlWidget);
+    connect(actions_["Spotify Control Panel..."], &QAction::triggered,
+            this, &CompanionWidget::onStartSpotifyControlWidget);
+    connect(actions_["Run Socket Host..."], &QAction::triggered,
+            this, &CompanionWidget::onStartSocketServer);
+    connect(actions_["Tuio Control Panel..."], &QAction::triggered,
+            this, &CompanionWidget::onStartTuioControlPanel);
+    connect(actions_["Cloud Control Panel..."], &QAction::triggered,
+            this, &CompanionWidget::onStartCloudControlPanel);
 }
 
 void CompanionWidget::initMenu()

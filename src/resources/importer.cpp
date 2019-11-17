@@ -25,7 +25,7 @@ void Importer::parseFolder(const QUrl &url, const ResourceDirRecord& resource_di
             files.append(Resources::SoundFile(QFileInfo(it.next()), resource_dir));
     }
     emit folderImported(files);
-    emit folderImported();
+    //emit folderImported();
 }
 
 void Importer::startBrowseFolder(bool)
